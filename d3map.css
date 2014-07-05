@@ -1,0 +1,83 @@
+circle {
+    fill: black;
+    stroke: red;
+}
+
+circle.pinkcircle {
+    fill: pink;
+    stroke: black;
+    stroke-width: 1;
+    opacity: 1
+}
+
+circle.greencircle {
+    fill: green;
+    stroke: red;
+    opacity: 1;
+    stroke-width: 3;
+}
+#d3MapZoomBox {
+    position: absolute;
+    z-index: 10;
+    height: 50px;
+    width: 25px;
+    top: 10px;
+    right: 10px;
+    overflow: hidden;
+}
+
+#d3MapZoomBox > button {
+  font-size:22px;
+  font-weight:900;
+  border: none;
+  height:25px;
+  width:25px;
+  background: rgba(35,31,32,.85);
+  color: white;
+  padding: 0;
+  cursor: pointer;
+}
+
+#d3MapZoomBox > button:hover {
+  background: black;
+}
+
+#d3MapLayerBox {
+    position: absolute;
+    z-index: 10;
+    height: 100px;
+    width: 100px;
+    top: 10px;
+    left: 10px;
+    overflow: auto;
+    color: white;
+    background: rgba(35,31,32,.85);
+}
+
+#d3MapLayerBox > div {
+    margin: 5px;
+    border: none;
+}
+
+#d3MapLayerBox ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+}
+#d3MapLayerBox li {
+    list-style: none;
+    padding: 0;
+}
+
+#d3MapLayerBox li:hover {
+    font-weight:700;
+}
+
+#d3MapLayerBox li input {
+    cursor: pointer;
+}
+
+#d3MapSVG {
+
+}
