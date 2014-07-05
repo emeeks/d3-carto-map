@@ -11,7 +11,7 @@ var **newMap** = d3.carto.**map()**;
 selection.**call**(newMap);
 Create a map and call it by the div where you want it, it will automatically size to fit the div. It will also resize when the window resizes, to deal with dynamically sized divs.
 
-map.**addTileLayer**(externalID, layerName, tileType*, disabled*)
+map.**addTileLayer**(externalID, layerName, tileType*,* *disabled*)
 Add a new raster layer to the map. Currently only supports MapBox ("mapbox" as tileType) rasters. Adds a corresponding layer checkbox to the layer control to show/hide that layer.
 
 map.**addCSVLayer**(filename,layerName,cssClass,renderType,xCoordinateName,yCoordinateName)
