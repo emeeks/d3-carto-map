@@ -1,21 +1,4 @@
-circle {
-    fill: black;
-    stroke: red;
-}
 
-circle.pinkcircle {
-    fill: pink;
-    stroke: black;
-    stroke-width: 1;
-    opacity: 1
-}
-
-circle.greencircle {
-    fill: green;
-    stroke: red;
-    opacity: 1;
-    stroke-width: 3;
-}
 #d3MapZoomBox {
     position: absolute;
     z-index: 10;
@@ -46,7 +29,7 @@ circle.greencircle {
     position: absolute;
     z-index: 10;
     height: 100px;
-    width: 100px;
+    width: 120px;
     top: 10px;
     left: 10px;
     overflow: auto;
