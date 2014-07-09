@@ -48,15 +48,20 @@
     d3.select("#map1").style("border","2px red solid").call(newMap1);
     d3.select("#map2").call(newMap2);
     d3.select("#map3").call(newMap3);
+    newMap1.addTileLayer("examples.map-zgrqqx0w", "Base", "mapbox", false);
+    newMap2.addTileLayer("examples.map-zgrqqx0w", "Base", "mapbox", false);
+    newMap3.addTileLayer("examples.map-zgrqqx0w", "Base", "mapbox", false);
     newMap3.addTileLayer("elijahmeeks.map-ktkeam22", "historic", "mapbox", true);
-    newMap3.addTileLayer("examples.map-h67hf2ic", "mapbox", "mapbox", true);
+    newMap3.addTileLayer("examples.map-h67hf2ic", "streets", "mapbox", true);
     newMap1.centerOn([-0.1275,51.507],"latlong",7500);
-    newMap1.addTopoJSONLayer("../sampledata/world.topojson","world","countries","svg","countries");
+    map1Countries = newMap1.addTopoJSONLayer("../sampledata/world.topojson","world","countries","svg","countries");
     newMap1.addTopoJSONLayer("../sampledata/sample_routes.topojson","toporoutes","roads","svg","all");
-    newMap1.addCSVLayer("../sampledata/sample_points.csv","CSVSVG","pinkcircle",4,"svg","x","y");
-    newMap2.addGeoJSONLayer("../sampledata/world.geojson","world","countries","svg","countries");
+    map1Points = newMap1.addCSVLayer("../sampledata/sample_points.csv","CSVSVG","pinkcircle",4,"svg","x","y");
+    console.log(map1Points)
+    map2Countries = newMap2.addGeoJSONLayer("../sampledata/world.geojson","world","countries","svg","countries");
     newMap2.addCSVLayer("../sampledata/sample_points.csv","CSVCanvas","greencircle",4,"canvas","x","y");
     newMap2.addTopoJSONLayer("../sampledata/sample_routes.topojson","toporoutes","rivers","canvas","all");
+    newMap3.centerOn([12,42],"latlong",0)
     newMap3.addTopoJSONLayer("../sampledata/world.topojson","world","countries","canvas","countries");
     newMap3.addTopoJSONLayer("../sampledata/sample_routes.topojson","toporoutes","rivers","canvas","all");
     newMap3.addCSVLayer("../sampledata/sample_points.csv","CSVMixed","greencircle",4,"mixed","x","y");
@@ -71,8 +76,12 @@
     var mexBoundsScaled = ([[-0.32535488888888886,-0.09627711950487493],[-0.24114439444444447,-0.04082614625214213]])
     newMap2.zoomTo(mexBoundsScaled,"scaled",.95,10000);
 
-//    var mexBoundsLatLong = ([[-117.12776,14.538829],[-86.811982,32.72083]])
-//    newMap3.zoomTo(mexBoundsLatLong,"latlong",.75,10000);
+    var mexBoundsLatLong = ([[-117.12776,14.538829],[-86.811982,32.72083]])
+    d3.select("#map3").append("button").html("Mexico")
+    .style("position", "relative").style("top", "105%")
+    .on("click", function () {
+      newMap3.zoomTo(mexBoundsLatLong,"latlong",.75,10000);
+    })
   }
 </script>
 <body onload="makeSomeMaps()">

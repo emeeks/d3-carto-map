@@ -1,3 +1,10 @@
+.invisible {
+    fill: rgba(0,0,0,0);
+    stroke-width: 0;
+    stroke: black;
+    cursor: pointer;
+}
+
 .countries {
     fill: none;
     stroke-width: 1px;

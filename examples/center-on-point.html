@@ -1,0 +1,60 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>d3.carto.map - Center on Point</title>
+  <meta charset="utf-8" />
+    <link type="text/css" rel="stylesheet" href="../d3map.css" />
+    <link type="text/css" rel="stylesheet" href="example.css" />
+</head>
+<script src="../resources/d3.v3.min.js" type="text/javascript">
+</script>
+<script src="../resources/topojson.js" type="text/javascript">
+</script>
+<script src="../resources/d3.geo.projection.min.js" type="text/javascript">
+</script>
+<script src="../resources/tile.js" type="text/javascript">
+</script>
+<script src="../resources/colorbrewer.js" type="text/javascript">
+</script>
+<script src="../d3.carto.map.js" type="text/javascript">
+</script>
+<style>
+  html,body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+  }
+
+  #map {
+    height: 90%;
+    width: 90%;
+  }
+  
+  .bluesquare {
+    fill: steelblue;
+    stroke: gray;
+    stroke-width: 1px;
+  }
+
+  button {
+    position: fixed;
+    z-index: 1;
+    bottom: 50px;
+  }
+</style>
+<script>
+  function makeSomeMaps() {
+    map = d3.carto.map();
+
+    d3.select("#map").call(map);
+
+    map.addTileLayer("examples.map-zgrqqx0w", "Base", "mapbox", false);
+    map.centerOn([-0.1275,51.507],"latlong",5000);
+    map.addTopoJSONLayer("../sampledata/sample_routes.topojson","TopoJSON","roads","svg","all");
+    map.addCSVLayer("../sampledata/sample_points.csv","CSV Points","pinkcircle",2,"svg","x","y");
+
+  }
+</script>
+<body onload="makeSomeMaps()">
+<div id="map"></div>
+</body>
+</html>

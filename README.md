@@ -23,7 +23,9 @@ Add a new point layer from a CSV file to the map. Adds a corresponding layer che
 
 Polygon and Polyline
 These need to handle point features loaded in featureCollection format. They should also compute neighbors and presimplify for topojson and do preprocessing that would improve geojson performance down the line.
+
 None of these implement mixed rendering yet.
+
 Each adds a corresponding layer checkbox to the layer control to show/hide that layer (not implemented). You can use specificObject to specify the object you want or create a feature layer for each object in the topojson file ("all").
 
 map.**addTopoJSONLayer**(filename,layerName,cssClass,renderType,specificObject)
@@ -43,18 +45,25 @@ Rendering options are:
 map.**centerOn**([x,y],coordinateType,*,transitionDuration*)
 Immediately (or transitioned over the number of milleseconds in the optional 'transitionDuration') center the map on the coordinate array passed to it. This does not change the zoom level.
 
-map.**zoomTo**([x,y]*,transitionDuration*)
-Immediately (or transitioned over the number of milleseconds in the optional 'transitionDuration') center the map on the coordinate array passed to it. This does not change the zoom level.
+map.**zoomTo**(boundingBox,coordinateType,fitPercent,*,transitionDuration*)
+Immediately (or transitioned over the number of milleseconds in the optional 'transitionDuration') fit the map window to the bounding box specified in boundingBox, scaled to the fitPercent, with 1 equal to fitting the bounding box to the screen and less than 1 providing a margin and greater than 1 zooming in.
 
 Coordinate types are:
 * "**latlong**" - Coordinates are in latitude and longitude (as they would be from d3.geo.bounds).
 * "**scaled**" - Coordinates are in projected and scaled XY (as they would be from d3.geo.path().bounds).
+
+map.**setScale**(newScale)
+Uses a non-standard scale from 1 to 10 to determine zoom level with 1 being very zoomed out and 10 being very zoomed in. Will very likely be superseded by a standardized scale.
+
+map.**refresh**()
+Updates the map parameters to reflect a new container size and redraws all elements.
 
 map.**projection**(*newProjection*)
 Set or return the current projection object.
 
 map.**zoom**(*newZoom*)
 Set or return the current zoom object.
+
 
 
 Existing Issues:
