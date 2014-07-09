@@ -1,9 +1,11 @@
 d3-carto-map
 ======
 
+0.1
+
 The purpose of d3.carto is not to obscure D3 but rather the opposite: to make it trivial to make a map with the usual web map functionality so that a developer can focus on integrating into that map the information visualization and data processing that D3 is so well-suited for.
 
-If you want to update the color or icons or other visual elements, the expectation is that you'll do that via selections of existing elements like you would with a hand-crafted D3 map.
+If you want to update the color or icons or other visual elements, the expectation is that you'll do that via selections of existing elements like you would with a hand-crafted D3 map. This is still rather ill-formed, you can see **[an example here of adding new markers](http://emeeks.github.io/cartomap/change-markers.html)**, but it requires that you use a dummy datum object that d3.carto.map will automatically append with drawing data for the scaled map.
 
 Take a look at example.html to see how simple it is.
 
@@ -42,11 +44,17 @@ Rendering options are:
 * "**canvas**" - Points will be drawn with HTML5 Canvas as circles. These circles will be styled according to the circle.cssClass style as declared in your CSS. Canvas markers will not be clickable.
 * "**mixed**" - Points will be drawn with HTML5 Canvas during panning and zooming and SVG elements when fixed. This provides the speed of canvas during dynamic moments with the interactivity of SVG during static moments.
 
+**[Multiple Layers Example](http://emeeks.github.io/cartomap/many-layers.html)**
+
 map.**centerOn**([x,y],coordinateType,*,transitionDuration*)
 Immediately (or transitioned over the number of milleseconds in the optional 'transitionDuration') center the map on the coordinate array passed to it. This does not change the zoom level.
 
+**[Center On Example](http://emeeks.github.io/cartomap/center-on-point.html)**
+
 map.**zoomTo**(boundingBox,coordinateType,fitPercent,*,transitionDuration*)
 Immediately (or transitioned over the number of milleseconds in the optional 'transitionDuration') fit the map window to the bounding box specified in boundingBox, scaled to the fitPercent, with 1 equal to fitting the bounding box to the screen and less than 1 providing a margin and greater than 1 zooming in.
+
+**[Zoom to Example](http://emeeks.github.io/cartomap/zoom-to-bbox.html)**
 
 Coordinate types are:
 * "**latlong**" - Coordinates are in latitude and longitude (as they would be from d3.geo.bounds).
@@ -56,7 +64,9 @@ map.**setScale**(newScale)
 Uses a non-standard scale from 1 to 10 to determine zoom level with 1 being very zoomed out and 10 being very zoomed in. Will very likely be superseded by a standardized scale.
 
 map.**refresh**()
-Updates the map parameters to reflect a new container size and redraws all elements.
+Updates the map parameters to reflect a new container size and redraws all elements. Also scales newly added elements.
+
+**[New Marker Using Refresh](http://emeeks.github.io/cartomap/change-markers.html)**
 
 map.**projection**(*newProjection*)
 Set or return the current projection object.
@@ -64,7 +74,6 @@ Set or return the current projection object.
 map.**zoom**(*newZoom*)
 Set or return the current zoom object.
 
-
-
 Existing Issues:
 Graphical artifacts when the scale gets so high that stroke divided by scale returns scientific notation for the value.
+

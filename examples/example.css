@@ -49,3 +49,14 @@ circle.greencircle {
     opacity: 1;
     stroke-width: 3;
 }
+
+  #infoBox {
+    position: fixed;
+    z-index: 1;
+    bottom: 150px;
+    right: 150px;
+    background: white;
+    border: 1px gray dashed;
+    padding:20px;
+    width: 200px;
+  }

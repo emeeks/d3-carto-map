@@ -38,10 +38,11 @@
   button {
     position: fixed;
     z-index: 1;
-    bottom: 50px;
-    left: 50px;
+    bottom: 150px;
+    left: 150px;
   }
-</style>
+  
+  </style>
 <script>
   function makeSomeMaps() {
     map = d3.carto.map();
@@ -65,5 +66,6 @@
 </script>
 <body onload="makeSomeMaps()">
 <div id="map"></div>
+<div id="infoBox">Click on the "Change Markers" button to update the marker styling.</div>
 </body>
 </html>
