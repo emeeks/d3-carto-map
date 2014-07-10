@@ -54,11 +54,10 @@
     newMap3.addTileLayer("elijahmeeks.map-ktkeam22", "historic", "mapbox", true);
     newMap3.addTileLayer("examples.map-h67hf2ic", "streets", "mapbox", true);
     newMap1.centerOn([-0.1275,51.507],"latlong",7500);
-    map1Countries = newMap1.addTopoJSONLayer("../sampledata/world.topojson","world","countries","svg","countries");
+    newMap1.addTopoJSONLayer("../sampledata/world.topojson","world","countries","svg","countries");
     newMap1.addTopoJSONLayer("../sampledata/sample_routes.topojson","toporoutes","roads","svg","all");
-    map1Points = newMap1.addCSVLayer("../sampledata/sample_points.csv","CSVSVG","pinkcircle",4,"svg","x","y");
-    console.log(map1Points)
-    map2Countries = newMap2.addGeoJSONLayer("../sampledata/world.geojson","world","countries","svg","countries");
+    newMap1.addCSVLayer("../sampledata/sample_points.csv","CSVSVG","pinkcircle",4,"svg","x","y");
+    newMap2.addGeoJSONLayer("../sampledata/world.geojson","world","countries","svg","countries");
     newMap2.addCSVLayer("../sampledata/sample_points.csv","CSVCanvas","greencircle",4,"canvas","x","y");
     newMap2.addTopoJSONLayer("../sampledata/sample_routes.topojson","toporoutes","rivers","canvas","all");
     newMap3.centerOn([12,42],"latlong",0)

@@ -11,6 +11,16 @@ d3.carto.map = function() {
     var mapCenter = [12,42];
     var mapHeight = 10;
     var mapWidth = 10;
+    
+    var setProjection = d3.geo.mollweide()
+    .scale(450)
+    .translate([600,600]);
+    
+    var d3MapZoomed;
+    var d3MapZoomInitialize;
+    var d3MapZoomComplete;
+    
+    var d3MapMode = "transform";
 
     var d3MapCanvasG;
     var d3MapCanvasImage;
@@ -35,34 +45,16 @@ d3.carto.map = function() {
     var d3MapTile = d3.geo.tile()
     .size([10, 10]);
 
-    var d3MapProjection = d3.geo.mercator()
-    .scale((1 << 13) / 2 / Math.PI)
-    .scale(4096)
-    .translate([5, 5]);
+    var d3MapProjection;
 
-    var d3MapPath = d3.geo.path()
-        .projection(d3MapProjection);
+    var d3MapPath = d3.geo.path();
+    
+    var d3MapZoom = d3.behavior.zoom();
 
-    var c = d3MapProjection([12, 42]);
-    
-    var d3MapZoom = d3.behavior.zoom()
-    .scale(d3MapProjection.scale() * 2 * Math.PI)
-    .scaleExtent([700, 15052461])
-    .translate([mapWidth - c[0], mapHeight - c[1]])
-//    .translate([0, 0])
-    .on("zoom", d3MapZoomed)
-    .on("zoomstart", d3MapZoomInitialize)
-    .on("zoomend", d3MapZoomComplete)
-    ;
-    
-    d3MapProjection
-    .scale(1 / 2 / Math.PI)
-    .translate([0, 0]);
-    
     function map(selectedDiv) {
 
     mapDiv = selectedDiv;
-
+    
     //Multiple SVGs because we draw the tiles underneath and sandwich a canvas layer between the tiles and the interactive SVG layer
     tileSVG = selectedDiv.append("svg").attr("id", "d3TileSVG").style("height", "100%").style("width", "100%").style("position", "absolute").style("z-index", -1);
     canvasCanvas = selectedDiv.append("canvas").attr("id", "d3MapCanvas").style("height", "100%").style("width", "100%").style("pointer-events", "none")
@@ -80,6 +72,8 @@ d3.carto.map = function() {
     
     zoomBox.selectAll("button").data(["in", "out"]).enter().append("button")
     .on("click", manualZoom).html(function(d) {return d=="in" ? "+" : "-"})
+    
+    map.mode("transform");
     
     updateLayers();
 
@@ -143,12 +137,10 @@ d3.carto.map = function() {
 	    }
 	    renderTiles();
             mapDiv.select("g#" + d.id).style("opacity", 0).transition().duration(1000).style("opacity", 1);
-//            mapDiv.select("g#" + d.id).style("opacity", 1);
             d3.select(n).select("input").property("checked", true);
         }
         else {
             mapDiv.select("g#" + d.id).transition().duration(1000).style("opacity", 0);
-//            mapDiv.select("g#" + d.id).style("opacity", 0);
             d3.select(n).select("input").property("checked", false);
             d.visible = false;
             d.active = false;
@@ -166,7 +158,7 @@ d3.carto.map = function() {
     }
 
     function rebuildAttributes() {
-	    for (x in d3MapSVGFeatureG) {
+	    for (x in d3MapSVGPointsG) {
             d3MapSVGPointsG[x].selectAll("circle,rect,path,polygon,ellipse")
 	    .each(function(d) {
 		if (!d._d3Map) {
@@ -191,8 +183,63 @@ d3.carto.map = function() {
     }
     
     // MAP ZOOMING
-    function d3MapZoomed() {
     
+    //Projection Zoom
+    function d3MapZoomedProjection() {
+	
+	d3MapProjection.scale(d3MapZoom.scale()).translate(d3MapZoom.translate());
+	      ///POINTS
+      for (x in d3MapSVGPointsG) {
+        if (d3MapSVGPointsLayer[x].renderFrequency == "drawAlways" && d3MapSVGPointsLayer[x].active) {
+            renderSVGPointsProjected(x);
+        }
+    }
+    
+        // FEATURES
+        for (x in d3MapSVGFeatureG) {
+            if (d3MapSVGFeatureLayer[x].renderFrequency == "drawAlways"  && d3MapSVGFeatureLayer[x].active) {
+            renderSVGFeaturesProjected(x);
+            }
+        }
+
+    }
+
+    function d3MapZoomInitializeProjection() {
+	for (x in d3MapSVGPointsG) {
+	    if (d3MapSVGPointsLayer[x].renderFrequency == "drawEnd" || !d3MapSVGPointsLayer[x].active) {
+	        renderSVGPointsProjected[x].style("display", "none");
+	    }
+        }
+        
+        for (x in d3MapSVGFeatureG) {
+            if (d3MapSVGFeatureLayer[x].renderFrequency == "drawEnd" || !d3MapSVGFeatureLayer[x].active) {
+            renderSVGFeaturesProjected[x].style("display", "none");
+            }
+        }
+    
+    }
+
+    function d3MapZoomCompleteProjection() {
+        
+        for (x in d3MapSVGPointsG) {
+            if ((d3MapSVGPointsLayer[x].renderFrequency == "drawEnd" || d3MapSVGPointsLayer[x].renderFrequency == "drawAlways")  && d3MapSVGPointsLayer[x].active) {
+            d3MapSVGPointsG[x].style("display", "block");
+            renderSVGPointsProjected(x);
+            }
+        }
+
+        for (x in d3MapSVGFeatureG) {
+            if ((d3MapSVGFeatureLayer[x].renderFrequency == "drawEnd" || d3MapSVGFeatureLayer[x].renderFrequency == "drawAlways")  && d3MapSVGFeatureLayer[x].active) {
+            d3MapSVGFeatureG[x].style("display", "block");
+            renderSVGFeaturesProjected(x);
+            }
+        }
+	
+    }
+
+    //Transform Zoom
+    function d3MapZoomedTransform() {
+
     renderTiles();
       
       ///POINTS
@@ -213,7 +260,7 @@ d3.carto.map = function() {
 
     }
 
-    function d3MapZoomInitialize() {
+    function d3MapZoomInitializeTransform() {
         //TO DO: Split out the rendering into separate functions and call those with renderVector("always") or renderVector("once") and the like
         for (x in d3MapSVGPointsG) {
         if (d3MapSVGPointsLayer[x].renderFrequency == "drawEnd" || !d3MapSVGPointsLayer[x].active) {
@@ -232,7 +279,7 @@ d3.carto.map = function() {
     }
     
     
-    function d3MapZoomComplete() {
+    function d3MapZoomCompleteTransform() {
 
     renderTiles();
     renderCanvas("zoomcomplete")
@@ -368,6 +415,37 @@ d3.carto.map = function() {
       }
       }
     }
+    
+    //PROJECTED RENDERING
+    
+        function renderSVGPointsProjected(i) {
+        d3MapSVGPointsG[i]
+            .attr("transform", "translate(0,0)scale(1)");
+	    
+	d3MapSVGPointsG[i].selectAll("g.pointG").attr("transform", function(d) {return "translate(" + d3MapProjection([d.x,d.y])+")"})
+
+	d3MapSVGPointsG[i].selectAll("circle,path,rect,ellipse,polygon")
+	    .style("stroke-width", function(d) {return d._d3Map ? d._d3Map.strokeWidth: 0});
+
+        d3MapSVGPointsG[i].selectAll("circle")
+            .attr("r", function(d) {return d._d3Map ? d._d3Map.size : 0});
+            
+        d3MapSVGPointsG[i].selectAll("rect,ellipse")
+	    .attr("x", function(d) {return d._d3Map.x})
+            .attr("y", function(d) {return d._d3Map.y})
+            .attr("height", function(d) {return d._d3Map.height})
+            .attr("width", function(d) {return d._d3Map.width});
+    }
+    
+        function renderSVGFeaturesProjected(i) {
+        d3MapSVGFeatureG[i]
+            .attr("transform", "translate(0,0) scale(1)");
+
+        d3MapSVGFeatureG[i].selectAll("path")
+            .style("stroke-width", function(d) {return d._d3Map.strokeWidth})
+	    .attr("d", d3MapPath)
+    }
+    
 function manualZoom(zoomDirection) {
 
 
@@ -662,7 +740,11 @@ function manualZoom(zoomDirection) {
 
     map.projection = function (newProjection) {
         if (!arguments.length) return d3MapProjection;
+	var newScale = newProjection.scale();
+	var newTranslate = newProjection.translate();	
         d3MapProjection = newProjection;
+	d3MapZoom.scale(newScale).translate(newTranslate);
+	d3MapPath.projection(d3MapProjection);
         return this;
     }
     
@@ -690,7 +772,68 @@ function manualZoom(zoomDirection) {
         mapSVG.call(d3MapZoom.translate([newX,newY]).scale(newZoom).event);
 
     }
+    
+    map.mode = function(newMode) {
+	if (!arguments.length) return d3MapMode;
+	if (newMode == "projection") {
+	    d3MapProjection = setProjection;
+	    
+	    d3MapPath
+		.projection(d3MapProjection);
+		
+	    d3MapZoom
+		.scale(d3MapProjection.scale())
+		.scaleExtent([1, 15052461])
+		.translate(d3MapProjection.translate());
+		
+	    d3MapZoomed = d3MapZoomedProjection;
+	    d3MapZoomInitialize = d3MapZoomInitializeProjection;
+	    d3MapZoomComplete = d3MapZoomCompleteProjection;
+	    //Adjust g and so on
+	    mapSVG.selectAll("g.features,g.points").attr("transform", "translate(0,0) scale(1)")
+	    
+	    tileSVG.style("display", "none");
+	    //rescale stroke-width and size
+	}
+	else if (newMode == "transform") {
+	    d3MapZoomed = d3MapZoomedTransform;
+	    d3MapZoomInitialize = d3MapZoomInitializeTransform;
+	    d3MapZoomComplete = d3MapZoomCompleteTransform;
+	    
+	    d3MapProjection = d3.geo.mercator()
+		.scale((1 << 13) / 2 / Math.PI)
+		.scale(4096)
+		.translate([5, 5]);
 
+	    d3MapPath
+		.projection(d3MapProjection);
+
+	    var c = d3MapProjection(mapCenter);
+    
+	    d3MapZoom
+		.scale(d3MapProjection.scale() * 2 * Math.PI)
+		.scaleExtent([700, 15052461])
+		.translate([mapWidth - c[0], mapHeight - c[1]]);
+    
+	    d3MapProjection
+		.scale(1 / 2 / Math.PI)
+		.translate([0, 0]);
+		
+	    tileSVG.style("display", "block");
+	}
+	else {
+	    return false;
+	}
+	d3MapZoom
+	    .on("zoom", d3MapZoomed)
+	    .on("zoomstart", d3MapZoomInitialize)
+	    .on("zoomend", d3MapZoomComplete)
+	    
+	d3MapMode = newMode;
+	map.refresh();
+	return this;
+
+    }
 
     return map;
 }

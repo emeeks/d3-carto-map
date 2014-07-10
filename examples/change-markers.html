@@ -27,6 +27,12 @@
   #map {
     height: 90%;
     width: 90%;
+    top: 10%;
+    position: absolute;
+  }
+  
+  #title {
+    padding: 20px;
   }
   
   .bluesquare {
@@ -35,7 +41,7 @@
     stroke-width: 1px;
   }
 
-  button {
+  button.marker {
     position: fixed;
     z-index: 1;
     bottom: 150px;
@@ -54,7 +60,7 @@
     map.addTopoJSONLayer("../sampledata/sample_routes.topojson","TopoJSON","roads","svg","all");
     map.addCSVLayer("../sampledata/sample_points.csv","CSV Points","pinkcircle",2,"svg","x","y");
     
-    d3.select("#map").append("button").html("Change Markers").on("click", changeMarkers);
+    d3.select("#map").append("button").attr("class", "marker").html("Change Markers").on("click", changeMarkers);
     
     function changeMarkers() {
       d3.selectAll("g.pinkcircle").datum({e: 0}).append("rect").attr("class", "bluesquare").attr("height", 5).attr("width",5).attr("x",-2.5).attr("y",-2.5)
@@ -65,6 +71,7 @@
   }
 </script>
 <body onload="makeSomeMaps()">
+<div id="title">An example of changing markers by using d3 selections and <span style="font-weight:900">map.refresh</span> with <a href="https://github.com/emeeks/d3-carto-map">d3.carto.map</a>.</div>
 <div id="map"></div>
 <div id="infoBox">Click on the "Change Markers" button to update the marker styling.</div>
 </body>

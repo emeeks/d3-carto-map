@@ -27,6 +27,12 @@
   #map {
     height: 90%;
     width: 90%;
+    top: 10%;
+    position: absolute;
+  }
+  
+  #title {
+    padding: 20px;
   }
   
   .bluesquare {
@@ -35,11 +41,6 @@
     stroke-width: 1px;
   }
 
-  button {
-    position: fixed;
-    z-index: 1;
-    bottom: 50px;
-  }
 </style>
 <script>
   function makeSomeMaps() {
@@ -55,6 +56,7 @@
   }
 </script>
 <body onload="makeSomeMaps()">
+<div id="title">An example of centering on a point using <span style="font-weight:900">centerOn</span> with <a href="https://github.com/emeeks/d3-carto-map">d3.carto.map</a>.</div>
 <div id="map"></div>
 <div id="infoBox">The map automatically centers on a latlong point (London) with a five second transition.</div>
 </body>

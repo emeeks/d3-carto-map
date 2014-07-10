@@ -27,6 +27,12 @@
   #map {
     height: 90%;
     width: 90%;
+    top: 10%;
+    position: absolute;
+  }
+  
+  #title {
+    padding: 20px;
   }
 
 </style>
@@ -45,6 +51,7 @@
   }
 </script>
 <body onload="makeSomeMaps()">
+<div id="title">An example of displaying multiple layers from <a href="https://github.com/emeeks/d3-carto-map">d3.carto.map</a>.</div>
 <div id="map"></div>
 <div id="infoBox">Click the layer checkboxes to show and hide layers.</div>
 </body>

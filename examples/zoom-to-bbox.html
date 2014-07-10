@@ -21,11 +21,18 @@
   html,body {
     height: 100%;
     width: 100%;
+    margin: 0;
   }
 
   #zoommap {
     height: 90%;
     width: 90%;
+    top: 10%;
+    position: absolute;
+  }
+  
+  #title {
+    padding: 20px;
   }
 
 </style>
@@ -53,6 +60,7 @@
   }
 </script>
 <body onload="makeSomeMaps()">
+<div id="title">An example of zooming to bounding box using <span style="font-weight:900">zoomTo</span> with <a href="https://github.com/emeeks/d3-carto-map">d3.carto.map</a>.</div>
 <div id="zoommap"></div>
 <div id="infoBox">Click on a country to zoom to that country. This is achieved by overlaying a fully transparent set of countries loaded as geoJSON that use map.zoomTo when clicked.</div>
 </body>

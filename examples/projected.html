@@ -1,0 +1,86 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>d3.carto.map - Center on Point</title>
+  <meta charset="utf-8" />
+    <link type="text/css" rel="stylesheet" href="../d3map.css" />
+    <link type="text/css" rel="stylesheet" href="example.css" />
+</head>
+<script src="../resources/d3.v3.min.js" type="text/javascript">
+</script>
+<script src="../resources/topojson.js" type="text/javascript">
+</script>
+<script src="../resources/d3.geo.projection.min.js" type="text/javascript">
+</script>
+<script src="../resources/tile.js" type="text/javascript">
+</script>
+<script src="../resources/colorbrewer.js" type="text/javascript">
+</script>
+<script src="../d3.carto.map.js" type="text/javascript">
+</script>
+<style>
+  html,body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+  }
+
+  #map {
+    height: 90%;
+    width: 90%;
+    top: 10%;
+    position: absolute;
+  }
+  
+  #title {
+    padding: 20px;
+  }
+  
+  .bluesquare {
+    fill: steelblue;
+    stroke: gray;
+    stroke-width: 1px;
+  }
+
+  button.reproject {
+    position: fixed;
+    z-index: 1;
+    bottom: 50px;
+  }
+</style>
+<script>
+  function makeSomeMaps() {
+    map = d3.carto.map();
+
+    d3.select("#map").call(map);
+
+    map.mode("projection")
+    
+    map.addTopoJSONLayer("../sampledata/world.topojson","world","filledcountries","svg","countries");
+    map.addTopoJSONLayer("../sampledata/sample_routes.topojson","toporoutes","roads","svg","all");
+    map.addCSVLayer("../sampledata/sample_points.csv","CSVSVG","pinkcircle",2,"svg","x","y");
+    d3.json("../sampledata/world.geojson", function(error,data) {
+      fNamedCountries = data.features.filter(function (d) {return d.properties.name.substring(0,1) == "F"})
+      map.addFeatureLayer(fNamedCountries, "France?", "francelike", "svg")
+      })
+    
+    d3.select("#map").append("button").attr("class", "reproject").html("Reproject to Conic Equidistance").on("click", reproject);
+    
+    function reproject() {
+
+    var projection = d3.geo.conicEquidistant()
+    .center([0, 15])
+    .scale(600)
+    .translate(map.zoom().translate())
+    .precision(.1);
+
+    map.projection(projection);
+    map.refresh();
+    }
+  }
+</script>
+<body onload="makeSomeMaps()">
+<div id="title">An example of projected <span style="font-weight:900">map.mode</span> rendering from <a href="https://github.com/emeeks/d3-carto-map">d3.carto.map</a>.</div>
+<div id="map"></div>
+<div id="infoBox">The map initializes with the default projection (mollweide) and if you click the "Reproject to Conic Equidistant" it will change the projection to the new settings.</div>
+</body>
+</html>

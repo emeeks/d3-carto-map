@@ -17,7 +17,7 @@
    enable-background="new 0 0 100 100"
    xml:space="preserve"
    inkscape:version="0.48.2 r9819"
-   sodipodi:docname="icon_28730.svg"><metadata
+   sodipodi:docname="svg-marker.svg"><metadata
    id="metadata19"><rdf:RDF><cc:Work
        rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
          rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
@@ -36,14 +36,17 @@
    showgrid="false"
    inkscape:zoom="2.36"
    inkscape:cx="50"
-   inkscape:cy="86.226198"
+   inkscape:cy="116.6562"
    inkscape:window-x="0"
    inkscape:window-y="0"
    inkscape:window-maximized="0"
    inkscape:current-layer="Your_Icon" />
 <g
    id="g3"
-   transform="matrix(0.71751412,0,0,0.71751412,-35.242373,-54.096046)">
+   transform="matrix(0.71751412,0,0,0.71751412,-35.242373,-54.096046)"
+   inkscape:export-filename="/Users/elijahmeeks/Sites/d3-carto-map/examples/pngmarker.png"
+   inkscape:export-xdpi="37.169998"
+   inkscape:export-ydpi="37.169998">
 	<path
    d="m 50,76.948 c -1.071,0 -2.068,-0.544 -2.647,-1.445 L 27.969,45.346 C 25.25,41.122 23.814,36.226 23.814,31.186 23.814,16.747 35.561,5 50,5 c 14.439,0 26.186,11.747 26.186,26.186 0,5.043 -1.438,9.941 -4.158,14.163 L 52.647,75.503 C 52.068,76.404 51.071,76.948 50,76.948 z m 0,-65.654 c -10.969,0 -19.892,8.924 -19.892,19.892 0,3.83 1.09,7.548 3.152,10.751 L 50,67.981 66.737,41.943 C 68.802,38.737 69.893,35.018 69.893,31.186 69.892,20.218 60.969,11.294 50,11.294 z"
    id="path5"
@@ -51,7 +54,10 @@
 </g>
 <g
    id="g7"
-   transform="matrix(0.71751412,0,0,0.71751412,-35.242373,-54.096046)">
+   transform="matrix(0.71751412,0,0,0.71751412,-35.242373,-54.096046)"
+   inkscape:export-filename="/Users/elijahmeeks/Sites/d3-carto-map/examples/pngmarker.png"
+   inkscape:export-xdpi="37.169998"
+   inkscape:export-ydpi="37.169998">
 	<path
    d="m 50,41.38 c -5.602,0 -10.159,-4.557 -10.159,-10.158 0,-5.601 4.557,-10.159 10.159,-10.159 5.601,0 10.158,4.557 10.158,10.158 0,5.601 -4.556,10.159 -10.158,10.159 z m 0,-16.121 c -3.288,0 -5.963,2.675 -5.963,5.963 0,3.288 2.675,5.963 5.963,5.963 3.288,0 5.963,-2.675 5.963,-5.963 0,-3.288 -2.675,-5.963 -5.963,-5.963 z"
    id="path9"
@@ -59,7 +65,10 @@
 </g>
 <g
    id="g11"
-   transform="matrix(0.71751412,0,0,0.71751412,-35.242373,-54.096046)">
+   transform="matrix(0.71751412,0,0,0.71751412,-35.242373,-54.096046)"
+   inkscape:export-filename="/Users/elijahmeeks/Sites/d3-carto-map/examples/pngmarker.png"
+   inkscape:export-xdpi="37.169998"
+   inkscape:export-ydpi="37.169998">
 	<path
    d="M 50,95 C 30.763,95 16.257,87.76 16.257,78.159 c 0,-4.558 3.291,-8.752 9.268,-11.811 1.547,-0.792 3.443,-0.18 4.235,1.368 0.792,1.547 0.18,3.443 -1.368,4.235 -3.712,1.9 -5.841,4.163 -5.841,6.208 0,4.404 10.442,10.547 27.449,10.547 17.006,0 27.448,-6.143 27.448,-10.547 0,-2.046 -2.13,-4.31 -5.845,-6.21 -1.547,-0.792 -2.159,-2.688 -1.368,-4.235 0.792,-1.547 2.69,-2.159 4.235,-1.368 5.979,3.06 9.272,7.255 9.272,11.814 C 83.743,87.76 69.237,95 50,95 z"
    id="path13"

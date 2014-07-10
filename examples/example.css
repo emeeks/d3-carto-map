@@ -12,8 +12,15 @@
     opacity: 1;
 }
 
+.filledcountries {
+    fill: #E0E0D1;
+    stroke-width: 1px;
+    stroke: black;
+    opacity: 1;
+}
+
 .francelike {
-    fill: pink;
+    fill: steelblue;
     stroke-width: 2px;
     stroke: lightgray;
 }
