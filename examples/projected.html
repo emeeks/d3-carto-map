@@ -55,12 +55,12 @@
 
     map.mode("projection")
     
-    map.addTopoJSONLayer("../sampledata/world.topojson","world","filledcountries","svg","countries");
-    map.addTopoJSONLayer("../sampledata/sample_routes.topojson","toporoutes","roads","svg","all");
-    map.addCSVLayer("../sampledata/sample_points.csv","CSVSVG","pinkcircle",2,"svg","x","y");
+    map.addTopoJSONLayer("../sampledata/world.topojson","GeoJSON Countries","filledcountries","svg","countries");
+    map.addTopoJSONLayer("../sampledata/sample_routes.topojson","TopoJSON Lines","roads","svg","all");
+    map.addCSVLayer("../sampledata/sample_points.csv","CSV Points","pinkcircle",2,"svg","x","y");
     d3.json("../sampledata/world.geojson", function(error,data) {
       fNamedCountries = data.features.filter(function (d) {return d.properties.name.substring(0,1) == "F"})
-      map.addFeatureLayer(fNamedCountries, "France?", "francelike", "svg")
+      map.addFeatureLayer(fNamedCountries, "Filtered Features", "francelike", "svg")
       })
     
     d3.select("#map").append("button").attr("class", "reproject").html("Reproject to Conic Equidistance").on("click", reproject);

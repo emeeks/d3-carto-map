@@ -1,0 +1,84 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>d3.carto.map - Adding Labels</title>
+  <meta charset="utf-8" />
+    <link type="text/css" rel="stylesheet" href="../d3map.css" />
+    <link type="text/css" rel="stylesheet" href="example.css" />
+</head>
+<script src="../resources/d3.v3.min.js" type="text/javascript">
+</script>
+<script src="../resources/topojson.js" type="text/javascript">
+</script>
+<script src="../resources/d3.geo.projection.min.js" type="text/javascript">
+</script>
+<script src="../resources/tile.js" type="text/javascript">
+</script>
+<script src="../resources/colorbrewer.js" type="text/javascript">
+</script>
+<script src="../d3.carto.map.js" type="text/javascript">
+</script>
+<style>
+  html,body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+  }
+
+  #zoommap {
+    height: 90%;
+    width: 90%;
+    top: 10%;
+    position: absolute;
+  }
+  
+  #title {
+    padding: 20px;
+  }
+
+</style>
+<script>
+  function makeSomeMaps() {
+    zoomMap = d3.carto.map();
+
+    d3.select("#zoommap").call(zoomMap);
+
+    zoomMap.setScale(2)
+
+    zoomMap.addTileLayer("elijahmeeks.map-ktkeam22", "Terrain", "mapbox");
+
+    d3.json("../sampledata/world.geojson", function(error,data) {
+
+      zoomMap.addFeatureLayer(data.features, "Countries", "countryborders", "svg");
+      
+      d3.select("#zoommap").selectAll("path.countryborders").on("click", function (d) {
+
+        var path = d3.geo.path().projection(zoomMap.projection());
+        zoomMap.zoomTo(path.bounds(d),"scaled",.95,2000);
+
+      })
+
+      labelPoints = [];
+
+      for (x in data.features) {
+        var center = d3.geo.centroid(data.features[x]);
+        var newPoint = {label: data.features[x].properties.name, x: center[0], y: center[1]}
+        labelPoints.push(newPoint)
+      }
+      
+      zoomMap.addXYLayer(labelPoints,"Labels","countrylabel",10,"svg","x","y");
+      d3.selectAll("g.countrylabel").append("text")
+      .text(function(d) {return d.label});
+      d3.selectAll("circle.countrylabel").remove();
+      zoomMap.refresh();
+
+
+    })
+
+  }
+</script>
+<body onload="makeSomeMaps()">
+<div id="title">An example showing how to add labels from polygon centroids using and then using <span style="font-weight:900">map.addXYLayer</span> with <a href="https://github.com/emeeks/d3-carto-map">d3.carto.map</a>.</div>
+<div id="zoommap"></div>
+<div id="infoBox">Click on a country to zoom to that country. The labels of countries are placed at their computed center (from d3.geo.centroid). The font-size is scaled to match the scale of the zoom (inspect the DOM and look at the scaled font-size of the text elements).</div>
+</body>
+</html>

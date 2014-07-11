@@ -163,20 +163,22 @@ d3.carto.map = function() {
 	    .each(function(d) {
 		if (!d._d3Map) {
 		    var sw = parseFloat(d3.select(this).style("stroke-width")) || 0;
-		    var sc = parseFloat(d3.select(this).style("stroke")) || "none";
 		    var r = parseFloat(d3.select(this).attr("r")) || 0;
 		    var height = parseFloat(d3.select(this).attr("height")) || 0;
 		    var width = parseFloat(d3.select(this).attr("width")) || 0;
 		    var x = parseFloat(d3.select(this).attr("x")) || parseFloat(d3.select(this).attr("cx")) || 0;
 		    var y = parseFloat(d3.select(this).attr("y")) || parseFloat(d3.select(this).attr("cy")) || 0;
+		    var fontSize = parseFloat(d3.select(this).style("font-size")) || 0;
+		    var fontWeight = parseFloat(d3.select(this).style("font-weight")) || 100;
 		    d._d3Map = {};
 		    d._d3Map.strokeWidth = sw;
 		    d._d3Map.size = r;
-		    d._d3Map.stroke = sc;
 		    d._d3Map.height = height;
 		    d._d3Map.width = width;
 		    d._d3Map.x = x;
 		    d._d3Map.y = y;
+		    d._d3Map.fontSize = fontSize;
+		    d._d3Map.fontWeight = fontWeight;
 		}
 	    })
             }
@@ -333,6 +335,13 @@ d3.carto.map = function() {
             .attr("y", function(d) {return scaled(d._d3Map.y) * 7.8})
             .attr("height", function(d) {return scaled(d._d3Map.height) * 15.6})
             .attr("width", function(d) {return scaled(d._d3Map.width) * 15.6});
+
+	mapSVG.selectAll("text")
+//	    .attr("x", function(d) {return scaled(d._d3Map.x) * 7.8})
+//          .attr("y", function(d) {return scaled(d._d3Map.y) * 7.8})
+            .style("font-size", function(d) {return scaled(d._d3Map.fontSize) * 7.8})
+            .style("font-weight", function(d) {return scaled(d._d3Map.fontWeight) * 7.8});
+
     }
     
     function renderSVGFeatures(i) {
@@ -340,7 +349,7 @@ d3.carto.map = function() {
             .attr("transform", "translate(" + d3MapZoom.translate() + ")scale(" + d3MapZoom.scale() + ")");
 
         d3MapSVGFeatureG[i].selectAll("path")
-            .style("stroke-width", function(d) {return scaled(parseFloat(d._d3Map.strokeWidth)) * 3})
+            .style("stroke-width", function(d) {return scaled(parseFloat(d._d3Map.strokeWidth)) * 1})
     }
 
     function renderCanvasFeatures(i,context) {
@@ -481,6 +490,8 @@ function manualZoom(zoomDirection) {
         marker.markerStrokeWidth = dummyMarker.style("stroke-width") || 1;
         marker.markerFill = dummyMarker.style("fill") || "white";
         marker.markerOpacity = dummyMarker.style("opacity") || 1;
+        marker.fontSize = dummyMarker.style("font-size") || 1;
+        marker.fontWeight = dummyMarker.style("font-weight") || 1;
         dummyMarker.remove();
 	return marker;
 	}
@@ -513,10 +524,12 @@ function manualZoom(zoomDirection) {
                     d3MapSVGFeatureLayer.push(layerObj)
                     layerG.attr("transform", "translate(" + d3MapZoom.translate() + ")scale(" + d3MapZoom.scale() + ")");
   
-                  layerG.selectAll("path")
+                  layerG.selectAll("g")
                   .data(featureData)
                   .enter()
-                  .append("path")
+                  .append("g")
+                  .attr("class", featureLayerClass)
+		  .append("path")
                   .attr("class", featureLayerClass)
                   .attr("d", d3MapPath)
                   .style("stroke-linecap", "round")
@@ -526,43 +539,9 @@ function manualZoom(zoomDirection) {
 	    updateLayers();
 	    
 	}
-
-    //Exposed Functions
-    
-    map.aFunction = function (incomingData) {
-        if (!arguments.length) return false;
-        
-        return this;
-    }
-
-    map.addTileLayer = function (newTileLayer, newTileLayerName, tileType, disabled) {
-        if (!arguments.length) return false;
 	
-	
-        var tName = newTileLayerName || "Raster " + d3MapTileLayer.length
-        var tDisabled = disabled || false;
-        var tPosition = d3MapTileLayer.length;
-        var tID = "tl" + d3MapTileLayer.length;
-        var tObj = {id: tID, drawOrder: d3MapTileLayer.length, path: newTileLayer, visible: true, name: tName, active: true, renderFrequency: "drawAlways"};
-	var tG = tileSVG.insert("g", tID).attr("class", "tiles").attr("id", tID);
-        d3MapTileLayer.push(tObj);
-        d3MapTileG.push(tG);
-
-        if (tDisabled) {
-            updateLayers();
-            showHideLayer(tObj,tPosition,mapDiv.select("li#" + tID).node())
-        }
-        else {
-            d3MapZoomed();
-        }
-        updateLayers();
-        
-    }
-    
-    map.addCSVLayer = function (newCSVLayer, newCSVLayerName, newCSVLayerClass, markerSize, renderType, xcoord, ycoord, renderFrequency) {
-        //TO DO: Render Type "mixed" creates two layers, a canvas layer drawnAlways and an SVG layer drawnOnce
-        var rFreq = renderFrequency || "mixed";
-        if (!arguments.length) return false;
+	function processXYFeatures(points, newCSVLayerName, newCSVLayerClass, markerSize, renderType, xcoord, ycoord, renderFrequency) {
+    	var rFreq = renderFrequency || "mixed";
         var cName = newCSVLayerName || "CSV " + d3Layer.length
         var cID = "cps" + d3MapSVGPointsLayer.length;
         var ccID = "cpc" + d3MapRasterPointsLayer.length;
@@ -582,7 +561,6 @@ function manualZoom(zoomDirection) {
             d3MapSVGPointsLayer.push(pointsObj);
         }
 
-	d3.csv(newCSVLayer, function(error, points) {
             //To access CSS properties
 	    var marker = cssFromClass(newCSVLayerClass);
         
@@ -594,6 +572,8 @@ function manualZoom(zoomDirection) {
               points[x]._d3Map.stroke = marker.markerStroke;
               points[x]._d3Map.opacity = marker.markerOpacity;
               points[x]._d3Map.strokeWidth = marker.markerStrokeWidth;
+              points[x]._d3Map.fontSize = marker.fontSize;
+              points[x]._d3Map.fontWeight = marker.fontWeight;
               points[x]._d3Map.size = markerSize;
               points[x]._d3Map.x = points[x][xcoord];
               points[x]._d3Map.y = points[x][ycoord];
@@ -627,7 +607,58 @@ function manualZoom(zoomDirection) {
         }
             d3MapZoomed();        
 	    updateLayers();
+    }
+
+    //Exposed Functions
+    
+    map.aFunction = function (incomingData) {
+        if (!arguments.length) return false;
+        
+        return this;
+    }
+
+    map.addTileLayer = function (newTileLayer, newTileLayerName, tileType, disabled) {
+        if (!arguments.length) return false;
+	
+        var tName = newTileLayerName || "Raster " + d3MapTileLayer.length
+        var tDisabled = disabled || false;
+        var tPosition = d3MapTileLayer.length;
+        var tID = "tl" + d3MapTileLayer.length;
+        var tObj = {id: tID, drawOrder: d3MapTileLayer.length, path: newTileLayer, visible: true, name: tName, active: true, renderFrequency: "drawAlways"};
+	var tG = tileSVG.insert("g", tID).attr("class", "tiles").attr("id", tID);
+        d3MapTileLayer.push(tObj);
+        d3MapTileG.push(tG);
+
+        if (tDisabled) {
+            updateLayers();
+            showHideLayer(tObj,tPosition,mapDiv.select("li#" + tID).node())
+        }
+        else {
+            d3MapZoomed();
+        }
+        updateLayers();
+        return this;
+    }
+    
+    map.addCSVLayer = function (newCSVLayer, newCSVLayerName, newCSVLayerClass, markerSize, renderType, xcoord, ycoord, renderFrequency) {
+        //TO DO: Render Type "mixed" creates two layers, a canvas layer drawnAlways and an SVG layer drawnOnce
+        if (!arguments.length) return false;
+
+	d3.csv(newCSVLayer, function(error, points) {
+	    processXYFeatures(points, newCSVLayerName, newCSVLayerClass, markerSize, renderType, xcoord, ycoord, renderFrequency)
         })
+	
+	return this;
+    
+    }
+    
+    map.addXYLayer = function (dataArray, newCSVLayerName, newCSVLayerClass, markerSize, renderType, xcoord, ycoord, renderFrequency) {
+        //TO DO: Render Type "mixed" creates two layers, a canvas layer drawnAlways and an SVG layer drawnOnce
+        if (!arguments.length) return false;
+
+	processXYFeatures(dataArray, newCSVLayerName, newCSVLayerClass, markerSize, renderType, xcoord, ycoord, renderFrequency)
+	
+	return this;
     
     }
 
@@ -770,6 +801,7 @@ function manualZoom(zoomDirection) {
         var newY = ((d3MapZoom.translate()[1] - (mapHeight / 2)) * s) + mapHeight / 2;    
 
         mapSVG.call(d3MapZoom.translate([newX,newY]).scale(newZoom).event);
+	return this;
 
     }
     

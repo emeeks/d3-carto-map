@@ -1,3 +1,18 @@
+.countrylabel {
+    font-size: 12px;
+    color: red;
+    text-anchor: middle;
+    pointer-events: none;
+    font-weight: 900;
+}
+
+.countryborders {
+    fill: rgba(0,0,0,0);
+    stroke-width: 1px;
+    stroke: gray;
+    cursor: pointer;
+}
+
 .invisible {
     fill: rgba(0,0,0,0);
     stroke-width: 0;
