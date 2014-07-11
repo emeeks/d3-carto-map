@@ -25,6 +25,11 @@ Point
 map.**addCSVLayer**(filename,layerName,cssClass,renderType,xCoordinateName,yCoordinateName)
 Add a new point layer from a CSV file to the map. Adds a corresponding layer checkbox to the layer control to show/hide that layer.
 
+map.**addXYLayer**(filename,layerName,cssClass,renderType,xCoordinateName,yCoordinateName)
+Add a new point layer from an array of objects that have latitude and longitude to the map. Adds a corresponding layer checkbox to the layer control to show/hide that layer.
+
+**[addXYLayer used to add labels to polygons](http://emeeks.github.io/cartomap/labels.html)**
+
 Polygon and Polyline
 
 These need to handle point features loaded in featureCollection format. They should also compute neighbors and presimplify for topojson and do preprocessing that would improve geojson performance down the line.
