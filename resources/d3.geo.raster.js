@@ -1,6 +1,6 @@
 (function() {
 
-d3.geo.raster = function() {
+d3.geo.raster = function(projection) {
   var path = d3.geo.path().projection(projection),
       url = null,
       subdomains = ["a", "b", "c"];
@@ -71,10 +71,10 @@ d3.geo.raster = function() {
         x1 = bounds[1][0] + 1 | 0,
         y1 = bounds[1][1] + 1 | 0;
 
-    var Î»0 = k[0] / width * 360 - 180,
-        Î»1 = (k[0] + 1) / width * 360 - 180,
-        Ï†1 = mercatorÏ†(k[1] / width * 360 - 180),
-        Ï†0 = mercatorÏ†((k[1] + 1) / width * 360 - 180);
+    var lambda0 = k[0] / width * 360 - 180,
+        lambda1 = (k[0] + 1) / width * 360 - 180,
+        phi1 = mercatorphi(k[1] / width * 360 - 180),
+        phi0 = mercatorphi((k[1] + 1) / width * 360 - 180);
 
     var width = canvas.width = x1 - x0,
         height = canvas.height = y1 - y0,
@@ -91,13 +91,13 @@ d3.geo.raster = function() {
        
         for (var y = y0, i = -1; y < y1; ++y) {
           for (var x = x0; x < x1; ++x) {
-            var p = projection.invert([x, y]), Î», Ï†;
-            if (!p || isNaN(Î» = p[0]) || isNaN(Ï† = p[1]) || Î» > Î»1 || Î» < Î»0 || Ï† > Ï†1 || Ï† < Ï†0) { i += 4; continue; }
+            var p = projection.invert([x, y]), lambda, phi;
+            if (!p || isNaN(lambda = p[0]) || isNaN(phi = p[1]) || lambda > lambda1 || lambda < lambda0 || phi > phi1 || phi < phi0) { i += 4; continue; }
 
-            var sx = (Î» - Î»0) / (Î»1 - Î»0) * dx,
-                sy = (Ï†1 - Ï†) / (Ï†1 - Ï†0) * dy;
+            var sx = (lambda - lambda0) / (lambda1 - lambda0) * dx,
+                sy = (phi1 - phi) / (phi1 - phi0) * dy;
             if (1) {
-              var q = (((Î» - Î»0) / (Î»1 - Î»0) * dx | 0) + ((Ï†1 - Ï†) / (Ï†1 - Ï†0) * dy | 0) * dx) * 4;
+              var q = (((lambda - lambda0) / (lambda1 - lambda0) * dx | 0) + ((phi1 - phi) / (phi1 - phi0) * dy | 0) * dx) * 4;
               targetData[++i] = sourceData[q];
               targetData[++i] = sourceData[++q];
               targetData[++i] = sourceData[++q];
@@ -122,7 +122,7 @@ d3.geo.raster = function() {
 };
 
 // Find latitude based on Mercator y-coordinate (in degrees).
-function mercatorÏ†(y) {
+function mercatorphi(y) {
   return Math.atan(Math.exp(-y * Math.PI / 180)) * 360 / Math.PI - 90;
 }
 
@@ -159,7 +159,7 @@ function quadkey(column, row, zoom) {
 
 })();
 
-// Check for vendor prefixes, by Mike Bostock.
+	// Check for vendor prefixes, by Mike Bostock.
 var prefix = prefixMatch(["webkit", "ms", "Moz", "O"]);
 
 function prefixMatch(p) {

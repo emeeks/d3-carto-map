@@ -64,3 +64,14 @@
 #d3MapSVG {
 
 }
+
+#reprojectDiv {
+    overflow: hidden;
+}
+#reprojectDiv div {
+    position: absolute;
+}
+
+#reprojectDiv canvas.tile {
+    position: absolute;
+}

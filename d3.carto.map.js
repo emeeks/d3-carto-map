@@ -55,6 +55,7 @@ d3.carto.map = function() {
 
     mapDiv = selectedDiv;
     
+    reprojectDiv = selectedDiv.append("div").attr("id", "reprojectDiv").style("height", "100%").style("width", "100%").style("position", "absolute");
     //Multiple SVGs because we draw the tiles underneath and sandwich a canvas layer between the tiles and the interactive SVG layer
     tileSVG = selectedDiv.append("svg").attr("id", "d3TileSVG").style("height", "100%").style("width", "100%").style("position", "absolute").style("z-index", -1);
     canvasCanvas = selectedDiv.append("canvas").attr("id", "d3MapCanvas").style("height", "100%").style("width", "100%").style("pointer-events", "none")
@@ -209,7 +210,7 @@ d3.carto.map = function() {
     function d3MapZoomInitializeProjection() {
 	for (x in d3MapSVGPointsG) {
 	    if (d3MapSVGPointsLayer[x].renderFrequency == "drawEnd" || !d3MapSVGPointsLayer[x].active) {
-	        renderSVGPointsProjected[x].style("display", "none");
+	        d3MapSVGPointsG[x].style("display", "none");
 	    }
         }
         
@@ -218,6 +219,8 @@ d3.carto.map = function() {
             renderSVGFeaturesProjected[x].style("display", "none");
             }
         }
+    
+    mapDiv.select("#reprojectDiv").selectAll("div").remove();
     
     }
 
@@ -237,6 +240,7 @@ d3.carto.map = function() {
             }
         }
 	
+	renderProjectedTiles();
     }
 
     //Transform Zoom
@@ -455,6 +459,25 @@ d3.carto.map = function() {
 	    .attr("d", d3MapPath)
     }
     
+    function renderProjectedTiles() {
+	  if (d3MapTileLayer.length == 0) {
+	    return;
+	  }
+      for (x in d3MapTileG) {
+        if (d3MapTileLayer[x].visible) {
+
+    mapDiv.select("#reprojectDiv").selectAll("div").remove();
+
+    var layer = mapDiv.select("#reprojectDiv")
+	.style("width", mapWidth + "px")
+	.style("height", mapHeight + "px")
+  .append("div")
+    .style(prefix + "transform-origin", "0 0 0")
+    .call(d3.geo.raster(d3MapProjection)
+      .url("//{subdomain}.tiles.mapbox.com/v3/"+ d3MapTileLayer[x].path +"/{z}/{x}/{y}.png"));
+	}
+      }
+    }
 function manualZoom(zoomDirection) {
 
 

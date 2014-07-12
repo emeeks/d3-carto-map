@@ -27,6 +27,13 @@
     opacity: 1;
 }
 
+.halffilledcountries {
+    fill: rgba(224,224,209,0.5);
+    stroke-width: 1px;
+    stroke: black;
+    opacity: 1;    
+}
+
 .filledcountries {
     fill: #E0E0D1;
     stroke-width: 1px;
