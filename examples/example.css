@@ -6,6 +6,12 @@
     font-weight: 900;
 }
 
+.wards {
+    fill: gray;
+    stroke: gray;
+    stroke-width: 1px;
+}
+
 .countryborders {
     fill: rgba(0,0,0,0);
     stroke-width: 1px;
