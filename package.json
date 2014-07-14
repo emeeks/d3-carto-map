@@ -1,0 +1,35 @@
+{
+  "name": "d3-carto-map",
+  "version": "0.1.0",
+  "description": "easy layer-based maps for d3",
+  "main": "d3.carto.map.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emeeks/d3-carto-map"
+  },
+  "keywords": [
+    "d3",
+    "map",
+    "cartography",
+    "topojson",
+    "geojson",
+    "csv",
+    "svg",
+    "canvas"
+  ],
+  "dependencies": {
+    "d3": "~3.4.10"
+  },
+  "author": "Elijah Meeks",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/emeeks/d3-carto-map/issues"
+  },
+  "homepage": "https://github.com/emeeks/d3-carto-map"
+}
