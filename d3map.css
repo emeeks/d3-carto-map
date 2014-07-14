@@ -1,4 +1,6 @@
-
+path,circle,rect,polygon,ellipse,line {
+    vector-effect: non-scaling-stroke;
+}
 #d3MapZoomBox {
     position: absolute;
     z-index: 10;

@@ -330,9 +330,6 @@ d3.carto.map = function() {
         d3MapSVGPointsG[i]
             .attr("transform", "translate(" + d3MapZoom.translate() + ")scale(" + d3MapZoom.scale() + ")");
 
-	d3MapSVGPointsG[i].selectAll("circle,path,rect,ellipse,polygon")
-	    .style("stroke-width", function(d) {return d._d3Map ? scaled(d._d3Map.strokeWidth) * 3 : 0});
-
         d3MapSVGPointsG[i].selectAll("circle")
             .attr("r", function(d) {return d._d3Map ? scaled(d._d3Map.size) * 7.8 : 0});
             
@@ -353,9 +350,6 @@ d3.carto.map = function() {
     function renderSVGFeatures(i) {
         d3MapSVGFeatureG[i]
             .attr("transform", "translate(" + d3MapZoom.translate() + ")scale(" + d3MapZoom.scale() + ")");
-
-        d3MapSVGFeatureG[i].selectAll("path")
-            .style("stroke-width", function(d) {return scaled(parseFloat(d._d3Map.strokeWidth)) * 1})
     }
 
     function renderCanvasFeatures(i,context) {
@@ -439,9 +433,6 @@ d3.carto.map = function() {
 	    
 	d3MapSVGPointsG[i].selectAll("g.pointG").attr("transform", function(d) {return "translate(" + d3MapProjection([d.x,d.y])+")"})
 
-	d3MapSVGPointsG[i].selectAll("circle,path,rect,ellipse,polygon")
-	    .style("stroke-width", function(d) {return d._d3Map ? d._d3Map.strokeWidth: 0});
-
         d3MapSVGPointsG[i].selectAll("circle")
             .attr("r", function(d) {return d._d3Map ? d._d3Map.size : 0});
             
@@ -457,7 +448,6 @@ d3.carto.map = function() {
             .attr("transform", "translate(0,0) scale(1)");
 
         d3MapSVGFeatureG[i].selectAll("path")
-            .style("stroke-width", function(d) {return d._d3Map.strokeWidth})
 	    .attr("d", d3MapPath)
     }
     
@@ -570,8 +560,6 @@ function manualZoom(zoomDirection) {
 		  .append("path")
                   .attr("class", featureLayerClass)
                   .attr("d", d3MapPath)
-                  .style("stroke-linecap", "round")
-                  .style("stroke-width", function(d) {return scaled(d._d3Map.strokeWidth)})
 		    }
 		    d3MapAllLayers.push(cartoLayer)
 		    cartoLayer.object(layerObj);
