@@ -15,6 +15,11 @@ var **newMap** = d3.carto.**map()**;
 selection.**call**(newMap);
 Create a map and call it by the div where you want it, it will automatically size to fit the div. It will also resize when the window resizes, to deal with dynamically sized divs.
 
+Carto Layer
+
+map.**addCartoLayer**(d3.carto.layer)
+Add a new feature layer from d3.carto.layer.
+
 Raster
 
 map.**addTileLayer**(externalID, layerName, tileType, *disabled*)
@@ -88,6 +93,14 @@ Switches between rendering modes. The options are:
 * "**projection**'" Uses projection zoom and can deal with any D3 projection.
 
 **[An example of using projection mode to show data in Mollweide and Conic Equidistant projections](http://emeeks.github.io/cartomap/projected.html)**
+
+d3-carto-layer
+======
+
+d3.carto.layer allows you to define the attributes of a new map layer...
+
+**[D3 Carto Layer Example](http://emeeks.github.io/cartomap/carto-layers.html)**
+
 
 Existing Issues:
 

@@ -25,6 +25,8 @@ d3.carto.map = function() {
     var d3MapCanvasG;
     var d3MapCanvasImage;
     
+    var d3MapAllLayers = [];
+    
     var d3MapTileG = [];
     var d3MapTileLayer = [];
     
@@ -519,7 +521,17 @@ function manualZoom(zoomDirection) {
 	return marker;
 	}
 
-    function processFeatures(featureData, marker, featureLayerName, featureLayerClass, renderType, renderFrequency) {
+    function processFeatures(featureData, featureLayerName, featureLayerClass, renderType, renderFrequency,cartoLayer) {
+	if (!cartoLayer) {
+	    cartoLayer = d3.carto.layer()
+	    .type("featurearray")
+	    .features(featureData)
+	    .label(featureLayerName)
+	    .cssClass(featureLayerClass)
+	    .features(featureData)
+	}
+	    var marker = cssFromClass(featureLayerClass);
+
 	for (x in featureData) {
                       featureData[x]._d3Map = {};
                       featureData[x]._d3Map.color = marker.markerFill;
@@ -531,6 +543,8 @@ function manualZoom(zoomDirection) {
                       featureData[x]._d3Map.opacity = marker.markerOpacity;
                       featureData[x]._d3Map.strokeWidth = marker.markerStrokeWidth;
 	      }
+	      
+	      cartoLayer.features(featureData);
 
 		    if (renderType == "canvas") {
 			d3MapRasterFeatureG.push(featureData);
@@ -546,6 +560,7 @@ function manualZoom(zoomDirection) {
                     var layerObj = {id: "to" + d3MapSVGFeatureLayer.length, drawOrder: d3MapSVGFeatureLayer.length, path: "", visible: true, name: featureLayerName, active: true, renderFrequency: "drawAlways"}
                     d3MapSVGFeatureLayer.push(layerObj)
                     layerG.attr("transform", "translate(" + d3MapZoom.translate() + ")scale(" + d3MapZoom.scale() + ")");
+		    cartoLayer.g(layerG);
   
                   layerG.selectAll("g")
                   .data(featureData)
@@ -558,17 +573,30 @@ function manualZoom(zoomDirection) {
                   .style("stroke-linecap", "round")
                   .style("stroke-width", function(d) {return scaled(d._d3Map.strokeWidth)})
 		    }
+		    d3MapAllLayers.push(cartoLayer)
+		    cartoLayer.object(layerObj);
             d3MapZoomComplete();
 	    updateLayers();
 	    
 	}
-	
-	function processXYFeatures(points, newCSVLayerName, newCSVLayerClass, markerSize, renderType, xcoord, ycoord, renderFrequency) {
+
+    function processXYFeatures(points, newCSVLayerName, newCSVLayerClass, markerSize, renderType, xcoord, ycoord, renderFrequency,cartoLayer) {
     	var rFreq = renderFrequency || "mixed";
         var cName = newCSVLayerName || "CSV " + d3Layer.length
         var cID = "cps" + d3MapSVGPointsLayer.length;
         var ccID = "cpc" + d3MapRasterPointsLayer.length;
 
+	if (!cartoLayer) {
+	    cartoLayer = d3.carto.layer()
+	    .type("xyarray")
+	    .features(points)
+	    .label(newCSVLayerName)
+	    .cssClass(newCSVLayerClass)
+	    .markerSize(markerSize)
+	    .x(xcoord)
+	    .y(ycoord)
+	}
+	
         if (renderType == "canvas") {
         var pointsObj = {id: ccID, drawOrder: d3MapRasterPointsLayer.length, path: "", visible: true, name: cName, active: true, renderFrequency: "drawAlways", mixed: false}
             d3MapRasterPointsLayer.push(pointsObj);
@@ -603,12 +631,14 @@ function manualZoom(zoomDirection) {
             }
           }
 
+	  cartoLayer.features(points);
         if (renderType == "canvas" || renderType == "mixed") {
             d3MapRasterPointsG.push(points);
         }
         if (renderType == "svg" || renderType == "mixed") {
         var pointsG = mapSVG.append("g").attr("class", "points").attr("id", cID);
         d3MapSVGPointsG.push(pointsG);
+	cartoLayer.g(pointsG);
 	pointsG.attr("transform", "translate(" + d3MapZoom.translate() + ")scale(" + d3MapZoom.scale() + ")");
   
   var appendedPointsEnter = pointsG.selectAll("g.blank")
@@ -628,9 +658,103 @@ function manualZoom(zoomDirection) {
   .append("circle")
   .attr("class", newCSVLayerClass);
         }
+
+	    d3MapAllLayers.push(cartoLayer)
+	    cartoLayer.object(pointsObj);
             d3MapZoomed();        
 	    updateLayers();
     }
+
+    function d3MapAddTileLayer(newTileLayer, newTileLayerName, tileType, disabled, cartoLayer) {
+        
+	var tName = newTileLayerName || "Raster " + d3MapTileLayer.length
+        var tPosition = d3MapTileLayer.length;
+        var tID = "tl" + d3MapTileLayer.length;
+        var tObj = {id: tID, drawOrder: d3MapTileLayer.length, path: newTileLayer, visible: true, name: tName, active: true, renderFrequency: "drawAlways"};
+	var tG = tileSVG.insert("g", tID).attr("class", "tiles").attr("id", tID);
+        d3MapTileLayer.push(tObj);
+        d3MapTileG.push(tG);
+
+        if (disabled) {
+            updateLayers();
+            showHideLayer(tObj,tPosition,mapDiv.select("li#" + tID).node())
+        }
+        else {
+            d3MapZoomed();
+        }
+        updateLayers();
+	
+	if (cartoLayer) {
+	    cartoLayer.g(tG);
+	    cartoLayer.object(tObj);
+	}
+	else {
+	    cartoLayer = d3.carto.layer()
+	    .path(newTileLayer)
+	    .label(tName)
+	    .tileType(tileType)
+	    .visibility(disabled)
+	    .g(tG)
+	    .object(tObj);
+	}
+	d3MapAllLayers.push(cartoLayer);
+    }
+    
+    function d3MapAddCSVLayer(newCSVLayer, newCSVLayerName, newCSVLayerClass, markerSize, renderType, xcoord, ycoord, renderFrequency,cartoLayer) {
+
+	if (!cartoLayer) {
+	    cartoLayer = d3.carto.layer()
+	    .type("csv")
+	    .path(newCSVLayer)
+	    .label(newCSVLayerName)
+	    .cssClass(newCSVLayerClass)
+	}
+	
+	d3.csv(newCSVLayer, function(error, points) {
+	    processXYFeatures(points, newCSVLayerName, newCSVLayerClass, markerSize, renderType, xcoord, ycoord, renderFrequency,cartoLayer)
+        })
+	}
+
+    function d3MapAddTopoJSONLayer(newTopoLayer, newTopoLayerName, newTopoLayerClass, renderType, specificFeature, renderFrequency,cartoLayer) {
+
+	
+        d3.json(newTopoLayer, function(error, topoData) {
+
+	    var layerDataType = "topojson";
+
+            for (x in topoData.objects) {
+                if (x == specificFeature || specificFeature == "all") {
+	if (!cartoLayer) {
+	    cartoLayer = d3.carto.layer()
+	    .type("topojson")
+	    .path(newTopoLayer)
+	    .label(newTopoLayerName)
+	    .cssClass(newTopoLayerClass)
+	}
+		    
+		    var topoLayerData = topojson.feature(topoData, topoData.objects[x]).features;
+		    processFeatures(topoLayerData, newTopoLayerName, newTopoLayerClass, renderType, renderFrequency,cartoLayer);
+		    
+                }
+            }
+        })
+}
+
+	function d3MapAddGeoJSONLayer(newGeoLayer, newGeoLayerName, newGeoLayerClass, renderType, specificFeature, renderFrequency,cartoLayer){
+	var layerDataType = "geojson";
+
+	if (!cartoLayer) {
+	    cartoLayer = d3.carto.layer()
+	    .type("geojson")
+	    .path(newGeoLayer)
+	    .label(newGeoLayerName)
+	    .cssClass(newGeoLayerClass)
+	}
+
+        d3.json(newGeoLayer, function(error, geoData) {
+	    processFeatures(geoData.features, newGeoLayerName, newGeoLayerClass, renderType, renderFrequency,cartoLayer);
+        })
+	}
 
     //Exposed Functions
     
@@ -639,27 +763,37 @@ function manualZoom(zoomDirection) {
         
         return this;
     }
+    map.addCartoLayer = function (cartoLayer) {
+	switch (cartoLayer.type()) {
+	    case "tile":
+		d3MapAddTileLayer(cartoLayer.path(),cartoLayer.label(),cartoLayer.tileType(),!cartoLayer.visibility(),cartoLayer)
+		break;
+	    case "csv":
+		d3MapAddCSVLayer(cartoLayer.path(), cartoLayer.label(), cartoLayer.cssClass(), cartoLayer.markerSize(), cartoLayer.renderMode(), cartoLayer.x(), cartoLayer.y(), "drawAlways",cartoLayer) 
+		break;
+	    case "topojson":
+		d3MapAddTopoJSONLayer(cartoLayer.path(), cartoLayer.label(), cartoLayer.cssClass(), cartoLayer.renderMode(), cartoLayer.specificFeature(), "drawAlways",cartoLayer)
+		break;
+	    case "geojson":
+		d3MapAddGeoJSONLayer(cartoLayer.path(), cartoLayer.label(), cartoLayer.cssClass(), cartoLayer.renderMode(), cartoLayer.specificFeature(), "drawAlways",cartoLayer)
+		break;
+	    case "xyarray":
+		processXYFeatures(cartoLayer.features(), cartoLayer.label(), cartoLayer.cssClass(), cartoLayer.markerSize(), cartoLayer.renderMode(), cartoLayer.x(), cartoLayer.y(), "drawAlways",cartoLayer)
+		break;
+	    case "featurearray":
+		processFeatures(cartoLayer.features(), cartoLayer.label(), cartoLayer.cssClass(),cartoLayer.renderMode(), "drawAlways",cartoLayer)
+		break;
+	    default:
+	    return false;
+	}
+    }
 
     map.addTileLayer = function (newTileLayer, newTileLayerName, tileType, disabled) {
         if (!arguments.length) return false;
-	
-        var tName = newTileLayerName || "Raster " + d3MapTileLayer.length
-        var tDisabled = disabled || false;
-        var tPosition = d3MapTileLayer.length;
-        var tID = "tl" + d3MapTileLayer.length;
-        var tObj = {id: tID, drawOrder: d3MapTileLayer.length, path: newTileLayer, visible: true, name: tName, active: true, renderFrequency: "drawAlways"};
-	var tG = tileSVG.insert("g", tID).attr("class", "tiles").attr("id", tID);
-        d3MapTileLayer.push(tObj);
-        d3MapTileG.push(tG);
 
-        if (tDisabled) {
-            updateLayers();
-            showHideLayer(tObj,tPosition,mapDiv.select("li#" + tID).node())
-        }
-        else {
-            d3MapZoomed();
-        }
-        updateLayers();
+        var tDisabled = disabled || false;
+	
+	d3MapAddTileLayer(newTileLayer, newTileLayerName, tileType, tDisabled);
         return this;
     }
     
@@ -667,10 +801,7 @@ function manualZoom(zoomDirection) {
         //TO DO: Render Type "mixed" creates two layers, a canvas layer drawnAlways and an SVG layer drawnOnce
         if (!arguments.length) return false;
 
-	d3.csv(newCSVLayer, function(error, points) {
-	    processXYFeatures(points, newCSVLayerName, newCSVLayerClass, markerSize, renderType, xcoord, ycoord, renderFrequency)
-        })
-	
+	d3MapAddCSVLayer(newCSVLayer, newCSVLayerName, newCSVLayerClass, markerSize, renderType, xcoord, ycoord, renderFrequency);
 	return this;
     
     }
@@ -686,40 +817,21 @@ function manualZoom(zoomDirection) {
     }
 
     map.addTopoJSONLayer = function (newTopoLayer, newTopoLayerName, newTopoLayerClass, renderType, specificFeature, renderFrequency) {
-        d3.json(newTopoLayer, function(error, topoData) {
-
-	    var layerDataType = "topojson";
-	    var marker = cssFromClass(newTopoLayerClass);
-
-            for (x in topoData.objects) {
-                if (x == specificFeature || specificFeature == "all") {
-		    
-		    var topoLayerData = topojson.feature(topoData, topoData.objects[x]).features;
-		    processFeatures(topoLayerData, marker, newTopoLayerName, newTopoLayerClass, renderType, renderFrequency);
-		    
-                }
-            }
-
-	    
-        })
-    
+        if (!arguments.length) return false;
+	d3MapAddTopoJSONLayer(newTopoLayer, newTopoLayerName, newTopoLayerClass, renderType, specificFeature, renderFrequency);
+	return this;    
     }    
 
     map.addGeoJSONLayer = function (newGeoLayer, newGeoLayerName, newGeoLayerClass, renderType, specificFeature, renderFrequency) {
-	var layerDataType = "geojson";
-	var marker = cssFromClass(newGeoLayerClass);
-
-        d3.json(newGeoLayer, function(error, geoData) {
-	    processFeatures(geoData.features, marker, newGeoLayerName, newGeoLayerClass, renderType, renderFrequency);
-        })
-	
+	if (!arguments.length) return false;
+	d3MapAddGeoJSONLayer(newGeoLayer, newGeoLayerName, newGeoLayerClass, renderType, specificFeature, renderFrequency)
+	return this;	
     }
 
     map.addFeatureLayer = function (featureArray, newLayerName, newLayerClass, renderType, renderFrequency) {
 	    var layerDataType = "featurearray";
-	    var marker = cssFromClass(newLayerClass);
 
-	    processFeatures(featureArray, marker, newLayerName, newLayerClass, renderType, renderFrequency);
+	    processFeatures(featureArray, newLayerName, newLayerClass, renderType, renderFrequency);
 	    
     }
     // #map.getLayerAttributes("layerName")
@@ -889,6 +1001,121 @@ function manualZoom(zoomDirection) {
 	return this;
 
     }
+    
+    map.layers = function() {
+	return d3MapAllLayers;
+    }
 
     return map;
+}
+
+d3.carto.layer = function() {
+    
+    var d3CartoLayerPath = "";
+    var d3CartoLayerType = "";
+    var d3CartoLayerVisibility = true;
+    var d3CartoLayerActive = true;
+    var d3CartoLayerRenderMode = "canvas";
+    var d3CartoLayerClass = "default";
+    var d3CartoLayerLabel = "unlabeled";
+    var d3CartoLayerXCoord = "x";
+    var d3CartoLayerYCoord = "y";
+    var d3CartoLayerG;
+    var d3CartoLayerObject;
+    var d3CartoLayerFeatures;
+    var d3CartoLayerTileType = "mapbox";
+    var d3CartoLayerSpecific = "all";
+    d3CartoLayerMarkerSize = 5;
+    
+    var d3CartoLayerDispatch = d3.dispatch('load');
+    
+    d3CartoLayer = function() {
+	
+    }
+    
+    d3CartoLayer.path = function(newPath) {
+	if (!arguments.length) return d3CartoLayerPath;
+	d3CartoLayerPath = newPath;
+	return this;
+    }
+
+    d3CartoLayer.type = function(newType) {
+	if (!arguments.length) return d3CartoLayerType;
+	d3CartoLayerType = newType;
+	return this;
+	
+    }
+
+    d3CartoLayer.visibility = function(newVisibility) {
+    	if (!arguments.length) return d3CartoLayerVisibility;
+	d3CartoLayerVisibility = newVisibility;
+	return this;
+    }
+
+    d3CartoLayer.renderMode = function(newMode) {
+    	if (!arguments.length) return d3CartoLayerRenderMode;
+	d3CartoLayerRenderMode = newMode;
+	return this;
+    }
+
+    d3CartoLayer.x = function(newX) {
+    	if (!arguments.length) return d3CartoLayerXCoord;
+	d3CartoLayerXCoord = newX;
+	return this;
+    }
+    
+    d3CartoLayer.y = function(newY) {
+    	if (!arguments.length) return d3CartoLayerYCoord;
+	d3CartoLayerYCoord = newY;
+	return this;
+    }
+    
+    d3CartoLayer.markerSize = function(newSize) {
+    	if (!arguments.length) return d3CartoLayerMarkerSize;
+	d3CartoLayerMarkerSize = newSize;
+	return this;
+    }
+
+    d3CartoLayer.cssClass = function(newClass) {
+    	if (!arguments.length) return d3CartoLayerClass;
+	d3CartoLayerClass = newClass;
+	return this;
+    }
+    
+    d3CartoLayer.g = function(newG) {
+    	if (!arguments.length) return d3CartoLayerG;
+	d3CartoLayerG = newG;
+	return this;
+    }
+
+    d3CartoLayer.object = function(newObject) {
+    	if (!arguments.length) return d3CartoLayerObject;
+	d3CartoLayerObject = newObject;
+	d3CartoLayerDispatch.load();
+	return this;
+    }
+
+    d3CartoLayer.features = function(newFeatures) {
+    	if (!arguments.length) return d3CartoLayerFeatures;
+	d3CartoLayerFeatures = newFeatures;
+	return this;
+    }
+    d3CartoLayer.tileType = function(newType) {
+    	if (!arguments.length) return d3CartoLayerTileType;
+	d3CartoLayerTileType = newType;
+	return this;
+    }
+    d3CartoLayer.label = function(newLabel) {
+    	if (!arguments.length) return d3CartoLayerLabel;
+	d3CartoLayerLabel = newLabel;
+	return this;
+    }
+    d3CartoLayer.specificFeature = function(newSpecific) {
+    	if (!arguments.length) return d3CartoLayerSpecific;
+	d3CartoLayerSpecific = newSpecific;
+	return this;
+    }
+    
+    d3.rebind(d3CartoLayer, d3CartoLayerDispatch, "on");
+    return d3CartoLayer;
 }

@@ -1,0 +1,155 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>d3.carto.map - Carto Layers</title>
+  <meta charset="utf-8" />
+    <link type="text/css" rel="stylesheet" href="../d3map.css" />
+    <link type="text/css" rel="stylesheet" href="example.css" />
+</head>
+<script src="../resources/d3.v3.min.js" type="text/javascript">
+</script>
+<script src="../resources/topojson.js" type="text/javascript">
+</script>
+<script src="../resources/d3.geo.projection.min.js" type="text/javascript">
+</script>
+<script src="../resources/tile.js" type="text/javascript">
+</script>
+<script src="../resources/colorbrewer.js" type="text/javascript">
+</script>
+<script src="../d3.carto.map.js" type="text/javascript">
+</script>
+<style>
+  html,body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+  }
+
+  #map {
+    height: 90%;
+    width: 90%;
+    top: 10%;
+    position: absolute;
+  }
+  
+  #title {
+    padding: 20px;
+  }
+  
+  .bluesquare {
+    fill: steelblue;
+    stroke: gray;
+    stroke-width: 1px;
+  }
+
+  button.marker {
+    position: fixed;
+    z-index: 1;
+    bottom: 150px;
+    left: 150px;
+  }
+  
+  </style>
+<script>
+  function makeSomeMaps() {
+    map = d3.carto.map();
+
+    d3.select("#map").call(map);
+
+    tileLayer = d3.carto.layer();
+    tileLayer
+    .type("tile")
+    .path("examples.map-zgrqqx0w")
+    .label("Base")
+    .on("load", recenter);
+
+    geojsonLayer = d3.carto.layer();
+    
+    geojsonLayer
+    .type("geojson")
+    .path("../sampledata/world.geojson")
+    .label("GeoBorders")
+    .cssClass("countryborders")
+    .renderMode("canvas")
+    .on("load", createFeatureLayer);
+    
+    topojsonLayer = d3.carto.layer();
+    topojsonLayer
+    .type("topojson")
+    .path("../sampledata/sample_routes.topojson")
+    .label("TopoRoutes")
+    .cssClass("roads")
+    .renderMode("canvas")
+    .on("load", function() {console.log("load topojson")});
+
+    csvLayer = d3.carto.layer();
+    csvLayer
+    .type("csv")
+    .path("../sampledata/sample_points.csv")
+    .label("CSV Points")
+    .cssClass("pinkcircle")
+    .renderMode("svg")
+    .markerSize(3)
+    .x("x")
+    .y("y")
+    .on("load", changeMarkers);
+
+    xyLayer = d3.carto.layer();
+    xyLayer
+    .type("xyarray")
+    .features([{x: 5, y: 40},{x: 5, y: 50}])
+    .label("XY Array")
+    .cssClass("greencircle")
+    .renderMode("svg")
+    .markerSize(30)
+    .x("x")
+    .y("y")
+    .on("load", function(){console.log("load xyarray")});
+
+    map.addCartoLayer(tileLayer);
+    map.addCartoLayer(topojsonLayer);
+    map.addCartoLayer(geojsonLayer);
+    map.addCartoLayer(csvLayer);
+    map.addCartoLayer(xyLayer);
+
+    function recenter() {
+      map.centerOn([-0.1275,51.507],"latlong",5000);
+    }
+
+    function changeMarkers() {
+      d3.selectAll("g.pinkcircle").select("circle").remove();
+      d3.selectAll("g.pinkcircle").datum({e: 0}).append("rect").attr("class", "bluesquare").attr("height", 5).attr("width",5).attr("x",-2.5).attr("y",-2.5)
+//    To get the graphical elements to scale you need to do this
+      map.refresh();
+    }
+    
+    function createFeatureLayer() {
+      var featuresArray = [];
+      var mapLayers = map.layers();
+      mapLayers.forEach(function (layer) {
+        if (layer.label() == "GeoBorders") {
+          featuresArray = layer.features();
+        }
+      })
+     shortNameCountries = featuresArray.filter(function(d) {return d.properties.name.length < 7})
+
+    featureLayer = d3.carto.layer();
+    featureLayer
+    .type("featurearray")
+    .features(shortNameCountries)
+    .label("Feature Array")
+    .cssClass("halffilledcountries")
+    .renderMode("svg")
+    .on("load", function(){console.log("load featurearray")}); 
+    
+    map.addCartoLayer(featureLayer);
+
+    }
+
+  }
+</script>
+<body onload="makeSomeMaps()">
+<div id="title">Using d3.carto.layer with <span style="font-weight:900">map.refresh</span> with <a href="https://github.com/emeeks/d3-carto-map">d3.carto.map</a>.</div>
+<div id="map"></div>
+<div id="infoBox">Layers made with d3.carto.layer can be defined and then added to the map and will signal their having been added with a "load" event. The layers can also be accessed with map.layers().</div>
+</body>
+</html>

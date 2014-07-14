@@ -2,8 +2,8 @@
 <head>
   <title>d3.carto.map - Reprojected Tiles</title>
   <meta charset="utf-8" />
-    <link type="text/css" rel="stylesheet" href="../d3map.css" />
-    <link type="text/css" rel="stylesheet" href="example.css" />
+    <link type="text/css" rel="stylesheet" href="https://raw.githubusercontent.com/emeeks/d3-carto-map/master/d3map.css" />
+    <link type="text/css" rel="stylesheet" href="https://raw.githubusercontent.com/emeeks/d3-carto-map/master/examples/example.css" />
 </head>
 <style>
   html,body {
@@ -21,12 +21,6 @@
   
   #title {
     padding: 20px;
-  }
-  
-  .bluesquare {
-    fill: steelblue;
-    stroke: gray;
-    stroke-width: 1px;
   }
 
   button.reproject {
@@ -72,21 +66,18 @@
 <div id="map"></div>
 <div id="infoBox"><p>Reprojecting raster tiles. Tiles are hidden on the beginning of any pan or zoom and redrawn when the pan/zoom ends.</p><p> Not quite working yet.</p></div>
 <footer>
-  <script src="../resources/d3.v3.min.js" type="text/javascript">
+<script src="https://rawgit.com/emeeks/d3-carto-map/master/resources/d3.v3.min.js" type="text/javascript"></script>
+<script src="https://rawgit.com/emeeks/d3-carto-map/master/resources/topojson.js" type="text/javascript">
 </script>
-<script src="../resources/topojson.js" type="text/javascript">
+<script src="https://rawgit.com/emeeks/d3-carto-map/master/resources/d3.geo.projection.min.js" type="text/javascript">
 </script>
-<script src="../resources/d3.geo.projection.min.js" type="text/javascript">
+<script src="https://rawgit.com/emeeks/d3-carto-map/master/resources/tile.js" type="text/javascript">
 </script>
-<script src="../resources/tile.js" type="text/javascript">
+<script src="https://rawgit.com/emeeks/d3-carto-map/master/resources/d3.quadtiles.js" type="text/javascript">
 </script>
-<script src="../resources/colorbrewer.js" type="text/javascript">
+<script src="https://rawgit.com/emeeks/d3-carto-map/master/resources/d3.geo.raster.js" type="text/javascript">
 </script>
-<script src="../d3.carto.map.js" type="text/javascript">
-</script>
-<script src="../resources/d3.quadtiles.js" type="text/javascript">
-</script>
-<script src="../resources/d3.geo.raster.js" type="text/javascript">
+<script src="https://rawgit.com/emeeks/d3-carto-map/master/d3.carto.map.js" type="text/javascript">
 </script>
 </footer>
 </body>
