@@ -1,6 +1,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title>d3.carto.map - Projection Mode</title>
+  <title>d3.carto.map - Projection Mode (Canvas)</title>
   <meta charset="utf-8" />
     <link type="text/css" rel="stylesheet" href="../d3map.css" />
     <link type="text/css" rel="stylesheet" href="example.css" />
@@ -55,12 +55,12 @@
 
     map.mode("projection")
     
-    map.addTopoJSONLayer("../sampledata/world.topojson","GeoJSON Countries","filledcountries","svg","countries");
-    map.addTopoJSONLayer("../sampledata/sample_routes.topojson","TopoJSON Lines","roads","svg","all");
-    map.addCSVLayer("../sampledata/sample_points.csv","CSV Points","pinkcircle",2,"svg","x","y");
+    map.addTopoJSONLayer("../sampledata/world.topojson","GeoJSON Countries","filledcountries","canvas","countries");
+    map.addTopoJSONLayer("../sampledata/sample_routes.topojson","TopoJSON Lines","roads","canvas","all");
+    map.addCSVLayer("../sampledata/sample_points.csv","CSV Points","pinkcircle",2,"canvas","x","y");
     d3.json("../sampledata/world.geojson", function(error,data) {
       fNamedCountries = data.features.filter(function (d) {return d.properties.name.substring(0,1) == "F"})
-      map.addFeatureLayer(fNamedCountries, "Filtered Features", "francelike", "svg")
+      map.addFeatureLayer(fNamedCountries, "Filtered Features", "francelike", "canvas")
       })
     
     d3.select("#map").append("button").attr("class", "reproject").html("Reproject to Conic Equidistant").on("click", reproject);
