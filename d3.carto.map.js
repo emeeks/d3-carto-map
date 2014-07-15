@@ -209,7 +209,7 @@ d3.carto.map = function() {
             }
         }
 	
-	renderCanvasProjected("zoom");
+	renderCanvas("zoom");
 
     }
 
@@ -227,7 +227,7 @@ d3.carto.map = function() {
         }
     
     mapDiv.select("#reprojectDiv").selectAll("div").remove();
-	renderCanvasProjected("zoomstart");
+	renderCanvas("zoomstart");
     
     }
 
@@ -248,7 +248,7 @@ d3.carto.map = function() {
         }
 	
 	renderProjectedTiles();
-	renderCanvasProjected("zoomend");
+	renderCanvas("zoomend");
      }
 
 
@@ -1175,4 +1175,28 @@ d3.carto.layer = function() {
     
     d3.rebind(d3CartoLayer, d3CartoLayerDispatch, "on");
     return d3CartoLayer;
+}
+
+d3.carto.layer.topojson = function() {
+    return d3.carto.layer().type("topojson");
+}
+
+d3.carto.layer.geojson = function() {
+    return d3.carto.layer().type("geojson");
+}
+
+d3.carto.layer.csv = function() {
+    return d3.carto.layer().type("csv");
+}
+
+d3.carto.layer.xyArray = function() {
+    return d3.carto.layer().type("xyarray");
+}
+
+d3.carto.layer.featureArray = function() {
+    return d3.carto.layer().type("featurearray");
+}
+
+d3.carto.layer.tile = function() {
+    return d3.carto.layer().type("tile");
 }
