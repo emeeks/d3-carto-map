@@ -44,6 +44,7 @@
     "browserify": "^4.2.0",
     "browserify-shim": "^3.6.0",
     "casper-chai": "^0.2.1",
+    "casperjs": "^1.1.0-beta3",
     "chai": "^1.9.1",
     "glob": "^4.0.4",
     "jshint": "^2.5.2",
