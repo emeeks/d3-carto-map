@@ -30,7 +30,7 @@ test: $(BUNDLE) site
 lint: $(SRC) $(TEST)
 	./node_modules/jshint/bin/jshint $(SRC) $(TEST)
  
-site: $(MINIFY) $(META) $(DIST)
+site: $(MINIFY) $(META) $(DIST) $(BOWER)
 	cp *.js $(DIST)
 	cp *.css $(DIST)
 	cp $(META) $(DIST)
