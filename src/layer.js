@@ -111,25 +111,25 @@ var Layer = module.exports = function() {
 }
 
 Layer.topojson = function() {
-    return layer().type("topojson");
+    return Layer().type("topojson");
 }
 
 Layer.geojson = function() {
-    return layer().type("geojson");
+    return Layer().type("geojson");
 }
 
 Layer.csv = function() {
-    return layer().type("csv");
+    return Layer().type("csv");
 }
 
 Layer.xyArray = function() {
-    return layer().type("xyarray");
+    return Layer().type("xyarray");
 }
 
 Layer.featureArray = function() {
-    return layer().type("featurearray");
+    return Layer().type("featurearray");
 }
 
 Layer.tile = function() {
-    return layer().type("tile");
+    return Layer().type("tile");
 }

@@ -1,4 +1,4 @@
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self);var f=o;f=f.d3||(f.d3={}),f=f.carto||(f.carto={}),f.map=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),(f.d3||(f.d3={})).carto=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 module.exports = {
   map: _dereq_("./map"),
   layer: _dereq_("./layer")
@@ -119,27 +119,27 @@ var Layer = module.exports = function() {
 }
 
 Layer.topojson = function() {
-    return layer().type("topojson");
+    return Layer().type("topojson");
 }
 
 Layer.geojson = function() {
-    return layer().type("geojson");
+    return Layer().type("geojson");
 }
 
 Layer.csv = function() {
-    return layer().type("csv");
+    return Layer().type("csv");
 }
 
 Layer.xyArray = function() {
-    return layer().type("xyarray");
+    return Layer().type("xyarray");
 }
 
 Layer.featureArray = function() {
-    return layer().type("featurearray");
+    return Layer().type("featurearray");
 }
 
 Layer.tile = function() {
-    return layer().type("tile");
+    return Layer().type("tile");
 }
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
