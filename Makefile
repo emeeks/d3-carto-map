@@ -9,7 +9,7 @@ DIST 		= dist
 META 		= $(wildcard *.json) $(wildcard *.md) LICENSE
 BOWER 		= examples/bower_components
  
-.PHONY: all clean info watch test lint site
+.PHONY: all clean info watch test lint site gh-pages
  
 all: $(MINIFY) site
  

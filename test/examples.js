@@ -21,6 +21,7 @@ describe("The example", function() {
           });
         });
         casper.on("page.error", function(msg, trace){
+          this.log(msg);
           errors.push(msg + "\n" + JSON.stringify(trace, null, 2));
         });
       });
