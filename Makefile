@@ -3,15 +3,15 @@ EXPORT 		= $(MODULE)
 ENTRY		= src/index.js
 SRC		= $(ENTRY) $(wildcard src/*.js) $(wildcard src/*/*.js)
 BUNDLE 		= d3.carto.map.js
-DEMO_BUNDLE 	= demo/bundle.js
-DEMO_ENTRY 	= demo/main.js
+MINIFY 		= d3.carto.map.min.js
  
 .PHONY: all clean info watch
  
-all: $(BUNDLE)
+all: $(MINIFY)
  
 clean:
 	rm -f $(BUNDLE)
+	rm -f $(MINIFY)
  
 info:
 	@echo "Source:" $(SRC)
@@ -21,3 +21,6 @@ watch:
  
 $(BUNDLE): $(SRC)
 	./node_modules/browserify/bin/cmd.js -s $(EXPORT) -o $@ $(ENTRY)
+ 
+$(MINIFY): $(BUNDLE)
+	./node_modules/uglify-js/bin/uglifyjs --output $(MINIFY) $(BUNDLE)
