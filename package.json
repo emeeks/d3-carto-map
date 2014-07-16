@@ -24,12 +24,25 @@
     "canvas"
   ],
   "dependencies": {
-    "d3": "~3.4.10"
+    "d3": "^3.4.10"
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim"
+    ]
+  },
+  "browserify-shim": {
+    "d3": "global:d3"
   },
   "author": "Elijah Meeks",
   "license": "Unlicense",
   "bugs": {
     "url": "https://github.com/emeeks/d3-carto-map/issues"
   },
-  "homepage": "https://github.com/emeeks/d3-carto-map"
+  "homepage": "https://github.com/emeeks/d3-carto-map",
+  "devDependencies": {
+    "browserify": "^4.2.0",
+    "browserify-shim": "^3.6.0",
+    "watchify": "^0.10.2"
+  }
 }

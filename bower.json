@@ -33,6 +33,12 @@
     "tests"
   ],
   "dependencies": {
-    "d3": "~3.4.10"
+    "d3": "~3.4.10",
+    "topojson": "~1.6.14",
+    "d3-plugins": "*"
+  },
+  "devDependencies": {
+    "colorbrewer": "~1.0.0",
+    "d3-geo-projection": "~0.2.7"
   }
 }
