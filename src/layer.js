@@ -1,3 +1,5 @@
+"use strict";
+
 var d3 = require('d3');
 
 var Layer = module.exports = function() {

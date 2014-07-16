@@ -35,7 +35,7 @@
     "resources",
     "sampledata",
     "build",
-    "src"
+    "src",
     "Makefile"
   ],
   "dependencies": {

@@ -1,10 +1,12 @@
+"use strict";
+
 var fs = require("fs"),
   examples = fs.list([fs.workingDirectory, "examples"].join(fs.separator))
     .filter(function(file){ return /\.html$/.test(file); });
 
 describe("The example", function() {
   before(function() {
-    casper.start('./examples/')
+    casper.start("./examples/");
   });
 
   examples.forEach((function(file){
