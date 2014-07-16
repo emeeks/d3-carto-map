@@ -1,9 +1,9 @@
-MODULE		= d3.carto
+MODULE		= d3.carto.map
 EXPORT 		= $(MODULE)
 ENTRY		= src/index.js
 SRC		= $(ENTRY) $(wildcard src/*.js) $(wildcard src/*/*.js)
-BUNDLE 		= d3.carto.map.js
-MINIFY 		= d3.carto.map.min.js
+BUNDLE 		= $(MODULE).js
+MINIFY 		= $(MODULE).min.js
  
 .PHONY: all clean info watch
  
