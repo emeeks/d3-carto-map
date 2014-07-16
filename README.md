@@ -120,6 +120,12 @@ npm install && bower install
 make
 ```
 
+To rebuild the library every time a source file changes:
+ 
+```shell
+make watch
+```
+
 Testing
 ======
 [Mocha](http://visionmedia.github.io/mocha), along with
