@@ -1,4 +1,5 @@
-var d3 = require("d3");
+var d3 = require("d3"),
+    layer = require("./layer");
 
 module.exports = function() {
     var mapSVG;
@@ -19,6 +20,7 @@ module.exports = function() {
     var d3MapZoomed;
     var d3MapZoomInitialize;
     var d3MapZoomComplete;
+    var renderCanvas;
     
     var d3MapMode = "transform";
 
@@ -121,7 +123,8 @@ module.exports = function() {
     }
     
     function showHideLayer(d,i,sentNode) {
-        var n = sentNode || this;
+    
+    var n = sentNode || this;
 
     var imgUrl = canvasCanvas.node().toDataURL("image/png");
     d3MapCanvasImage.attr("xlink:href", imgUrl).style("opacity", 1);
@@ -206,6 +209,8 @@ module.exports = function() {
             renderSVGFeaturesProjected(x);
             }
         }
+	
+	renderCanvas("zoom");
 
     }
 
@@ -223,6 +228,7 @@ module.exports = function() {
         }
     
     mapDiv.select("#reprojectDiv").selectAll("div").remove();
+	renderCanvas("zoomstart");
     
     }
 
@@ -243,8 +249,70 @@ module.exports = function() {
         }
 	
 	renderProjectedTiles();
+	renderCanvas("zoomend");
+     }
+
+
+    function renderCanvasProjected(zoomMode) {
+	var context = canvasCanvas.node().getContext("2d");
+        context.clearRect(0,0,mapWidth,mapHeight);
+    
+        for (x in d3MapRasterFeatureG) {
+          if ((d3MapRasterFeatureLayer[x].renderFrequency == "drawAlways" || (d3MapRasterFeatureLayer[x].renderFrequency == "drawDuring" && zoomMode == "zoom")) && d3MapRasterFeatureLayer[x].active) {
+            renderCanvasFeaturesProjected(x, context);
+          }	
+        }
+
+        for (x in d3MapRasterPointsG) {
+	    d3MapRasterPointsLayer
+          if ((d3MapRasterPointsLayer[x].renderFrequency == "drawAlways" || (d3MapRasterPointsLayer[x].renderFrequency == "drawDuring" && zoomMode == "zoom")) && d3MapRasterPointsLayer[x].active) {
+            renderCanvasPointsProjected(x, context);
+          }
+        }
     }
 
+        function renderCanvasFeaturesProjected(i,context) {
+
+	var topoData = d3MapRasterFeatureG[i]
+
+	var canvasPath = d3MapPath;
+    
+	for (x in topoData) {
+	    context.strokeStyle = topoData[x]._d3Map.stroke;
+	    context.fillStyle = topoData[x]._d3Map.color;
+	    context.lineWidth = topoData[x]._d3Map.strokeWidth;
+	    context.beginPath(), canvasPath.context(context)(topoData[x]);
+	    if (topoData[x]._d3Map.stroke != "none") {
+		context.stroke()
+	    }
+	    if (topoData[x]._d3Map.color != "none") {
+		context.fill();
+	    }
+	}
+    }
+    
+        function renderCanvasPointsProjected(i,context) {
+        for (y in d3MapRasterPointsG[i]) {
+
+        var projectedPoint = d3MapProjection([d3MapRasterPointsG[i][y].x,d3MapRasterPointsG[i][y].y])
+        var projX = projectedPoint[0];
+        var projY = projectedPoint[1];
+
+        //Transform fill and opacity to rgba        
+        var rgbMarker = d3.rgb(d3MapRasterPointsG[i][y]._d3Map.color)
+        var rgbaMarker = "rgba(" + rgbMarker.r + "," + rgbMarker.g + "," + rgbMarker.b + "," + d3MapRasterPointsG[i][y]._d3Map.opacity + ")";
+        
+        context.beginPath();
+        context.arc(projX,projY,d3MapRasterPointsG[i][y]._d3Map.size,0,2*Math.PI);
+        context.fillStyle = rgbaMarker;
+        context.strokeStyle = d3MapRasterPointsG[i][y]._d3Map.stroke;
+        context.lineWidth = parseFloat(d3MapRasterPointsG[i][y]._d3Map.strokeWidth);
+        context.stroke();
+        context.fill();
+
+      }
+    }
+     
     //Transform Zoom
     function d3MapZoomedTransform() {
 
@@ -308,7 +376,7 @@ module.exports = function() {
 
     }
     
-    function renderCanvas(zoomMode) {
+    function renderCanvasTransform(zoomMode) {
 	var context = canvasCanvas.node().getContext("2d");
         context.clearRect(0,0,mapWidth,mapHeight);
     
@@ -330,9 +398,6 @@ module.exports = function() {
         d3MapSVGPointsG[i]
             .attr("transform", "translate(" + d3MapZoom.translate() + ")scale(" + d3MapZoom.scale() + ")");
 
-	d3MapSVGPointsG[i].selectAll("circle,path,rect,ellipse,polygon")
-	    .style("stroke-width", function(d) {return d._d3Map ? scaled(d._d3Map.strokeWidth) * 3 : 0});
-
         d3MapSVGPointsG[i].selectAll("circle")
             .attr("r", function(d) {return d._d3Map ? scaled(d._d3Map.size) * 7.8 : 0});
             
@@ -353,9 +418,6 @@ module.exports = function() {
     function renderSVGFeatures(i) {
         d3MapSVGFeatureG[i]
             .attr("transform", "translate(" + d3MapZoom.translate() + ")scale(" + d3MapZoom.scale() + ")");
-
-        d3MapSVGFeatureG[i].selectAll("path")
-            .style("stroke-width", function(d) {return scaled(parseFloat(d._d3Map.strokeWidth)) * 1})
     }
 
     function renderCanvasFeatures(i,context) {
@@ -439,9 +501,6 @@ module.exports = function() {
 	    
 	d3MapSVGPointsG[i].selectAll("g.pointG").attr("transform", function(d) {return "translate(" + d3MapProjection([d.x,d.y])+")"})
 
-	d3MapSVGPointsG[i].selectAll("circle,path,rect,ellipse,polygon")
-	    .style("stroke-width", function(d) {return d._d3Map ? d._d3Map.strokeWidth: 0});
-
         d3MapSVGPointsG[i].selectAll("circle")
             .attr("r", function(d) {return d._d3Map ? d._d3Map.size : 0});
             
@@ -457,7 +516,6 @@ module.exports = function() {
             .attr("transform", "translate(0,0) scale(1)");
 
         d3MapSVGFeatureG[i].selectAll("path")
-            .style("stroke-width", function(d) {return d._d3Map.strokeWidth})
 	    .attr("d", d3MapPath)
     }
     
@@ -523,7 +581,7 @@ function manualZoom(zoomDirection) {
 
     function processFeatures(featureData, featureLayerName, featureLayerClass, renderType, renderFrequency,cartoLayer) {
 	if (!cartoLayer) {
-	    cartoLayer = d3.carto.layer()
+	    cartoLayer = layer()
 	    .type("featurearray")
 	    .features(featureData)
 	    .label(featureLayerName)
@@ -570,8 +628,6 @@ function manualZoom(zoomDirection) {
 		  .append("path")
                   .attr("class", featureLayerClass)
                   .attr("d", d3MapPath)
-                  .style("stroke-linecap", "round")
-                  .style("stroke-width", function(d) {return scaled(d._d3Map.strokeWidth)})
 		    }
 		    d3MapAllLayers.push(cartoLayer)
 		    cartoLayer.object(layerObj);
@@ -587,7 +643,7 @@ function manualZoom(zoomDirection) {
         var ccID = "cpc" + d3MapRasterPointsLayer.length;
 
 	if (!cartoLayer) {
-	    cartoLayer = d3.carto.layer()
+	    cartoLayer = layer()
 	    .type("xyarray")
 	    .features(points)
 	    .label(newCSVLayerName)
@@ -689,7 +745,7 @@ function manualZoom(zoomDirection) {
 	    cartoLayer.object(tObj);
 	}
 	else {
-	    cartoLayer = d3.carto.layer()
+	    cartoLayer = layer()
 	    .path(newTileLayer)
 	    .label(tName)
 	    .tileType(tileType)
@@ -703,7 +759,7 @@ function manualZoom(zoomDirection) {
     function d3MapAddCSVLayer(newCSVLayer, newCSVLayerName, newCSVLayerClass, markerSize, renderType, xcoord, ycoord, renderFrequency,cartoLayer) {
 
 	if (!cartoLayer) {
-	    cartoLayer = d3.carto.layer()
+	    cartoLayer = layer()
 	    .type("csv")
 	    .path(newCSVLayer)
 	    .label(newCSVLayerName)
@@ -725,7 +781,7 @@ function manualZoom(zoomDirection) {
             for (x in topoData.objects) {
                 if (x == specificFeature || specificFeature == "all") {
 	if (!cartoLayer) {
-	    cartoLayer = d3.carto.layer()
+	    cartoLayer = layer()
 	    .type("topojson")
 	    .path(newTopoLayer)
 	    .label(newTopoLayerName)
@@ -744,7 +800,7 @@ function manualZoom(zoomDirection) {
 	var layerDataType = "geojson";
 
 	if (!cartoLayer) {
-	    cartoLayer = d3.carto.layer()
+	    cartoLayer = layer()
 	    .type("geojson")
 	    .path(newGeoLayer)
 	    .label(newGeoLayerName)
@@ -783,8 +839,9 @@ function manualZoom(zoomDirection) {
 	    case "featurearray":
 		processFeatures(cartoLayer.features(), cartoLayer.label(), cartoLayer.cssClass(),cartoLayer.renderMode(), "drawAlways",cartoLayer)
 		break;
+	    default:
+	    return false;
 	}
-  return map;
     }
 
     map.addTileLayer = function (newTileLayer, newTileLayerName, tileType, disabled) {
@@ -955,6 +1012,7 @@ function manualZoom(zoomDirection) {
 	    d3MapZoomed = d3MapZoomedProjection;
 	    d3MapZoomInitialize = d3MapZoomInitializeProjection;
 	    d3MapZoomComplete = d3MapZoomCompleteProjection;
+	    renderCanvas = renderCanvasProjected;
 	    //Adjust g and so on
 	    mapSVG.selectAll("g.features,g.points").attr("transform", "translate(0,0) scale(1)")
 	    
@@ -965,6 +1023,7 @@ function manualZoom(zoomDirection) {
 	    d3MapZoomed = d3MapZoomedTransform;
 	    d3MapZoomInitialize = d3MapZoomInitializeTransform;
 	    d3MapZoomComplete = d3MapZoomCompleteTransform;
+	    renderCanvas = renderCanvasTransform;
 	    
 	    d3MapProjection = d3.geo.mercator()
 		.scale((1 << 13) / 2 / Math.PI)

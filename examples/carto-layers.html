@@ -110,11 +110,11 @@
           .on("load", function(){console.log("load xyarray")});
 
 
-        map.addCartoLayer(tileLayer)
-          .addCartoLayer(topojsonLayer)
-          .addCartoLayer(geojsonLayer)
-          .addCartoLayer(csvLayer)
-          .addCartoLayer(xyLayer);
+        map.addCartoLayer(tileLayer);
+        map.addCartoLayer(topojsonLayer);
+        map.addCartoLayer(geojsonLayer);
+        map.addCartoLayer(csvLayer);
+        map.addCartoLayer(xyLayer);
 
         function recenter() {
           map.centerOn([-0.1275,51.507],"latlong",5000);
