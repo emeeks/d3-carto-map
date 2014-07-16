@@ -2,5 +2,6 @@
 
 module.exports = {
   map: require("./map"),
-  layer: require("./layer")
+  layer: require("./layer"),
+  version: require("../package.json").version
 };

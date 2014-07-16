@@ -1,12 +1,71 @@
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),(f.d3||(f.d3={})).carto=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+module.exports={
+  "name": "d3-carto-map",
+  "version": "0.1.0",
+  "description": "easy layer-based maps for d3",
+  "main": "d3.carto.map.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emeeks/d3-carto-map"
+  },
+  "keywords": [
+    "d3",
+    "map",
+    "cartography",
+    "topojson",
+    "geojson",
+    "csv",
+    "svg",
+    "canvas"
+  ],
+  "dependencies": {
+    "d3": "^3.4.10"
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim"
+    ]
+  },
+  "browserify-shim": {
+    "d3": "global:d3"
+  },
+  "author": "Elijah Meeks",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/emeeks/d3-carto-map/issues"
+  },
+  "homepage": "https://github.com/emeeks/d3-carto-map",
+  "devDependencies": {
+    "browserify": "^4.2.0",
+    "browserify-shim": "^3.6.0",
+    "casper-chai": "^0.2.1",
+    "casperjs": "^1.1.0-beta3",
+    "chai": "^1.9.1",
+    "glob": "^4.0.4",
+    "jshint": "^2.5.2",
+    "mocha": "^1.20.1",
+    "mocha-casperjs": "^0.5.0",
+    "uglify-js": "^2.4.15",
+    "watchify": "^0.10.2"
+  }
+}
+
+},{}],2:[function(_dereq_,module,exports){
 "use strict";
 
 module.exports = {
   map: _dereq_("./map"),
-  layer: _dereq_("./layer")
+  layer: _dereq_("./layer"),
+  version: _dereq_("../package.json").version
 };
 
-},{"./layer":2,"./map":3}],2:[function(_dereq_,module,exports){
+},{"../package.json":1,"./layer":3,"./map":4}],3:[function(_dereq_,module,exports){
 (function (global){
 "use strict";
 
@@ -147,7 +206,7 @@ Layer.tile = function() {
 }
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],3:[function(_dereq_,module,exports){
+},{}],4:[function(_dereq_,module,exports){
 (function (global){
 "use strict";
 
@@ -1222,6 +1281,6 @@ function manualZoom(zoomDirection) {
     return map;
 }
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./layer":2}]},{},[1])
-(1)
+},{"./layer":3}]},{},[2])
+(2)
 });

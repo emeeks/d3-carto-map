@@ -1,19 +1,20 @@
 "use strict";
 
 var fs = require("fs"),
-  examples = fs.list([fs.workingDirectory, "examples"].join(fs.separator))
+  exampleDir = "./dist/examples/",
+  examples = fs.list(exampleDir)
     .filter(function(file){ return /\.html$/.test(file); });
 
 describe("The example", function() {
   before(function() {
-    casper.start("./examples/");
+    casper.start(exampleDir);
   });
 
   examples.forEach((function(file){
     describe(file, function(){
       var errors = [];
       it("should run without errors for 5 seconds", function(done){
-        casper.thenOpen("./examples/" + file, function(){
+        casper.thenOpen(exampleDir + file, function(){
           this.wait(5000, function() {
             errors.should.deep.equal([]);
             done();

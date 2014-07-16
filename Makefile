@@ -7,15 +7,16 @@ BUNDLE 		= d3.carto.map.js
 MINIFY 		= d3.carto.map.min.js
 DIST 		= dist
 META 		= $(wildcard *.json) $(wildcard *.md) LICENSE
+BOWER 		= examples/bower_components
  
-.PHONY: all clean info watch test lint
+.PHONY: all clean info watch test lint site
  
-all: $(MINIFY)
+all: $(MINIFY) site
  
 clean:
 	rm -f $(BUNDLE)
 	rm -f $(MINIFY)
-	rm -rf $(DIST)/*
+	rm -rf $(DIST)
  
 info:
 	@echo "Source:" $(SRC)
@@ -23,13 +24,13 @@ info:
 watch:
 	./node_modules/watchify/bin/cmd.js -s $(EXPORT) -o $(BUNDLE) $(ENTRY)
  
-test: $(BUNDLE)
+test: $(BUNDLE) site
 	./node_modules/mocha-casperjs/bin/mocha-casperjs $(TEST)
  
-lint:
+lint: $(SRC) $(TEST)
 	./node_modules/jshint/bin/jshint $(SRC) $(TEST)
  
-dist: $(MINIFY) $(META) $(DIST)
+site: $(MINIFY) $(META) $(DIST)
 	cp *.js $(DIST)
 	cp *.css $(DIST)
 	cp $(META) $(DIST)
@@ -39,9 +40,12 @@ $(BUNDLE): $(SRC)
 	./node_modules/browserify/bin/cmd.js -s $(EXPORT) -o $@ $(ENTRY)
  
 $(DIST):
-	git clone . dist
-	cd dist
-	git checkout gh-pages
+	git clone . dist --single-branch --branch gh-pages
+	rm -rf dist/*
  
 $(MINIFY): $(BUNDLE)
 	node ./node_modules/uglify-js/bin/uglifyjs --output $(MINIFY) $(BUNDLE)
+
+$(BOWER):
+	bower install
+ 
