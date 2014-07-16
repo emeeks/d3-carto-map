@@ -1,11 +1,15 @@
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),(f.d3||(f.d3={})).carto=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+"use strict";
+
 module.exports = {
   map: _dereq_("./map"),
   layer: _dereq_("./layer")
-}
+};
 
 },{"./layer":2,"./map":3}],2:[function(_dereq_,module,exports){
 (function (global){
+"use strict";
+
 var d3 = (typeof window !== "undefined" ? window.d3 : typeof global !== "undefined" ? global.d3 : null);
 
 var Layer = module.exports = function() {
@@ -23,7 +27,7 @@ var Layer = module.exports = function() {
     var layerFeatures;
     var layerTileType = "mapbox";
     var layerSpecific = "all";
-    layerMarkerSize = 5;
+    var layerMarkerSize = 5;
     
     var layerDispatch = d3.dispatch('load');
     
@@ -145,15 +149,19 @@ Layer.tile = function() {
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],3:[function(_dereq_,module,exports){
 (function (global){
+"use strict";
+
 var d3 = (typeof window !== "undefined" ? window.d3 : typeof global !== "undefined" ? global.d3 : null),
     Layer = _dereq_("./layer");
 
 var Map = module.exports = function() {
     var mapSVG;
+    var reprojectDiv;
     var tileSVG;
     var mapDiv;
     var canvasCanvas;
     var layerBox;
+    var zoomBox;
     var mapProjection;
     var mapZoom;
     var mapCenter = [12,42];
@@ -311,7 +319,7 @@ var Map = module.exports = function() {
     }
 
     function rebuildAttributes() {
-	    for (x in d3MapSVGPointsG) {
+	    for (var x in d3MapSVGPointsG) {
             d3MapSVGPointsG[x].selectAll("circle,rect,path,polygon,ellipse")
 	    .each(function(d) {
 		if (!d._d3Map) {
@@ -344,14 +352,14 @@ var Map = module.exports = function() {
 	
 	d3MapProjection.scale(d3MapZoom.scale()).translate(d3MapZoom.translate());
 	      ///POINTS
-      for (x in d3MapSVGPointsG) {
+      for (var x in d3MapSVGPointsG) {
         if (d3MapSVGPointsLayer[x].renderFrequency == "drawAlways" && d3MapSVGPointsLayer[x].active) {
             renderSVGPointsProjected(x);
         }
     }
     
         // FEATURES
-        for (x in d3MapSVGFeatureG) {
+        for (var x in d3MapSVGFeatureG) {
             if (d3MapSVGFeatureLayer[x].renderFrequency == "drawAlways"  && d3MapSVGFeatureLayer[x].active) {
             renderSVGFeaturesProjected(x);
             }
@@ -362,13 +370,13 @@ var Map = module.exports = function() {
     }
 
     function d3MapZoomInitializeProjection() {
-	for (x in d3MapSVGPointsG) {
+	for (var x in d3MapSVGPointsG) {
 	    if (d3MapSVGPointsLayer[x].renderFrequency == "drawEnd" || !d3MapSVGPointsLayer[x].active) {
 	        d3MapSVGPointsG[x].style("display", "none");
 	    }
         }
         
-        for (x in d3MapSVGFeatureG) {
+        for (var x in d3MapSVGFeatureG) {
             if (d3MapSVGFeatureLayer[x].renderFrequency == "drawEnd" || !d3MapSVGFeatureLayer[x].active) {
             renderSVGFeaturesProjected[x].style("display", "none");
             }
@@ -381,14 +389,14 @@ var Map = module.exports = function() {
 
     function d3MapZoomCompleteProjection() {
         
-        for (x in d3MapSVGPointsG) {
+        for (var x in d3MapSVGPointsG) {
             if ((d3MapSVGPointsLayer[x].renderFrequency == "drawEnd" || d3MapSVGPointsLayer[x].renderFrequency == "drawAlways")  && d3MapSVGPointsLayer[x].active) {
             d3MapSVGPointsG[x].style("display", "block");
             renderSVGPointsProjected(x);
             }
         }
 
-        for (x in d3MapSVGFeatureG) {
+        for (var x in d3MapSVGFeatureG) {
             if ((d3MapSVGFeatureLayer[x].renderFrequency == "drawEnd" || d3MapSVGFeatureLayer[x].renderFrequency == "drawAlways")  && d3MapSVGFeatureLayer[x].active) {
             d3MapSVGFeatureG[x].style("display", "block");
             renderSVGFeaturesProjected(x);
@@ -404,13 +412,13 @@ var Map = module.exports = function() {
 	var context = canvasCanvas.node().getContext("2d");
         context.clearRect(0,0,mapWidth,mapHeight);
     
-        for (x in d3MapRasterFeatureG) {
+        for (var x in d3MapRasterFeatureG) {
           if ((d3MapRasterFeatureLayer[x].renderFrequency == "drawAlways" || (d3MapRasterFeatureLayer[x].renderFrequency == "drawDuring" && zoomMode == "zoom")) && d3MapRasterFeatureLayer[x].active) {
             renderCanvasFeaturesProjected(x, context);
           }	
         }
 
-        for (x in d3MapRasterPointsG) {
+        for (var x in d3MapRasterPointsG) {
 	    d3MapRasterPointsLayer
           if ((d3MapRasterPointsLayer[x].renderFrequency == "drawAlways" || (d3MapRasterPointsLayer[x].renderFrequency == "drawDuring" && zoomMode == "zoom")) && d3MapRasterPointsLayer[x].active) {
             renderCanvasPointsProjected(x, context);
@@ -424,7 +432,7 @@ var Map = module.exports = function() {
 
 	var canvasPath = d3MapPath;
     
-	for (x in topoData) {
+	for (var x in topoData) {
 	    context.strokeStyle = topoData[x]._d3Map.stroke;
 	    context.fillStyle = topoData[x]._d3Map.color;
 	    context.lineWidth = topoData[x]._d3Map.strokeWidth;
@@ -466,13 +474,13 @@ var Map = module.exports = function() {
     renderTiles();
       
       ///POINTS
-      for (x in d3MapSVGPointsG) {
+      for (var x in d3MapSVGPointsG) {
         if (d3MapSVGPointsLayer[x].renderFrequency == "drawAlways" && d3MapSVGPointsLayer[x].active) {
             renderSVGPoints(x);
         }
     }
     // FEATURES
-        for (x in d3MapSVGFeatureG) {
+        for (var x in d3MapSVGFeatureG) {
             if (d3MapSVGFeatureLayer[x].renderFrequency == "drawAlways"  && d3MapSVGFeatureLayer[x].active) {
             renderSVGFeatures(x);
             }
@@ -485,13 +493,13 @@ var Map = module.exports = function() {
 
     function d3MapZoomInitializeTransform() {
         //TO DO: Split out the rendering into separate functions and call those with renderVector("always") or renderVector("once") and the like
-        for (x in d3MapSVGPointsG) {
+        for (var x in d3MapSVGPointsG) {
         if (d3MapSVGPointsLayer[x].renderFrequency == "drawEnd" || !d3MapSVGPointsLayer[x].active) {
             d3MapSVGPointsG[x].style("display", "none");
         }
         }
         
-        for (x in d3MapSVGFeatureG) {
+        for (var x in d3MapSVGFeatureG) {
             if (d3MapSVGFeatureLayer[x].renderFrequency == "drawEnd" || !d3MapSVGFeatureLayer[x].active) {
             d3MapSVGFeatureG[x].style("display", "none");
             }
@@ -507,14 +515,14 @@ var Map = module.exports = function() {
     renderTiles();
     renderCanvas("zoomcomplete")
         
-        for (x in d3MapSVGPointsG) {
+        for (var x in d3MapSVGPointsG) {
             if ((d3MapSVGPointsLayer[x].renderFrequency == "drawEnd" || d3MapSVGPointsLayer[x].renderFrequency == "drawAlways")  && d3MapSVGPointsLayer[x].active) {
             d3MapSVGPointsG[x].style("display", "block");
             renderSVGPoints(x);
             }
         }
 
-        for (x in d3MapSVGFeatureG) {
+        for (var x in d3MapSVGFeatureG) {
             if ((d3MapSVGFeatureLayer[x].renderFrequency == "drawEnd" || d3MapSVGFeatureLayer[x].renderFrequency == "drawAlways")  && d3MapSVGFeatureLayer[x].active) {
             d3MapSVGFeatureG[x].style("display", "block");
             renderSVGFeatures(x);
@@ -527,13 +535,13 @@ var Map = module.exports = function() {
 	var context = canvasCanvas.node().getContext("2d");
         context.clearRect(0,0,mapWidth,mapHeight);
     
-        for (x in d3MapRasterFeatureG) {
+        for (var x in d3MapRasterFeatureG) {
           if ((d3MapRasterFeatureLayer[x].renderFrequency == "drawAlways" || (d3MapRasterFeatureLayer[x].renderFrequency == "drawDuring" && zoomMode == "zoom")) && d3MapRasterFeatureLayer[x].active) {
             renderCanvasFeatures(x, context);
           }	
         }
 
-        for (x in d3MapRasterPointsG) {
+        for (var x in d3MapRasterPointsG) {
 	    d3MapRasterPointsLayer
           if ((d3MapRasterPointsLayer[x].renderFrequency == "drawAlways" || (d3MapRasterPointsLayer[x].renderFrequency == "drawDuring" && zoomMode == "zoom")) && d3MapRasterPointsLayer[x].active) {
             renderCanvasPoints(x, context);
@@ -574,7 +582,7 @@ var Map = module.exports = function() {
 	var canvasProjection = d3.geo.mercator().scale(d3MapProjection.scale() * d3MapZoom.scale()).translate(d3MapZoom.translate());
 	var canvasPath = d3.geo.path().projection(canvasProjection);
     
-	for (x in topoData) {
+	for (var x in topoData) {
 	    context.strokeStyle = topoData[x]._d3Map.stroke;
 	    context.fillStyle = topoData[x]._d3Map.color;
 	    context.lineWidth = topoData[x]._d3Map.strokeWidth;
@@ -620,7 +628,7 @@ var Map = module.exports = function() {
       .translate(d3MapZoom.translate())
       ();
 
-      for (x in d3MapTileG) {
+      for (var x in d3MapTileG) {
         if (d3MapTileLayer[x].visible) {
   var image = d3MapTileG[x]
       .attr("transform", "scale(" + tiles.scale + ")translate(" + tiles.translate + ")")
@@ -670,7 +678,7 @@ var Map = module.exports = function() {
 	  if (d3MapTileLayer.length == 0) {
 	    return;
 	  }
-      for (x in d3MapTileG) {
+      for (var x in d3MapTileG) {
         if (d3MapTileLayer[x].visible) {
 
     mapDiv.select("#reprojectDiv").selectAll("div").remove();
@@ -737,7 +745,7 @@ function manualZoom(zoomDirection) {
 	}
 	    var marker = cssFromClass(featureLayerClass);
 
-	for (x in featureData) {
+	for (var x in featureData) {
                       featureData[x]._d3Map = {};
                       featureData[x]._d3Map.color = marker.markerFill;
 		      //Override Fill for lines?
@@ -818,7 +826,7 @@ function manualZoom(zoomDirection) {
             //To access CSS properties
 	    var marker = cssFromClass(newCSVLayerClass);
         
-          for (x in points) {
+          for (var x in points) {
             if(points[x]) {
               //Create and store fixed display data in the _d3Map object
               points[x]._d3Map = {};
@@ -925,7 +933,7 @@ function manualZoom(zoomDirection) {
 
 	    var layerDataType = "topojson";
 
-            for (x in topoData.objects) {
+            for (var x in topoData.objects) {
                 if (x == specificFeature || specificFeature == "all") {
 	if (!cartoLayer) {
 	    cartoLayer = Layer()

@@ -27,13 +27,9 @@
   "ignore": [
     "**/.*",
     "node_modules",
-    "bower_components",
-    "app/bower_components",
     "test",
     "tests",
     "examples",
-    "resources",
-    "sampledata",
     "build",
     "src",
     "Makefile"
