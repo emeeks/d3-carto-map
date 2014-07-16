@@ -17,7 +17,7 @@ var Layer = module.exports = function() {
     var layerFeatures;
     var layerTileType = "mapbox";
     var layerSpecific = "all";
-    layerMarkerSize = 5;
+    var layerMarkerSize = 5;
     
     var layerDispatch = d3.dispatch('load');
     
