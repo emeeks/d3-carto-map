@@ -107,3 +107,44 @@ Existing Issues:
 Graphical artifacts when the scale gets so high that stroke divided by scale returns scientific notation for the value.
 
 Projected rendering mode doesn't reproject tiles yet, and also doesn't provide controls to adjust rotation or other projection characteristics interactively for the user.
+
+Building
+======
+[Bower](http://bower.io) is used for front-end packages.
+[NPM](http://npmjs.org) is used for automation and testing packages.
+[Browserify](http://browserify.org/) is used for source combination.
+[Uglify](https://github.com/mishoo/UglifyJS2) is used for minification.
+
+```shell
+npm install && bower install
+make
+```
+
+To rebuild the library every time a source file changes:
+ 
+```shell
+make watch
+```
+
+Testing
+======
+[Mocha](http://visionmedia.github.io/mocha), along with
+[Casper](https://github.com/nathanboktae/mocha-casperjs) run the
+[tests](./tests).
+
+```shell
+make test
+```
+
+Coding Style
+======
+[JSHint](https://github.com/jshint/jshint/) helps prevent common coding errors
+by enforcing a coding style. It uses [.jsintrc](./.jshintrc) for configuration.
+
+```shell
+make lint
+```
+
+Releases
+======
+Coming soon...

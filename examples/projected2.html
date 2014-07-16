@@ -5,15 +5,15 @@
     <link type="text/css" rel="stylesheet" href="../d3map.css" />
     <link type="text/css" rel="stylesheet" href="example.css" />
 </head>
-<script src="../resources/d3.v3.min.js" type="text/javascript">
+<script src="./bower_components/d3/d3.js" type="text/javascript">
 </script>
-<script src="../resources/topojson.js" type="text/javascript">
+<script src="./bower_components/topojson/topojson.js" type="text/javascript">
 </script>
-<script src="../resources/d3.geo.projection.min.js" type="text/javascript">
+<script src="./resources/d3.geo.projection.min.js" type="text/javascript">
 </script>
-<script src="../resources/tile.js" type="text/javascript">
+<script src="./bower_components/d3-plugins/geo/tile/tile.js" type="text/javascript">
 </script>
-<script src="../resources/colorbrewer.js" type="text/javascript">
+<script src="./bower_components/colorbrewer/colorbrewer.js" type="text/javascript">
 </script>
 <script src="../d3.carto.map.js" type="text/javascript">
 </script>
@@ -55,10 +55,10 @@
 
     map.mode("projection")
     
-    map.addTopoJSONLayer("../sampledata/world.topojson","GeoJSON Countries","filledcountries","canvas","countries");
-    map.addTopoJSONLayer("../sampledata/sample_routes.topojson","TopoJSON Lines","roads","canvas","all");
-    map.addCSVLayer("../sampledata/sample_points.csv","CSV Points","pinkcircle",2,"canvas","x","y");
-    d3.json("../sampledata/world.geojson", function(error,data) {
+    map.addTopoJSONLayer("./sampledata/world.topojson","GeoJSON Countries","filledcountries","canvas","countries");
+    map.addTopoJSONLayer("./sampledata/sample_routes.topojson","TopoJSON Lines","roads","canvas","all");
+    map.addCSVLayer("./sampledata/sample_points.csv","CSV Points","pinkcircle",2,"canvas","x","y");
+    d3.json("./sampledata/world.geojson", function(error,data) {
       fNamedCountries = data.features.filter(function (d) {return d.properties.name.substring(0,1) == "F"})
       map.addFeatureLayer(fNamedCountries, "Filtered Features", "francelike", "canvas")
       })

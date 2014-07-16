@@ -38,10 +38,10 @@
     map.mode("projection")
     
     map.addTileLayer("examples.map-zgrqqx0w", "Base", "mapbox");
-    map.addTopoJSONLayer("../sampledata/world.topojson","GeoJSON Countries","halffilledcountries","svg","countries");
-    map.addTopoJSONLayer("../sampledata/sample_routes.topojson","TopoJSON Lines","roads","svg","all");
-    map.addCSVLayer("../sampledata/sample_points.csv","CSV Points","pinkcircle",2,"svg","x","y");
-    d3.json("../sampledata/world.geojson", function(error,data) {
+    map.addTopoJSONLayer("./sampledata/world.topojson","GeoJSON Countries","halffilledcountries","svg","countries");
+    map.addTopoJSONLayer("./sampledata/sample_routes.topojson","TopoJSON Lines","roads","svg","all");
+    map.addCSVLayer("./sampledata/sample_points.csv","CSV Points","pinkcircle",2,"svg","x","y");
+    d3.json("./sampledata/world.geojson", function(error,data) {
       fNamedCountries = data.features.filter(function (d) {return d.properties.name.substring(0,1) == "F"})
       map.addFeatureLayer(fNamedCountries, "Filtered Features", "francelike", "svg")
       })

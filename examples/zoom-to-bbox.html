@@ -5,15 +5,15 @@
     <link type="text/css" rel="stylesheet" href="../d3map.css" />
     <link type="text/css" rel="stylesheet" href="example.css" />
 </head>
-<script src="../resources/d3.v3.min.js" type="text/javascript">
+<script src="./bower_components/d3/d3.js" type="text/javascript">
 </script>
-<script src="../resources/topojson.js" type="text/javascript">
+<script src="./bower_components/topojson/topojson.js" type="text/javascript">
 </script>
-<script src="../resources/d3.geo.projection.min.js" type="text/javascript">
+<script src="./resources/d3.geo.projection.min.js" type="text/javascript">
 </script>
-<script src="../resources/tile.js" type="text/javascript">
+<script src="./bower_components/d3-plugins/geo/tile/tile.js" type="text/javascript">
 </script>
-<script src="../resources/colorbrewer.js" type="text/javascript">
+<script src="./bower_components/colorbrewer/colorbrewer.js" type="text/javascript">
 </script>
 <script src="../d3.carto.map.js" type="text/javascript">
 </script>
@@ -46,7 +46,7 @@
 
     zoomMap.addTileLayer("examples.map-zgrqqx0w", "Terrain", "mapbox");
 
-    d3.json("../sampledata/world.geojson", function(error,data) {
+    d3.json("./sampledata/world.geojson", function(error,data) {
       zoomMap.addFeatureLayer(data.features, "Countries", "invisible", "svg");
       
       d3.select("#zoommap").selectAll("path.invisible").on("click", function (d) {

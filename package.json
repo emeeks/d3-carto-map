@@ -1,0 +1,56 @@
+{
+  "name": "d3-carto-map",
+  "version": "0.1.0",
+  "description": "easy layer-based maps for d3",
+  "main": "d3.carto.map.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emeeks/d3-carto-map"
+  },
+  "keywords": [
+    "d3",
+    "map",
+    "cartography",
+    "topojson",
+    "geojson",
+    "csv",
+    "svg",
+    "canvas"
+  ],
+  "dependencies": {
+    "d3": "^3.4.10"
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim"
+    ]
+  },
+  "browserify-shim": {
+    "d3": "global:d3"
+  },
+  "author": "Elijah Meeks",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/emeeks/d3-carto-map/issues"
+  },
+  "homepage": "https://github.com/emeeks/d3-carto-map",
+  "devDependencies": {
+    "browserify": "^4.2.0",
+    "browserify-shim": "^3.6.0",
+    "casper-chai": "^0.2.1",
+    "casperjs": "^1.1.0-beta3",
+    "chai": "^1.9.1",
+    "glob": "^4.0.4",
+    "jshint": "^2.5.2",
+    "mocha": "^1.20.1",
+    "mocha-casperjs": "^0.5.0",
+    "uglify-js": "^2.4.15",
+    "watchify": "^0.10.2"
+  }
+}

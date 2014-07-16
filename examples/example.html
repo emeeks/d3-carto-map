@@ -5,15 +5,15 @@
     <link type="text/css" rel="stylesheet" href="../d3map.css" />
     <link type="text/css" rel="stylesheet" href="example.css" />
 </head>
-<script src="../resources/d3.v3.min.js" type="text/javascript">
+<script src="./bower_components/d3/d3.js" type="text/javascript">
 </script>
-<script src="../resources/topojson.js" type="text/javascript">
+<script src="./bower_components/topojson/topojson.js" type="text/javascript">
 </script>
-<script src="../resources/d3.geo.projection.min.js" type="text/javascript">
+<script src="./resources/d3.geo.projection.min.js" type="text/javascript">
 </script>
-<script src="../resources/tile.js" type="text/javascript">
+<script src="./bower_components/d3-plugins/geo/tile/tile.js" type="text/javascript">
 </script>
-<script src="../resources/colorbrewer.js" type="text/javascript">
+<script src="./bower_components/colorbrewer/colorbrewer.js" type="text/javascript">
 </script>
 <script src="../d3.carto.map.js" type="text/javascript">
 </script>
@@ -54,17 +54,17 @@
     newMap3.addTileLayer("elijahmeeks.map-ktkeam22", "historic", "mapbox", true);
     newMap3.addTileLayer("examples.map-h67hf2ic", "streets", "mapbox", true);
     newMap1.centerOn([-0.1275,51.507],"latlong",7500);
-    newMap1.addTopoJSONLayer("../sampledata/world.topojson","world","countries","svg","countries");
-    newMap1.addTopoJSONLayer("../sampledata/sample_routes.topojson","toporoutes","roads","svg","all");
-    newMap1.addCSVLayer("../sampledata/sample_points.csv","CSVSVG","pinkcircle",4,"svg","x","y");
-    newMap2.addGeoJSONLayer("../sampledata/world.geojson","world","countries","svg","countries");
-    newMap2.addCSVLayer("../sampledata/sample_points.csv","CSVCanvas","greencircle",4,"canvas","x","y");
-    newMap2.addTopoJSONLayer("../sampledata/sample_routes.topojson","toporoutes","rivers","canvas","all");
+    newMap1.addTopoJSONLayer("./sampledata/world.topojson","world","countries","svg","countries");
+    newMap1.addTopoJSONLayer("./sampledata/sample_routes.topojson","toporoutes","roads","svg","all");
+    newMap1.addCSVLayer("./sampledata/sample_points.csv","CSVSVG","pinkcircle",4,"svg","x","y");
+    newMap2.addGeoJSONLayer("./sampledata/world.geojson","world","countries","svg","countries");
+    newMap2.addCSVLayer("./sampledata/sample_points.csv","CSVCanvas","greencircle",4,"canvas","x","y");
+    newMap2.addTopoJSONLayer("./sampledata/sample_routes.topojson","toporoutes","rivers","canvas","all");
     newMap3.centerOn([12,42],"latlong",0)
-    newMap3.addTopoJSONLayer("../sampledata/world.topojson","world","countries","canvas","countries");
-    newMap3.addTopoJSONLayer("../sampledata/sample_routes.topojson","toporoutes","rivers","canvas","all");
-    newMap3.addCSVLayer("../sampledata/sample_points.csv","CSVMixed","greencircle",4,"mixed","x","y");
-    d3.json("../sampledata/world.geojson", function(error,data) {
+    newMap3.addTopoJSONLayer("./sampledata/world.topojson","world","countries","canvas","countries");
+    newMap3.addTopoJSONLayer("./sampledata/sample_routes.topojson","toporoutes","rivers","canvas","all");
+    newMap3.addCSVLayer("./sampledata/sample_points.csv","CSVMixed","greencircle",4,"mixed","x","y");
+    d3.json("./sampledata/world.geojson", function(error,data) {
       fNamedCountries = data.features.filter(function (d) {return d.properties.name.substring(0,1) == "F"})
       newMap1.addFeatureLayer(fNamedCountries, "France?", "francelike", "svg")
       })

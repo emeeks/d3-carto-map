@@ -5,15 +5,15 @@
     <link type="text/css" rel="stylesheet" href="../d3map.css" />
     <link type="text/css" rel="stylesheet" href="example.css" />
 </head>
-<script src="../resources/d3.v3.min.js" type="text/javascript">
+<script src="./bower_components/d3/d3.js" type="text/javascript">
 </script>
-<script src="../resources/topojson.js" type="text/javascript">
+<script src="./bower_components/topojson/topojson.js" type="text/javascript">
 </script>
-<script src="../resources/d3.geo.projection.min.js" type="text/javascript">
+<script src="./resources/d3.geo.projection.min.js" type="text/javascript">
 </script>
-<script src="../resources/tile.js" type="text/javascript">
+<script src="./bower_components/d3-plugins/geo/tile/tile.js" type="text/javascript">
 </script>
-<script src="../resources/colorbrewer.js" type="text/javascript">
+<script src="./bower_components/colorbrewer/colorbrewer.js" type="text/javascript">
 </script>
 <script src="../d3.carto.map.js" type="text/javascript">
 </script>
@@ -46,8 +46,8 @@
     map.addTileLayer("elijahmeeks.map-ktkeam22", "Historic", "mapbox", true);
     map.addTileLayer("examples.map-h67hf2ic", "Streets", "mapbox", true);
     map.centerOn([-0.1275,51.507],"latlong");
-    map.addTopoJSONLayer("../sampledata/world.topojson","world","countries","canvas","countries");
-    map.addTopoJSONLayer("../sampledata/sample_routes.topojson","toporoutes","rivers","canvas","all");
+    map.addTopoJSONLayer("./sampledata/world.topojson","world","countries","canvas","countries");
+    map.addTopoJSONLayer("./sampledata/sample_routes.topojson","toporoutes","rivers","canvas","all");
   }
 </script>
 <body onload="makeSomeMaps()">
