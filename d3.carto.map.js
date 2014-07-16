@@ -8,7 +8,7 @@ module.exports = {
 (function (global){
 var d3 = (typeof window !== "undefined" ? window.d3 : typeof global !== "undefined" ? global.d3 : null);
 
-var layer = module.exports = function() {
+var Layer = module.exports = function() {
     var layerPath = "";
     var layerType = "";
     var layerVisibility = true;
@@ -27,7 +27,7 @@ var layer = module.exports = function() {
     
     var layerDispatch = d3.dispatch('load');
     
-    layer = function() {
+    var layer = function() {
 	
     }
     
@@ -118,27 +118,27 @@ var layer = module.exports = function() {
     return layer;
 }
 
-layer.topojson = function() {
+Layer.topojson = function() {
     return layer().type("topojson");
 }
 
-layer.geojson = function() {
+Layer.geojson = function() {
     return layer().type("geojson");
 }
 
-layer.csv = function() {
+Layer.csv = function() {
     return layer().type("csv");
 }
 
-layer.xyArray = function() {
+Layer.xyArray = function() {
     return layer().type("xyarray");
 }
 
-layer.featureArray = function() {
+Layer.featureArray = function() {
     return layer().type("featurearray");
 }
 
-layer.tile = function() {
+Layer.tile = function() {
     return layer().type("tile");
 }
 
@@ -146,9 +146,9 @@ layer.tile = function() {
 },{}],3:[function(_dereq_,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window.d3 : typeof global !== "undefined" ? global.d3 : null),
-    layer = _dereq_("./layer");
+    Layer = _dereq_("./layer");
 
-module.exports = function() {
+var Map = module.exports = function() {
     var mapSVG;
     var tileSVG;
     var mapDiv;
@@ -728,7 +728,7 @@ function manualZoom(zoomDirection) {
 
     function processFeatures(featureData, featureLayerName, featureLayerClass, renderType, renderFrequency,cartoLayer) {
 	if (!cartoLayer) {
-	    cartoLayer = layer()
+	    cartoLayer = Layer()
 	    .type("featurearray")
 	    .features(featureData)
 	    .label(featureLayerName)
@@ -790,7 +790,7 @@ function manualZoom(zoomDirection) {
         var ccID = "cpc" + d3MapRasterPointsLayer.length;
 
 	if (!cartoLayer) {
-	    cartoLayer = layer()
+	    cartoLayer = Layer()
 	    .type("xyarray")
 	    .features(points)
 	    .label(newCSVLayerName)
@@ -892,7 +892,7 @@ function manualZoom(zoomDirection) {
 	    cartoLayer.object(tObj);
 	}
 	else {
-	    cartoLayer = layer()
+	    cartoLayer = Layer()
 	    .path(newTileLayer)
 	    .label(tName)
 	    .tileType(tileType)
@@ -906,7 +906,7 @@ function manualZoom(zoomDirection) {
     function d3MapAddCSVLayer(newCSVLayer, newCSVLayerName, newCSVLayerClass, markerSize, renderType, xcoord, ycoord, renderFrequency,cartoLayer) {
 
 	if (!cartoLayer) {
-	    cartoLayer = layer()
+	    cartoLayer = Layer()
 	    .type("csv")
 	    .path(newCSVLayer)
 	    .label(newCSVLayerName)
@@ -928,7 +928,7 @@ function manualZoom(zoomDirection) {
             for (x in topoData.objects) {
                 if (x == specificFeature || specificFeature == "all") {
 	if (!cartoLayer) {
-	    cartoLayer = layer()
+	    cartoLayer = Layer()
 	    .type("topojson")
 	    .path(newTopoLayer)
 	    .label(newTopoLayerName)
@@ -947,7 +947,7 @@ function manualZoom(zoomDirection) {
 	var layerDataType = "geojson";
 
 	if (!cartoLayer) {
-	    cartoLayer = layer()
+	    cartoLayer = Layer()
 	    .type("geojson")
 	    .path(newGeoLayer)
 	    .label(newGeoLayerName)

@@ -1,6 +1,6 @@
 var d3 = require('d3');
 
-var layer = module.exports = function() {
+var Layer = module.exports = function() {
     var layerPath = "";
     var layerType = "";
     var layerVisibility = true;
@@ -19,7 +19,7 @@ var layer = module.exports = function() {
     
     var layerDispatch = d3.dispatch('load');
     
-    layer = function() {
+    var layer = function() {
 	
     }
     
@@ -110,26 +110,26 @@ var layer = module.exports = function() {
     return layer;
 }
 
-layer.topojson = function() {
+Layer.topojson = function() {
     return layer().type("topojson");
 }
 
-layer.geojson = function() {
+Layer.geojson = function() {
     return layer().type("geojson");
 }
 
-layer.csv = function() {
+Layer.csv = function() {
     return layer().type("csv");
 }
 
-layer.xyArray = function() {
+Layer.xyArray = function() {
     return layer().type("xyarray");
 }
 
-layer.featureArray = function() {
+Layer.featureArray = function() {
     return layer().type("featurearray");
 }
 
-layer.tile = function() {
+Layer.tile = function() {
     return layer().type("tile");
 }

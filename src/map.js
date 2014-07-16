@@ -1,7 +1,7 @@
 var d3 = require("d3"),
-    layer = require("./layer");
+    Layer = require("./layer");
 
-module.exports = function() {
+var Map = module.exports = function() {
     var mapSVG;
     var tileSVG;
     var mapDiv;
@@ -581,7 +581,7 @@ function manualZoom(zoomDirection) {
 
     function processFeatures(featureData, featureLayerName, featureLayerClass, renderType, renderFrequency,cartoLayer) {
 	if (!cartoLayer) {
-	    cartoLayer = layer()
+	    cartoLayer = Layer()
 	    .type("featurearray")
 	    .features(featureData)
 	    .label(featureLayerName)
@@ -643,7 +643,7 @@ function manualZoom(zoomDirection) {
         var ccID = "cpc" + d3MapRasterPointsLayer.length;
 
 	if (!cartoLayer) {
-	    cartoLayer = layer()
+	    cartoLayer = Layer()
 	    .type("xyarray")
 	    .features(points)
 	    .label(newCSVLayerName)
@@ -745,7 +745,7 @@ function manualZoom(zoomDirection) {
 	    cartoLayer.object(tObj);
 	}
 	else {
-	    cartoLayer = layer()
+	    cartoLayer = Layer()
 	    .path(newTileLayer)
 	    .label(tName)
 	    .tileType(tileType)
@@ -759,7 +759,7 @@ function manualZoom(zoomDirection) {
     function d3MapAddCSVLayer(newCSVLayer, newCSVLayerName, newCSVLayerClass, markerSize, renderType, xcoord, ycoord, renderFrequency,cartoLayer) {
 
 	if (!cartoLayer) {
-	    cartoLayer = layer()
+	    cartoLayer = Layer()
 	    .type("csv")
 	    .path(newCSVLayer)
 	    .label(newCSVLayerName)
@@ -781,7 +781,7 @@ function manualZoom(zoomDirection) {
             for (x in topoData.objects) {
                 if (x == specificFeature || specificFeature == "all") {
 	if (!cartoLayer) {
-	    cartoLayer = layer()
+	    cartoLayer = Layer()
 	    .type("topojson")
 	    .path(newTopoLayer)
 	    .label(newTopoLayerName)
@@ -800,7 +800,7 @@ function manualZoom(zoomDirection) {
 	var layerDataType = "geojson";
 
 	if (!cartoLayer) {
-	    cartoLayer = layer()
+	    cartoLayer = Layer()
 	    .type("geojson")
 	    .path(newGeoLayer)
 	    .label(newGeoLayerName)
