@@ -99,8 +99,8 @@
     }
 
     function changeMarkers() {
-      d3.selectAll("g.pinkcircle").select("circle").remove();
-      d3.selectAll("g.pinkcircle").datum({e: 0}).append("rect").attr("class", "bluesquare").attr("height", 5).attr("width",5).attr("x",-2.5).attr("y",-2.5)
+      csvLayer.g.selectAll("g.pinkcircle").select("circle").remove();
+      csvLayer.g.selectAll("g.pinkcircle").datum({e: 0}).append("rect").attr("class", "bluesquare").attr("height", 5).attr("width",5).attr("x",-2.5).attr("y",-2.5)
 //    To get the graphical elements to scale you need to do this
       map.refresh();
     }
@@ -115,9 +115,8 @@
       })
      shortNameCountries = featuresArray.filter(function(d) {return d.properties.name.length < 7})
 
-    featureLayer = d3.carto.layer();
+    featureLayer = d3.carto.layer.featureLayer();
     featureLayer
-    .type("featurearray")
     .features(shortNameCountries)
     .label("Feature Array")
     .cssClass("halffilledcountries")
