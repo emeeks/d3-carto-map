@@ -30,7 +30,13 @@
     "bower_components",
     "app/bower_components",
     "test",
-    "tests"
+    "tests",
+    "examples",
+    "resources",
+    "sampledata",
+    "build",
+    "src"
+    "Makefile"
   ],
   "dependencies": {
     "d3": "~3.4.10",
