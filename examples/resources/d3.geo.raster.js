@@ -1,19 +1,21 @@
+// Copyright 2014, Jason Davies, http://www.jasondavies.com/
 (function() {
 
 d3.geo.raster = function(projection) {
   var path = d3.geo.path().projection(projection),
       url = null,
-      subdomains = ["a", "b", "c"];
+      scaleExtent = [0, Infinity],
+      subdomains = ["a", "b", "c", "d"];
 
   var imgCanvas = document.createElement("canvas"),
       imgContext = imgCanvas.getContext("2d");
 
   function redraw(layer) {
     // TODO improve zoom level computation
-    var pot = Math.log(projection.scale()) / Math.LN2 | 0,
+    var z = Math.max(scaleExtent[0], Math.min(scaleExtent[1], (Math.log(projection.scale()) / Math.LN2 | 0) - 6)),
+        pot = z + 6,
         ds = projection.scale() / (1 << pot),
-        t = projection.translate(),
-        z = pot - 6;
+        t = projection.translate();
 
     layer.style(prefix + "transform", "translate(" + t.map(pixel) + ")scale(" + ds + ")");
 
@@ -22,11 +24,11 @@ d3.geo.raster = function(projection) {
     tile.enter().append("canvas")
         .attr("class", "tile")
         .each(function(d) {
-          var canvas = this;
-          var image = d.image = new Image;
+          var canvas = this,
+              image = d.image = new Image,
+              k = d.key;
           image.crossOrigin = true;
           image.onload = function() { setTimeout(function() { onload(d, canvas, pot); }, 1); };
-          var k = d.key;
           image.src = url({x: k[0], y: k[1], z: k[2], subdomain: subdomains[(k[0] * 31 + k[1]) % subdomains.length]});
         });
     tile.exit().remove();
@@ -38,18 +40,16 @@ d3.geo.raster = function(projection) {
     return redraw;
   };
 
+  redraw.scaleExtent = function(_) {
+    return arguments.length ? (scaleExtent = _, redraw) : scaleExtent;
+  };
+
   redraw.subdomains = function(_) {
-    if (!arguments.length) return subdomains;
-    subdomains = _;
-    return redraw;
+    return arguments.length ? (subdomains = _, redraw) : subdomains;
   };
 
   return redraw;
 
-  function key(d) { return d.key.join(", "); }
-
-  function pixel(d) { return (d | 0) + "px"; }
-   
   function onload(d, canvas, pot) {
     var t = projection.translate(),
         s = projection.scale(),
@@ -71,10 +71,12 @@ d3.geo.raster = function(projection) {
         x1 = bounds[1][0] + 1 | 0,
         y1 = bounds[1][1] + 1 | 0;
 
-    var lambda0 = k[0] / width * 360 - 180,
-        lambda1 = (k[0] + 1) / width * 360 - 180,
-        phi1 = mercatorphi(k[1] / width * 360 - 180),
-        phi0 = mercatorphi((k[1] + 1) / width * 360 - 180);
+    var Lambda0 = k[0] / width * 360 - 180,
+        Lambda1 = (k[0] + 1) / width * 360 - 180,
+        Phi0 = k[1] / width * 360 - 180,
+        Phi1 = (k[1] + 1) / width * 360 - 180;
+        mPhi0 = mercatorPhi(Phi0),
+        mPhi1 = mercatorPhi(Phi1);
 
     var width = canvas.width = x1 - x0,
         height = canvas.height = y1 - y0,
@@ -82,37 +84,36 @@ d3.geo.raster = function(projection) {
 
     if (width > 0 && height > 0) {
       var sourceData = imgContext.getImageData(0, 0, dx, dy).data,
-          target = context.createImageData(width, height);
-      if (target) {
-        var targetData = target.data
-            interpolate = bilinear(function(x, y, offset) {
-              return sourceData[(y * dx + x) * 4 + offset];
-            });
-       
-        for (var y = y0, i = -1; y < y1; ++y) {
-          for (var x = x0; x < x1; ++x) {
-            var p = projection.invert([x, y]), lambda, phi;
-            if (!p || isNaN(lambda = p[0]) || isNaN(phi = p[1]) || lambda > lambda1 || lambda < lambda0 || phi > phi1 || phi < phi0) { i += 4; continue; }
+          target = context.createImageData(width, height),
+          targetData = target.data,
+          interpolate = bilinear(function(x, y, offset) {
+            return sourceData[(y * dx + x) * 4 + offset];
+          });
 
-            var sx = (lambda - lambda0) / (lambda1 - lambda0) * dx,
-                sy = (phi1 - phi) / (phi1 - phi0) * dy;
-            if (1) {
-              var q = (((lambda - lambda0) / (lambda1 - lambda0) * dx | 0) + ((phi1 - phi) / (phi1 - phi0) * dy | 0) * dx) * 4;
-              targetData[++i] = sourceData[q];
-              targetData[++i] = sourceData[++q];
-              targetData[++i] = sourceData[++q];
-            } else {
-              targetData[++i] = interpolate(sx, sy, 0);
-              targetData[++i] = interpolate(sx, sy, 1);
-              targetData[++i] = interpolate(sx, sy, 2);
-            }
-            targetData[++i] = 0xff;
+      for (var y = y0, i = -1; y < y1; ++y) {
+        for (var x = x0; x < x1; ++x) {
+          var p = projection.invert([x, y]), Lambda, Phi;
+          if (!p || isNaN(Lambda = p[0]) || isNaN(Phi = p[1]) || Lambda > Lambda1 || Lambda < Lambda0 || Phi > mPhi0 || Phi < mPhi1) { i += 4; continue; }
+          Phi = mercatorPhi.invert(Phi);
+
+          var sx = (Lambda - Lambda0) / (Lambda1 - Lambda0) * dx,
+              sy = (Phi - Phi0) / (Phi1 - Phi0) * dy;
+          if (1) {
+            var q = (((Lambda - Lambda0) / (Lambda1 - Lambda0) * dx | 0) + ((Phi - Phi0) / (Phi1 - Phi0) * dy | 0) * dx) * 4;
+            targetData[++i] = sourceData[q];
+            targetData[++i] = sourceData[++q];
+            targetData[++i] = sourceData[++q];
+          } else {
+            targetData[++i] = interpolate(sx, sy, 0);
+            targetData[++i] = interpolate(sx, sy, 1);
+            targetData[++i] = interpolate(sx, sy, 2);
           }
+          targetData[++i] = 0xff;
         }
-        context.putImageData(target, 0, 0);
       }
+      context.putImageData(target, 0, 0);
     }
-   
+
     d3.selectAll([canvas])
         .style("left", x0 + "px")
         .style("top", y0 + "px");
@@ -121,10 +122,17 @@ d3.geo.raster = function(projection) {
   }
 };
 
+function key(d) { return d.key.join(", "); }
+function pixel(d) { return (d | 0) + "px"; }
+
 // Find latitude based on Mercator y-coordinate (in degrees).
-function mercatorphi(y) {
+function mercatorPhi(y) {
   return Math.atan(Math.exp(-y * Math.PI / 180)) * 360 / Math.PI - 90;
 }
+
+mercatorPhi.invert = function(Phi) {
+  return -Math.log(Math.tan(Math.PI * .25 + Phi * Math.PI / 360)) * 180 / Math.PI;
+};
 
 function bilinear(f) {
   return function(x, y, o) {
@@ -159,7 +167,7 @@ function quadkey(column, row, zoom) {
 
 })();
 
-	// Check for vendor prefixes, by Mike Bostock.
+// Check for vendor prefixes, by Mike Bostock.
 var prefix = prefixMatch(["webkit", "ms", "Moz", "O"]);
 
 function prefixMatch(p) {

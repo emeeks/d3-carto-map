@@ -11,3 +11,5 @@ examples/resources/d3.quadtiles.js
 examples/resources/tile.js
 
 examples/resources/topojson.js
+
+examples/reproject-raster2.html
