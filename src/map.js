@@ -16,6 +16,7 @@ var Map = module.exports = function() {
     var mapCenter = [12,42];
     var mapHeight = 10;
     var mapWidth = 10;
+    var rasterReprojecting = false;
     
     var setProjection = d3.geo.mollweide()
     .scale(450)
@@ -535,6 +536,8 @@ var Map = module.exports = function() {
 	  if (d3MapTileLayer.length == 0) {
 	    return;
 	  }
+	  if (!rasterReprojecting) {
+	  rasterReprojecting = true;
       for (var x in d3MapTileG) {
         if (d3MapTileLayer[x].visible) {
 
@@ -546,9 +549,13 @@ var Map = module.exports = function() {
   .append("div")
     .style(prefix + "transform-origin", "0 0 0")
     .call(d3.geo.raster(d3MapProjection)
-      .url("//{subdomain}.tiles.mapbox.com/v3/"+ d3MapTileLayer[x].path +"/{z}/{x}/{y}.png"));
+      .url("//{subdomain}.tiles.mapbox.com/v3/"+ d3MapTileLayer[x].path +"/{z}/{x}/{y}.png")
+      .on("reprojectcomplete", function() {console.log("reprojectComplete"); rasterReprojecting = false;}));
 	}
       }
+    
+	  }
+
     }
 function manualZoom(zoomDirection) {
 

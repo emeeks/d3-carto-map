@@ -7,6 +7,8 @@ d3.geo.raster = function(projection) {
       scaleExtent = [0, Infinity],
       subdomains = ["a", "b", "c", "d"];
 
+  var reprojectDispatch = d3.dispatch('reprojectcomplete');
+
   var imgCanvas = document.createElement("canvas"),
       imgContext = imgCanvas.getContext("2d");
 
@@ -30,7 +32,10 @@ d3.geo.raster = function(projection) {
           image.crossOrigin = true;
           image.onload = function() { setTimeout(function() { onload(d, canvas, pot); }, 1); };
           image.src = url({x: k[0], y: k[1], z: k[2], subdomain: subdomains[(k[0] * 31 + k[1]) % subdomains.length]});
-        });
+        })
+	.transition()
+	.delay(500)
+	.each("end", function() {reprojectDispatch.reprojectcomplete()});
     tile.exit().remove();
   }
 
@@ -48,6 +53,7 @@ d3.geo.raster = function(projection) {
     return arguments.length ? (subdomains = _, redraw) : subdomains;
   };
 
+  d3.rebind(redraw, reprojectDispatch, "on");
   return redraw;
 
   function onload(d, canvas, pot) {
