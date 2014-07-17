@@ -236,6 +236,7 @@ var Map = module.exports = function() {
     var d3MapZoomInitialize;
     var d3MapZoomComplete;
     var renderCanvas;
+    var renderTiles;
     
     var d3MapMode = "transform";
 
@@ -465,7 +466,7 @@ var Map = module.exports = function() {
             }
         }
 	
-	renderProjectedTiles();
+	renderTiles();
 	renderCanvas("zoomend");
      }
 
@@ -685,7 +686,7 @@ var Map = module.exports = function() {
       }
     }
     
-    function renderTiles() {
+    function renderTilesTransform() {
           //Tile drawing needs to only draw the topmost baselayer, or designate base layers through the layer control dialogue
 	  if (d3MapTileLayer.length == 0) {
 	    return;
@@ -741,7 +742,7 @@ var Map = module.exports = function() {
 	    .attr("d", d3MapPath)
     }
     
-    function renderProjectedTiles() {
+    function renderTilesProjected() {
 	  if (d3MapTileLayer.length == 0) {
 	    return;
 	  }
@@ -1259,6 +1260,7 @@ function manualZoom(zoomDirection) {
 	    d3MapZoomInitialize = d3MapZoomInitializeProjection;
 	    d3MapZoomComplete = d3MapZoomCompleteProjection;
 	    renderCanvas = renderCanvasProjected;
+	    renderTiles = renderTilesProjected;
 	    //Adjust g and so on
 	    mapSVG.selectAll("g.features,g.points").attr("transform", "translate(0,0) scale(1)")
 	    
@@ -1270,6 +1272,7 @@ function manualZoom(zoomDirection) {
 	    d3MapZoomInitialize = d3MapZoomInitializeTransform;
 	    d3MapZoomComplete = d3MapZoomCompleteTransform;
 	    renderCanvas = renderCanvasTransform;
+	    renderTiles = renderTilesTransform;
 	    
 	    d3MapProjection = d3.geo.mercator()
 		.scale((1 << 13) / 2 / Math.PI)
