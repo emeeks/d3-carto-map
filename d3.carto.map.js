@@ -1,7 +1,7 @@
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),(f.d3||(f.d3={})).carto=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 module.exports={
   "name": "d3-carto-map",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "easy layer-based maps for d3",
   "main": "d3.carto.map.js",
   "directories": {
@@ -62,10 +62,11 @@ module.exports={
 module.exports = {
   map: _dereq_("./map"),
   layer: _dereq_("./layer"),
+  minimap: _dereq_("./minimap"),
   version: _dereq_("../package.json").version
 };
 
-},{"../package.json":1,"./layer":3,"./map":4}],3:[function(_dereq_,module,exports){
+},{"../package.json":1,"./layer":3,"./map":4,"./minimap":5}],3:[function(_dereq_,module,exports){
 (function (global){
 "use strict";
 
@@ -268,6 +269,8 @@ var Map = module.exports = function() {
     var d3MapPath = d3.geo.path();
     
     var d3MapZoom = d3.behavior.zoom();
+    
+    var tandemMapArray = [];
 
     function map(selectedDiv) {
 
@@ -506,7 +509,7 @@ var Map = module.exports = function() {
     }
     
         function renderCanvasPointsProjected(i,context) {
-        for (y in d3MapRasterPointsG[i]) {
+        for (var y in d3MapRasterPointsG[i]) {
 
         var projectedPoint = d3MapProjection([d3MapRasterPointsG[i][y].x,d3MapRasterPointsG[i][y].y])
         var projX = projectedPoint[0];
@@ -548,6 +551,11 @@ var Map = module.exports = function() {
     //CANVAS RENDERING
     renderCanvas("zoom");
 
+    for (var x in tandemMapArray) {
+	if (tandemMapArray[x].type == "minimap") {
+	    tandemMapArray[x].mini.updateBoundingBox(map.screenBounds());
+	}
+    }
     }
 
     function d3MapZoomInitializeTransform() {
@@ -656,7 +664,7 @@ var Map = module.exports = function() {
     }
     
     function renderCanvasPoints(i,context) {
-        for (y in d3MapRasterPointsG[i]) {
+        for (var y in d3MapRasterPointsG[i]) {
 
         var projectedPoint = d3MapProjection([d3MapRasterPointsG[i][y].x,d3MapRasterPointsG[i][y].y])
         var projX = projectedPoint[0] * d3MapZoom.scale() + d3MapZoom.translate()[0];
@@ -1056,6 +1064,18 @@ function manualZoom(zoomDirection) {
 	    default:
 	    return false;
 	}
+	for (var x in tandemMapArray) {
+	    var newCartoLayer = new d3.carto.layer;
+	    var layerFunctions = ["path","type","visibility","renderMode","x","y","markerSize","cssClass","g","object","features","tileType","specificFeature"];
+	    for (var i in layerFunctions) {
+		newCartoLayer[layerFunctions[i]](cartoLayer[layerFunctions[i]]());
+	    }
+	    if (tandemMapArray[x].forceCanvas) {
+		newCartoLayer.renderMode("canvas")
+	    }
+	    tandemMapArray[x].map.addCartoLayer(newCartoLayer);
+	}
+	return this;
     }
 
     map.addTileLayer = function (newTileLayer, newTileLayerName, tileType, disabled) {
@@ -1149,7 +1169,7 @@ function manualZoom(zoomDirection) {
             boundingBox = [d3MapProjection(boundingBox[0]),d3MapProjection(boundingBox[1])];
 	}
 	
-      dx = boundingBox[1][0] - boundingBox[0][0],
+      var dx = boundingBox[1][0] - boundingBox[0][0],
       dy = boundingBox[1][1] - boundingBox[0][1],
       x = (boundingBox[0][0] + boundingBox[1][0]) / 2,
       y = (boundingBox[0][1] + boundingBox[1][1]) / 2,
@@ -1166,6 +1186,18 @@ function manualZoom(zoomDirection) {
               .call(d3MapZoom.translate(t).scale(s).event);
 	}
         return this;
+    }
+
+    map.screenBounds = function () {
+
+    var s = d3MapZoom.scale(),
+    t = d3MapZoom.translate();
+    
+    var b1 = map.projection().invert([-t[0]/s,-t[1]/s])
+    var b2 = map.projection().invert([(mapWidth- t[0]) / s,-(t[1] - mapHeight) / s])
+
+    return [b1,b2]
+
     }
 
     map.zoom = function (newZoom) {
@@ -1277,10 +1309,163 @@ function manualZoom(zoomDirection) {
     map.layers = function() {
 	return d3MapAllLayers;
     }
+    
+    map.zoomable = function(_on) {
+	if(_on) {
+	    if (d3MapMode == "transform") {
+		d3MapZoomed = d3MapZoomedTransform;
+		d3MapZoomInitialize = d3MapZoomInitializeTransform;
+		d3MapZoomComplete = d3MapZoomCompleteTransform;
+	    }
+	    else {
+		d3MapZoomed = d3MapZoomedProjection;
+		d3MapZoomInitialize = d3MapZoomInitializeProjection;
+		d3MapZoomComplete = d3MapZoomCompleteProjection;
+	    }
+	    d3MapZoom
+	    .on("zoom", d3MapZoomed)
+	    .on("zoomstart", d3MapZoomInitialize)
+	    .on("zoomend", d3MapZoomComplete)
+	}
+	else{
+	    d3MapZoom
+	    .on("zoom", null)
+	    .on("zoomstart", null)
+	    .on("zoomend", null)
+	    }
+	    return this;
+    }
+    
+    map.div = function() {
+	return mapDiv;
+    }
+    
+    map.pushLayers = function(otherMap, miniMap, forceCanvas, otherType) {
+	tandemMapArray.push({map: otherMap, mini: miniMap, forceCanvas: forceCanvas, type: otherType});
+	return this;
+    }
 
     return map;
 }
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./layer":3}]},{},[2])
+},{"./layer":3}],5:[function(_dereq_,module,exports){
+(function (global){
+"use strict";
+
+var d3 = (typeof window !== "undefined" ? window.d3 : typeof global !== "undefined" ? global.d3 : null),
+    Map = _dereq_("./map"),
+    Layer = _dereq_("./layer");
+
+var minimap = module.exports = function() {
+    
+    var d3Minimap,
+	d3MiniDiv;
+    
+    
+    function d3CartoMiniMap(selectedDiv) {
+	var newD3Minimap = d3.carto.map();
+	d3MiniDiv = selectedDiv;
+	d3MiniDiv.call(newD3Minimap);
+	
+	d3Minimap = newD3Minimap;
+	
+	newD3Minimap
+	.zoomable(false)
+	.setScale(2)
+	.refresh();
+	
+	d3MiniDiv.select("#d3MapSVG").append("rect")
+	.attr("height", 20)
+	.attr("width", 50)
+	.attr("x", 20)
+	.attr("y", 20)
+	.attr("class", "minimap-extent")
+
+	d3CartoMiniMap.hideControls(true);
+    }
+
+    d3CartoMiniMap.map = function(newMap) {
+	if (!arguments.length) return d3Minimap;
+	d3Minimap = newMap;
+	return this;
+
+    }
+    
+    d3CartoMiniMap.tandem = function(cartoMap) {
+	cartoMap.pushLayers(d3Minimap, d3CartoMiniMap, true, "minimap");
+	return this;
+    }
+
+    d3CartoMiniMap.duplicate = function(cartoMap) {
+	var incLayers = cartoMap.layers();
+	for (var x in incLayers) {
+	    var cartoLayer = incLayers[x]
+		console.log(cartoLayer.type());
+	    switch(cartoLayer.type()) {
+		case "tile":
+		d3Minimap.addTileLayer(cartoLayer.path(),cartoLayer.label(),cartoLayer.tileType(),!cartoLayer.visibility(),cartoLayer)
+		break;
+	    case "csv":
+		d3Minimap.addXYLayer(cartoLayer.features(), cartoLayer.label(), cartoLayer.cssClass(), cartoLayer.markerSize(), "canvas", cartoLayer.x(), cartoLayer.y(), "drawAlways",cartoLayer)
+		break;
+	    case "topojson":
+		d3Minimap.addFeatureLayer(cartoLayer.features(), cartoLayer.label(), cartoLayer.cssClass(),"canvas", "drawAlways",cartoLayer)
+		break;
+	    case "geojson":
+		d3Minimap.addFeatureLayer(cartoLayer.features(), cartoLayer.label(), cartoLayer.cssClass(),"canvas", "drawAlways",cartoLayer)
+		break;
+	    case "xyarray":
+		d3Minimap.addXYLayer(cartoLayer.features(), cartoLayer.label(), cartoLayer.cssClass(), "canvas", cartoLayer.renderMode(), cartoLayer.x(), cartoLayer.y(), "drawAlways",cartoLayer)
+		break;
+	    case "featurearray":
+		d3Minimap.addFeatureLayer(cartoLayer.features(), cartoLayer.label(), cartoLayer.cssClass(),"canvas", "drawAlways",cartoLayer)
+		break;
+	    default:
+		break;
+	    }
+	}
+	d3Minimap.refresh();
+	return this;
+    }
+    
+    d3CartoMiniMap.hideControls = function(hide) {
+	if (hide) {
+	    d3Minimap.div().select("#d3MapLayerBox").style("display", "none");
+	    d3Minimap.div().select("#d3MapZoomBox").style("display", "none");
+	}
+	else {
+	    d3Minimap.div().select("#d3MapLayerBox").style("display", "none");
+	    d3Minimap.div().select("#d3MapZoomBox").style("display", "none");	    
+	}
+	return this;
+    }
+    
+    d3CartoMiniMap.updateBoundingBox = function(bounds) {
+	
+	var b1 = d3Minimap.projection()(bounds[0]);
+	var b2 = d3Minimap.projection()(bounds[1]);
+	var s = d3Minimap.zoom().scale();
+	var t = d3Minimap.zoom().translate();
+
+	var x = (b1[0] * s) + t[0];
+	var y = (b1[1] * s) + t[1];
+	var x2 = (b2[0] * s) + t[0];
+	var y2 = (b2[1] * s) + t[1];
+	var w = x2 - x;
+	var h = y2 - y;
+
+	d3MiniDiv.select("rect.minimap-extent")
+	.attr("x", x)
+	.attr("y", y)
+	.attr("width", w)
+	.attr("height", h);
+
+	return this;
+    }
+    
+    return d3CartoMiniMap;
+}
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./layer":3,"./map":4}]},{},[2])
 (2)
 });

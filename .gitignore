@@ -1,3 +1,13 @@
 node_modules/
 examples/bower_components/
 dist/
+
+examples/resources/colorbrewer.js
+
+examples/resources/d3.min.js
+
+examples/resources/d3.quadtiles.js
+
+examples/resources/tile.js
+
+examples/resources/topojson.js

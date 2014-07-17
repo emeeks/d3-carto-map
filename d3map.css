@@ -77,3 +77,10 @@ path,circle,rect,polygon,ellipse,line {
 #reprojectDiv canvas.tile {
     position: absolute;
 }
+
+rect.minimap-extent {
+    fill: rgba(200,255,255,0.35);
+    stroke: black;
+    stroke-width: 2px;
+    stroke-dasharray: 5 5;
+}

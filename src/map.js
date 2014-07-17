@@ -58,6 +58,8 @@ var Map = module.exports = function() {
     var d3MapPath = d3.geo.path();
     
     var d3MapZoom = d3.behavior.zoom();
+    
+    var tandemMapArray = [];
 
     function map(selectedDiv) {
 
@@ -296,7 +298,7 @@ var Map = module.exports = function() {
     }
     
         function renderCanvasPointsProjected(i,context) {
-        for (y in d3MapRasterPointsG[i]) {
+        for (var y in d3MapRasterPointsG[i]) {
 
         var projectedPoint = d3MapProjection([d3MapRasterPointsG[i][y].x,d3MapRasterPointsG[i][y].y])
         var projX = projectedPoint[0];
@@ -338,6 +340,11 @@ var Map = module.exports = function() {
     //CANVAS RENDERING
     renderCanvas("zoom");
 
+    for (var x in tandemMapArray) {
+	if (tandemMapArray[x].type == "minimap") {
+	    tandemMapArray[x].mini.updateBoundingBox(map.screenBounds());
+	}
+    }
     }
 
     function d3MapZoomInitializeTransform() {
@@ -446,7 +453,7 @@ var Map = module.exports = function() {
     }
     
     function renderCanvasPoints(i,context) {
-        for (y in d3MapRasterPointsG[i]) {
+        for (var y in d3MapRasterPointsG[i]) {
 
         var projectedPoint = d3MapProjection([d3MapRasterPointsG[i][y].x,d3MapRasterPointsG[i][y].y])
         var projX = projectedPoint[0] * d3MapZoom.scale() + d3MapZoom.translate()[0];
@@ -846,6 +853,18 @@ function manualZoom(zoomDirection) {
 	    default:
 	    return false;
 	}
+	for (var x in tandemMapArray) {
+	    var newCartoLayer = new d3.carto.layer;
+	    var layerFunctions = ["path","type","visibility","renderMode","x","y","markerSize","cssClass","g","object","features","tileType","specificFeature"];
+	    for (var i in layerFunctions) {
+		newCartoLayer[layerFunctions[i]](cartoLayer[layerFunctions[i]]());
+	    }
+	    if (tandemMapArray[x].forceCanvas) {
+		newCartoLayer.renderMode("canvas")
+	    }
+	    tandemMapArray[x].map.addCartoLayer(newCartoLayer);
+	}
+	return this;
     }
 
     map.addTileLayer = function (newTileLayer, newTileLayerName, tileType, disabled) {
@@ -939,7 +958,7 @@ function manualZoom(zoomDirection) {
             boundingBox = [d3MapProjection(boundingBox[0]),d3MapProjection(boundingBox[1])];
 	}
 	
-      dx = boundingBox[1][0] - boundingBox[0][0],
+      var dx = boundingBox[1][0] - boundingBox[0][0],
       dy = boundingBox[1][1] - boundingBox[0][1],
       x = (boundingBox[0][0] + boundingBox[1][0]) / 2,
       y = (boundingBox[0][1] + boundingBox[1][1]) / 2,
@@ -956,6 +975,18 @@ function manualZoom(zoomDirection) {
               .call(d3MapZoom.translate(t).scale(s).event);
 	}
         return this;
+    }
+
+    map.screenBounds = function () {
+
+    var s = d3MapZoom.scale(),
+    t = d3MapZoom.translate();
+    
+    var b1 = map.projection().invert([-t[0]/s,-t[1]/s])
+    var b2 = map.projection().invert([(mapWidth- t[0]) / s,-(t[1] - mapHeight) / s])
+
+    return [b1,b2]
+
     }
 
     map.zoom = function (newZoom) {
@@ -1066,6 +1097,41 @@ function manualZoom(zoomDirection) {
     
     map.layers = function() {
 	return d3MapAllLayers;
+    }
+    
+    map.zoomable = function(_on) {
+	if(_on) {
+	    if (d3MapMode == "transform") {
+		d3MapZoomed = d3MapZoomedTransform;
+		d3MapZoomInitialize = d3MapZoomInitializeTransform;
+		d3MapZoomComplete = d3MapZoomCompleteTransform;
+	    }
+	    else {
+		d3MapZoomed = d3MapZoomedProjection;
+		d3MapZoomInitialize = d3MapZoomInitializeProjection;
+		d3MapZoomComplete = d3MapZoomCompleteProjection;
+	    }
+	    d3MapZoom
+	    .on("zoom", d3MapZoomed)
+	    .on("zoomstart", d3MapZoomInitialize)
+	    .on("zoomend", d3MapZoomComplete)
+	}
+	else{
+	    d3MapZoom
+	    .on("zoom", null)
+	    .on("zoomstart", null)
+	    .on("zoomend", null)
+	    }
+	    return this;
+    }
+    
+    map.div = function() {
+	return mapDiv;
+    }
+    
+    map.pushLayers = function(otherMap, miniMap, forceCanvas, otherType) {
+	tandemMapArray.push({map: otherMap, mini: miniMap, forceCanvas: forceCanvas, type: otherType});
+	return this;
     }
 
     return map;
