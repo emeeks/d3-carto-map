@@ -413,7 +413,7 @@ var Map = module.exports = function() {
     
     //Projection Zoom
     function d3MapZoomedProjection() {
-	
+	d3MapProjection.clipExtent([[0,0],[mapWidth,mapHeight]]);
 	d3MapProjection.scale(d3MapZoom.scale()).translate(d3MapZoom.translate());
 	      ///POINTS
       for (var x in d3MapSVGPointsG) {
@@ -442,7 +442,7 @@ var Map = module.exports = function() {
         
         for (var x in d3MapSVGFeatureG) {
             if (d3MapSVGFeatureLayer[x].renderFrequency == "drawEnd" || !d3MapSVGFeatureLayer[x].active) {
-            renderSVGFeaturesProjected[x].style("display", "none");
+            d3MapSVGFeatureG[x].style("display", "none");
             }
         }
     
@@ -747,7 +747,7 @@ var Map = module.exports = function() {
 	  if (d3MapTileLayer.length == 0) {
 	    return;
 	  }
-	  if (!rasterReprojecting) {
+//	  if (!rasterReprojecting) {
 	  rasterReprojecting = true;
       for (var x in d3MapTileG) {
         if (d3MapTileLayer[x].visible) {
@@ -765,7 +765,7 @@ var Map = module.exports = function() {
 	}
       }
     
-	  }
+//	  }
 
     }
 function manualZoom(zoomDirection) {
@@ -1216,6 +1216,7 @@ function manualZoom(zoomDirection) {
 
     map.projection = function (newProjection) {
         if (!arguments.length) return d3MapProjection;
+	newProjection.clipExtent([[0,0],[mapWidth,mapHeight]]);
 	var newScale = newProjection.scale();
 	var newTranslate = newProjection.translate();	
         d3MapProjection = newProjection;
