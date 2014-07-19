@@ -1,13 +1,13 @@
 d3-carto-map
 ======
 
-0.1
+0.2
 
 The purpose of d3.carto is not to obscure D3 but rather the opposite: to make it trivial to make a map with the usual web map functionality so that a developer can focus on integrating into that map the information visualization and data processing that D3 is so well-suited for.
 
 If you want to update the color or icons or other visual elements, the expectation is that you'll do that via selections of existing elements like you would with a hand-crafted D3 map. This is still rather ill-formed, you can see **[an example here of adding new markers](http://emeeks.github.io/cartomap/change-markers.html)**, but it requires that you use a dummy datum object that d3.carto.map will automatically append with drawing data for the scaled map.
 
-Take a look at example.html to see how simple it is.
+Take a look at example.html to see how simple it is or check out these **[blocks](http://bl.ocks.org/emeeks)**.
 
 Existing functionality:
 
@@ -18,7 +18,7 @@ Create a map and call it by the div where you want it, it will automatically siz
 Carto Layer
 
 map.**addCartoLayer**(d3.carto.layer)
-Add a new feature layer from d3.carto.layer.
+Add a new feature layer from d3.carto.layer (see below). This is probably the best course of action when you consider adding layers as the following functions may experience more significant change or deprecation.
 
 Raster
 
@@ -97,9 +97,79 @@ Switches between rendering modes. The options are:
 d3-carto-layer
 ======
 
-d3.carto.layer allows you to define the attributes of a new map layer...
+**d3.carto.layer** allows you to define the attributes of a new map layer that you can add to the map using map.addCartoLayer.
 
-**[D3 Carto Layer Example](http://emeeks.github.io/cartomap/carto-layers.html)**
+Carto layers fire a "load" event once data has been successfully loaded onto the map, which you can use to execute functions like marker changes that require elements to have actually been added to the canvas: *layer.on("load", nextFunction)*.
+
+**[D3 Carto Layer Example](http://bl.ocks.org/emeeks/37c28b6ff0e01f69b4cd)**
+
+    layer = d3.carto.layer();
+    layer = d3.carto.layer.tile();
+    layer = d3.carto.layer.csv();
+    layer = d3.carto.layer.xyArray();
+    layer = d3.carto.layer.geojson();
+    layer = d3.carto.layer.topojson();
+    layer = d3.carto.layer.featureArray();
+
+
+layer.**type**(*newType*)
+Used to set the type of geodata being added to the map and only necessary for d3.carto.layer().
+
+layer.**path**(*newPath*)
+The path to the data for this layer, either a file (geojson, topojson, csv) or tile path (tile). Ignored by d3.carto.layer.featureArray() and d3.carto.layer.xyArray().
+
+layer.**label**(*newLabel*)
+The name of the layer as it will appear in the layer selection box.
+
+layer.**cssClass**(*newCSSClass*)
+The CSS class of the newly added layer.
+
+layer.**renderMode**(*newRenderMode*)
+The render mode ("svg", "canvas", "mixed") of the layer. Ignored by d3.carto.layer.tile().
+
+layer.**markerSize**(*newMarkerSize*)
+The marker size of the layer. Ignored by d3.carto.layer.tile(), d3.carto.layer.geojson(), d3.carto.layer.topojson() and d3.carto.layer.featureArray().
+
+layer.**specificFeature**(*newSpecficFeature*)
+The specific feature type to be loaded or "all" if all feature types are to be loaded. Ignored by d3.carto.layer.csv(), d3.carto.layer.xyArray(), d3.carto.layer.tile() and d3.carto.layer.featureArray().
+
+layer.**x**(*newX*)
+The name of the "x" attribute of a layer. Does not currently support accessor functions (but will). Ignored by d3.carto.layer.tile(), d3.carto.layer.geojson(), d3.carto.layer.topojson() and d3.carto.layer.featureArray().
+
+layer.**y**(*newY*)
+The name of the "y" attribute of a layer. Does not currently support accessor functions (but will). Ignored by d3.carto.layer.tile(), d3.carto.layer.geojson(), d3.carto.layer.topojson() and d3.carto.layer.featureArray().
+
+layer.**visibility**(*visibility*)
+Initial visibility of a layer. Defaults to true.
+
+layer.**features**(*newFeatures*)
+Set or get the data array associated with this layer. Necessary to set for d3.carto.layer.xyArray() and d3.carto.layer.featureArray() and useful to get the data for any created layer. Ignored by d3.carto.layer.tile().
+
+layer.**g**(*newG*)
+The g element associated with this layer. Ignored by "canvas" rendered layers and d3.carto.layer.tile(). Useful to use d3.select for features in that layer: thisLayer.g.selectAll("path").
+
+layer.**object**(*newObject*)
+The current settings for this layer as a JSON object.
+
+
+    topojsonLayer = d3.carto.layer();
+    topojsonLayer
+    .type("topojson")
+    .path("./sampledata/glondon.topojson")
+    .label("London Wards")
+    .cssClass("wards")
+    .renderMode("svg")
+    .on("load", colorBySize);
+    
+    map.addCartoLayer(tileLayer).addCartoLayer(topojsonLayer).addCartoLayer(routesLayer);
+
+
+d3-carto-minimap
+======
+
+**d3.carto.minimap** allows you to create and associate a map with an existing d3.carto.map. Typically this would be used as an overview map.
+
+**[D3 Minimap Example](http://bl.ocks.org/emeeks/a726210cbc439b969f02)**
 
 
 Existing Issues:
