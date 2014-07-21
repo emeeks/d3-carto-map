@@ -48,7 +48,6 @@ var minimap = module.exports = function() {
 	var incLayers = cartoMap.layers();
 	for (var x in incLayers) {
 	    var cartoLayer = incLayers[x]
-		console.log(cartoLayer.type());
 	    switch(cartoLayer.type()) {
 		case "tile":
 		d3Minimap.addTileLayer(cartoLayer.path(),cartoLayer.label(),cartoLayer.tileType(),!cartoLayer.visibility(),cartoLayer)

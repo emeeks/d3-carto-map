@@ -20,7 +20,7 @@ var Layer = module.exports = function() {
     var layerMarkerSize = 5;
     var layerCluster = false;
     
-    var layerDispatch = d3.dispatch('load');
+    var layerDispatch = d3.dispatch('load','recluster');
     
     var layer = function() {
 	
@@ -113,6 +113,14 @@ var Layer = module.exports = function() {
     	if (!arguments.length) return layerCluster;
 	layerCluster = newClusterSetting;
 	return this;
+    }
+
+    layer.recluster = function() {
+	layerDispatch.recluster();
+    }
+    
+    layer.clusterLayer = function() {
+	return layerObject.qtreeLayer;
     }
     
     d3.rebind(layer, layerDispatch, "on");
