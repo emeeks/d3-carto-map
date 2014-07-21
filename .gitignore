@@ -13,3 +13,5 @@ examples/resources/tile.js
 examples/resources/topojson.js
 
 examples/reproject-raster2.html
+
+examples/quadtree.html

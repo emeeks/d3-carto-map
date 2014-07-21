@@ -18,6 +18,7 @@ var Layer = module.exports = function() {
     var layerTileType = "mapbox";
     var layerSpecific = "all";
     var layerMarkerSize = 5;
+    var layerCluster = false;
     
     var layerDispatch = d3.dispatch('load');
     
@@ -105,6 +106,12 @@ var Layer = module.exports = function() {
     layer.specificFeature = function(newSpecific) {
     	if (!arguments.length) return layerSpecific;
 	layerSpecific = newSpecific;
+	return this;
+    }
+    
+    layer.cluster = function(newClusterSetting) {
+    	if (!arguments.length) return layerCluster;
+	layerCluster = newClusterSetting;
 	return this;
     }
     
