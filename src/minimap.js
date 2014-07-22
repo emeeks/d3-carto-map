@@ -7,7 +7,8 @@ var d3 = require("d3"),
 var minimap = module.exports = function() {
     
     var d3Minimap,
-	d3MiniDiv;
+	d3MiniDiv,
+	d3TandemMap;
     
     
     function d3CartoMiniMap(selectedDiv) {
@@ -41,6 +42,7 @@ var minimap = module.exports = function() {
     
     d3CartoMiniMap.tandem = function(cartoMap) {
 	cartoMap.pushLayers(d3Minimap, d3CartoMiniMap, true, "minimap");
+	d3TandemMap = cartoMap;
 	return this;
     }
 

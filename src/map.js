@@ -124,27 +124,24 @@ var Map = module.exports = function() {
         newLines.selectAll("li.nothing").data(d3MapRasterFeatureLayer).enter().append("li")
         .on("click", showHideLayer).attr("id", function(d) {return d.object().id});
         
-        newLines.selectAll("li").append("input").attr("type", "checkbox").property("checked", function(d) {return d.object().active});
+        newLines.selectAll("li").append("input").attr("type", "checkbox").property("checked", function(d) {return d.visibility()});
         newLines.selectAll("li").append("span").html(function(d) {return d.object().name})
         
     }
     
     function showHideLayer(d,i,sentNode) {
-    
     var n = sentNode || this;
 
     var imgUrl = canvasCanvas.node().toDataURL("image/png");
     d3MapCanvasImage.attr("xlink:href", imgUrl).style("opacity", 1);
 
         //TO DO: Put transitions back in by adding a transition Canvas Image
-        if (!d.object().active) {
-            d.object().visible = true;
-            d.object().active = true;
+        if (!d.visibility()) {
+            d.visibility(true);
 	    if (d.object().mixed) {
 		d3MapRasterPointsLayer.forEach(function(p) {
 		    if (p.object().id == d.object().mixedupDup) {
-			p.object().active = true;
-			p.object().visible = true;
+			p.visibility(true);
 		    }
 		})
 	    }
@@ -155,13 +152,11 @@ var Map = module.exports = function() {
         else {
             mapDiv.select("g#" + d.object().id).transition().duration(1000).style("opacity", 0);
             d3.select(n).select("input").property("checked", false);
-            d.object().visible = false;
-            d.object().active = false;
+            d.visibility(false);
 	    if (d.mixed) {
 		d3MapRasterPointsLayer.forEach(function(p) {
 		    if (p.object().id == d.object().mixedupDup) {
-			p.object().active = false;
-			p.object().visible = false;
+	                p.visibility(false);
 		    }
 		})
 	    }
@@ -205,14 +200,14 @@ var Map = module.exports = function() {
 	d3MapProjection.scale(d3MapZoom.scale()).translate(d3MapZoom.translate());
 	      ///POINTS
       for (var x in d3MapSVGPointsLayer) {
-        if (d3MapSVGPointsLayer[x].object().renderFrequency == "drawAlways" && d3MapSVGPointsLayer[x].object().active && d3MapSVGPointsLayer[x].renderMode() == "svg") {
+        if (d3MapSVGPointsLayer[x].object().renderFrequency == "drawAlways" && d3MapSVGPointsLayer[x].visibility() && d3MapSVGPointsLayer[x].renderMode() == "svg") {
             renderSVGPointsProjected(x);
         }
     }
     
         // FEATURES
         for (var x in d3MapSVGFeatureLayer) {
-            if (d3MapSVGFeatureLayer[x].object().renderFrequency == "drawAlways"  && d3MapSVGFeatureLayer[x].object().active && d3MapSVGFeatureLayer[x].renderMode() == "svg") {
+            if (d3MapSVGFeatureLayer[x].object().renderFrequency == "drawAlways"  && d3MapSVGFeatureLayer[x].visibility() && d3MapSVGFeatureLayer[x].renderMode() == "svg") {
             renderSVGFeaturesProjected(x);
             }
         }
@@ -224,13 +219,13 @@ var Map = module.exports = function() {
     function d3MapZoomInitializeProjection() {
 	console.log(d3MapSVGPointsLayer)
 	for (var x in d3MapSVGPointsLayer) {
-	    if ((d3MapSVGPointsLayer[x].object().renderFrequency == "drawEnd" || !d3MapSVGPointsLayer[x].object().active)) {
+	    if ((d3MapSVGPointsLayer[x].object().renderFrequency == "drawEnd" || !d3MapSVGPointsLayer[x].visibility())) {
 	        d3MapSVGPointsLayer[x].g().style("display", "none");
 	    }
         }
         
         for (var x in d3MapSVGFeatureLayer) {
-            if ((d3MapSVGFeatureLayer[x].renderFrequency == "drawEnd" || !d3MapSVGFeatureLayer[x].active)) {
+            if ((d3MapSVGFeatureLayer[x].renderFrequency == "drawEnd" || !d3MapSVGFeatureLayer[x].visibility())) {
             d3MapSVGFeatureLayer[x].g().style("display", "none");
             }
         }
@@ -243,14 +238,14 @@ var Map = module.exports = function() {
     function d3MapZoomCompleteProjection() {
         
         for (var x in d3MapSVGPointsLayer) {
-            if ((d3MapSVGPointsLayer[x].object().renderFrequency == "drawEnd" || d3MapSVGPointsLayer[x].object().renderFrequency == "drawAlways")  && d3MapSVGPointsLayer[x].object().active ) {
+            if ((d3MapSVGPointsLayer[x].object().renderFrequency == "drawEnd" || d3MapSVGPointsLayer[x].object().renderFrequency == "drawAlways")  && d3MapSVGPointsLayer[x].visibility() ) {
             d3MapSVGPointsLayer[x].g().style("display", "block");
             renderSVGPointsProjected(x);
             }
         }
 
         for (var x in d3MapSVGFeatureG) {
-            if ((d3MapSVGFeatureLayer[x].renderFrequency == "drawEnd" || d3MapSVGFeatureLayer[x].renderFrequency == "drawAlways")  && d3MapSVGFeatureLayer[x].active) {
+            if ((d3MapSVGFeatureLayer[x].renderFrequency == "drawEnd" || d3MapSVGFeatureLayer[x].renderFrequency == "drawAlways")  && d3MapSVGFeatureLayer[x].visibility() ) {
             d3MapSVGFeatureG[x].g().style("display", "block");
             renderSVGFeaturesProjected(x);
             }
@@ -266,13 +261,13 @@ var Map = module.exports = function() {
         context.clearRect(0,0,mapWidth,mapHeight);
     
         for (var x in d3MapRasterFeatureLayer) {
-          if ((d3MapRasterFeatureLayer[x].object().renderFrequency == "drawAlways" || (d3MapRasterFeatureLayer[x].object().renderFrequency == "drawDuring" && zoomMode == "zoom")) && d3MapRasterFeatureLayer[x].object().active) {
+          if ((d3MapRasterFeatureLayer[x].object().renderFrequency == "drawAlways" || (d3MapRasterFeatureLayer[x].object().renderFrequency == "drawDuring" && zoomMode == "zoom")) && d3MapRasterFeatureLayer[x].visibility() ) {
             renderCanvasFeaturesProjected(x, context);
           }	
         }
 
         for (var x in d3MapRasterPointsLayer) {
-          if ((d3MapRasterPointsLayer[x].object().renderFrequency == "drawAlways" || (d3MapRasterPointsLayer[x].object().renderFrequency == "drawDuring" && zoomMode == "zoom")) && d3MapRasterPointsLayer[x].object().active) {
+          if ((d3MapRasterPointsLayer[x].object().renderFrequency == "drawAlways" || (d3MapRasterPointsLayer[x].object().renderFrequency == "drawDuring" && zoomMode == "zoom")) && d3MapRasterPointsLayer[x].visibility() ) {
             renderCanvasPointsProjected(x, context);
           }
         }
@@ -333,7 +328,7 @@ var Map = module.exports = function() {
 	    
       ///POINTS
       for (var x in d3MapSVGPointsLayer) {
-        if (d3MapSVGPointsLayer[x].object().renderFrequency == "drawAlways" && d3MapSVGPointsLayer[x].object().active && !d3MapSVGPointsLayer[x].object().cluster && d3MapSVGPointsLayer[x].renderMode() == "svg") {
+        if (d3MapSVGPointsLayer[x].object().renderFrequency == "drawAlways" && d3MapSVGPointsLayer[x].visibility() && !d3MapSVGPointsLayer[x].object().cluster && d3MapSVGPointsLayer[x].renderMode() == "svg") {
             renderSVGPoints(x);
         }
     	if (d3MapSVGPointsLayer[x].object().cluster && updateClustering) {
@@ -343,7 +338,7 @@ var Map = module.exports = function() {
     }
     // FEATURES
         for (var x in d3MapSVGFeatureLayer) {
-            if (d3MapSVGFeatureLayer[x].object().renderFrequency == "drawAlways"  && d3MapSVGFeatureLayer[x].object().active) {
+            if (d3MapSVGFeatureLayer[x].object().renderFrequency == "drawAlways"  && d3MapSVGFeatureLayer[x].visibility() ) {
             renderSVGFeatures(x);
             }
         }
@@ -361,7 +356,7 @@ var Map = module.exports = function() {
     function d3MapZoomInitializeTransform() {
         //TO DO: Split out the rendering into separate functions and call those with renderVector("always") or renderVector("once") and the like
         for (var x in d3MapSVGPointsLayer) {
-        if (d3MapSVGPointsLayer[x].object().renderFrequency == "drawEnd" || !d3MapSVGPointsLayer[x].object().active || d3MapSVGPointsLayer[x].object().cluster) {
+        if (d3MapSVGPointsLayer[x].object().renderFrequency == "drawEnd" || !d3MapSVGPointsLayer[x].visibility() || d3MapSVGPointsLayer[x].object().cluster) {
             d3MapSVGPointsLayer[x].g().style("display", "none");
         }
 	else if (!d3MapSVGPointsLayer[x].object().cluster) {
@@ -370,7 +365,7 @@ var Map = module.exports = function() {
         }
         
         for (var x in d3MapSVGFeatureLayer) {
-            if (d3MapSVGFeatureLayer[x].object().renderFrequency == "drawEnd" || !d3MapSVGFeatureLayer[x].object().active) {
+            if (d3MapSVGFeatureLayer[x].object().renderFrequency == "drawEnd" || !d3MapSVGFeatureLayer[x].visibility() ) {
             d3MapSVGFeatureLayer[x].g().style("display", "none");
             }
         }
@@ -386,14 +381,14 @@ var Map = module.exports = function() {
     renderCanvas("zoomcomplete")
         
         for (var x in d3MapSVGPointsLayer) {
-            if ((d3MapSVGPointsLayer[x].object().renderFrequency == "drawEnd" || d3MapSVGPointsLayer[x].object().renderFrequency == "drawAlways")  && d3MapSVGPointsLayer[x].object().active && !d3MapSVGPointsLayer[x].object().cluster) {
+            if ((d3MapSVGPointsLayer[x].object().renderFrequency == "drawEnd" || d3MapSVGPointsLayer[x].object().renderFrequency == "drawAlways")  && d3MapSVGPointsLayer[x].visibility() && !d3MapSVGPointsLayer[x].object().cluster) {
             d3MapSVGPointsLayer[x].g().style("display", "block");
             renderSVGPoints(x);
             }
         }
 
         for (var x in d3MapSVGFeatureLayer) {
-            if ((d3MapSVGFeatureLayer[x].object().renderFrequency == "drawEnd" || d3MapSVGFeatureLayer[x].object().renderFrequency == "drawAlways")  && d3MapSVGFeatureLayer[x].object().active) {
+            if ((d3MapSVGFeatureLayer[x].object().renderFrequency == "drawEnd" || d3MapSVGFeatureLayer[x].object().renderFrequency == "drawAlways")  && d3MapSVGFeatureLayer[x].visibility() ) {
             d3MapSVGFeatureLayer[x].g().style("display", "block");
             renderSVGFeatures(x);
             }
@@ -406,13 +401,13 @@ var Map = module.exports = function() {
         context.clearRect(0,0,mapWidth,mapHeight);
     
         for (var x in d3MapRasterFeatureLayer) {
-          if ((d3MapRasterFeatureLayer[x].object().renderFrequency == "drawAlways" || (d3MapRasterFeatureLayer[x].object().renderFrequency == "drawDuring" && zoomMode == "zoom")) && d3MapRasterFeatureLayer[x].object().active) {
+          if ((d3MapRasterFeatureLayer[x].object().renderFrequency == "drawAlways" || (d3MapRasterFeatureLayer[x].object().renderFrequency == "drawDuring" && zoomMode == "zoom")) && d3MapRasterFeatureLayer[x].visibility() ) {
             renderCanvasFeatures(x, context);
           }	
         }
 
         for (var x in d3MapRasterPointsLayer) {
-          if ((d3MapRasterPointsLayer[x].object().renderFrequency == "drawAlways" || (d3MapRasterPointsLayer[x].object().renderFrequency == "drawDuring" && zoomMode == "zoom")) && d3MapRasterPointsLayer[x].object().active) {
+          if ((d3MapRasterPointsLayer[x].object().renderFrequency == "drawAlways" || (d3MapRasterPointsLayer[x].object().renderFrequency == "drawDuring" && zoomMode == "zoom")) && d3MapRasterPointsLayer[x].visibility() ) {
             renderCanvasPoints(x, context);
           }
         }
@@ -501,7 +496,7 @@ var Map = module.exports = function() {
       .translate(d3MapZoom.translate())
       ();
 
-      for (var x in d3MapTileG) {
+      for (var x in d3MapTileLayer) {
         if (d3MapTileLayer[x].object().visible) {
   var image = d3MapTileLayer[x].g()
       .attr("transform", "scale(" + tiles.scale + ")translate(" + tiles.translate + ")")
@@ -818,15 +813,16 @@ function manualZoom(zoomDirection) {
         d3MapTileLayer.push(cartoLayer);
         d3MapTileG.push(tG);
 
-        if (disabled) {
-            updateLayers();
-            showHideLayer(tObj,tPosition,mapDiv.select("li#" + tID).node())
-        }
-        else {
-            d3MapZoomed();
-        }
+        d3MapZoomed();
         updateLayers();
 	d3MapAllLayers.push(cartoLayer);
+	console.log(cartoLayer.visibility())
+        if (cartoLayer.visibility() == false || disabled) {
+	    cartoLayer.visibility(true);
+            showHideLayer(cartoLayer,0,mapDiv.select("li#" + tID).node())
+	    console.log("dammit")
+        }
+
     }
     
     function d3MapAddCSVLayer(newCSVLayer, newCSVLayerName, newCSVLayerClass, markerSize, renderType, xcoord, ycoord, renderFrequency,cartoLayer) {
@@ -1270,6 +1266,10 @@ function manualZoom(zoomDirection) {
 	updateLayers();
 	return this;
     
+    }
+    
+    map.showHideLayer = function(cartoLayer) {
+	showHideLayer(cartoLayer, 0,mapDiv.select("li#" + cartoLayer.object().id).node());
     }
     
     return map;
