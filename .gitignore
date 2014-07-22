@@ -15,3 +15,5 @@ examples/resources/topojson.js
 examples/reproject-raster2.html
 
 examples/quadtree.html
+
+examples/booth.html

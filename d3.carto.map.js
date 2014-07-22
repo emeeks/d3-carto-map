@@ -1352,6 +1352,8 @@ function manualZoom(zoomDirection) {
         canvasCanvas.attr("height", mapHeight).attr("width", mapWidth).style("height",mapHeight + "px").style("width", mapWidth + "px")
         d3MapCanvasImage.attr("height", mapHeight).attr("width", mapWidth).style("height",mapHeight + "px").style("width", mapWidth + "px")
 	rebuildAttributes();
+        d3MapZoomInitialize();
+        d3MapZoomed();
         d3MapZoomComplete();
 	return this;
     }
@@ -1477,7 +1479,9 @@ function manualZoom(zoomDirection) {
 	for (var x in layerArray) {
 	    for (var y in layerArray[x]) {
 		if (layer == layerArray[x][y]) {
-		    layerArray[x][y].g().remove()
+		    if(layerArray[x][y].g()) {
+			layerArray[x][y].g().remove()
+		    }
 		    layerArray[x].splice(y,1);
 		}
 	    }
@@ -1490,6 +1494,7 @@ function manualZoom(zoomDirection) {
 	}
 	layer = undefined;
 	updateLayers();
+	return this;
     
     }
     
