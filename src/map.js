@@ -183,8 +183,8 @@ var Map = module.exports = function() {
 		    d._d3Map.size = r;
 		    d._d3Map.height = height;
 		    d._d3Map.width = width;
-		    d._d3Map.x = x;
-		    d._d3Map.y = y;
+		    d._d3Map.dx = x;
+		    d._d3Map.dy = y;
 		    d._d3Map.fontSize = fontSize;
 		    d._d3Map.fontWeight = fontWeight;
 		}
