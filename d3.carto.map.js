@@ -439,11 +439,9 @@ var Map = module.exports = function() {
         }
 	
 	renderCanvas("zoom");
-
     }
 
     function d3MapZoomInitializeProjection() {
-	console.log(d3MapSVGPointsLayer)
 	for (var x in d3MapSVGPointsLayer) {
 	    if ((d3MapSVGPointsLayer[x].object().renderFrequency == "drawEnd" || !d3MapSVGPointsLayer[x].visibility())) {
 	        d3MapSVGPointsLayer[x].g().style("display", "none");
@@ -650,6 +648,8 @@ var Map = module.exports = function() {
             .attr("r", function(d) {return d._d3Map ? scaled(d._d3Map.size) * 7.8 : 0});
 
         _pG.selectAll("circle.quad")
+            .attr("cx", function(d) {return d._d3Map ? scaled(d._d3Map.dx) * 7.8 : 0})
+            .attr("cy", function(d) {return d._d3Map ? scaled(d._d3Map.dy) * 7.8 : 0})
             .attr("r", function(d) {return d._d3Map ? scaled(d._d3Map.size) * (d.nodes.length + 7.8) : 0});
             
         _pG.selectAll("rect,ellipse")
@@ -763,7 +763,6 @@ var Map = module.exports = function() {
     }
     
         function renderSVGFeaturesProjected(i) {
-	    console.log(d3MapSVGFeatureLayer)
 	var _data = d3MapSVGFeatureLayer[i].g();
 
         _data
@@ -1042,11 +1041,9 @@ function manualZoom(zoomDirection) {
         d3MapZoomed();
         updateLayers();
 	d3MapAllLayers.push(cartoLayer);
-	console.log(cartoLayer.visibility())
         if (cartoLayer.visibility() == false || disabled) {
 	    cartoLayer.visibility(true);
             showHideLayer(cartoLayer,0,mapDiv.select("li#" + tID).node())
-	    console.log("dammit")
         }
 
     }

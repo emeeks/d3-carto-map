@@ -7,7 +7,12 @@ The purpose of d3.carto is not to obscure D3 but rather the opposite: to make it
 
 If you want to update the color or icons or other visual elements, the expectation is that you'll do that via selections of existing elements like you would with a hand-crafted D3 map. This is still rather ill-formed, you can see **[an example here of adding new markers](http://emeeks.github.io/cartomap/change-markers.html)**, but it requires that you use a dummy datum object that d3.carto.map will automatically append with drawing data for the scaled map.
 
-Take a look at example.html to see how simple it is or check out these **[blocks](http://bl.ocks.org/emeeks)**.
+Here are some examples of what it can do:
+ **[Adding Layers](http://bl.ocks.org/emeeks/37c28b6ff0e01f69b4cd)**.
+ **[Zoom to Bounds](http://bl.ocks.org/emeeks/f2fea17ba3ec3cd66f60)**.
+ **[Raster Reprojection](http://bl.ocks.org/emeeks/c970c9ee3e242e90004b)**.
+ **[Point Clustering](http://bl.ocks.org/emeeks/7d5925cb7d9721c60360)**.
+ **[Minimap](http://bl.ocks.org/emeeks/a726210cbc439b969f02)**.
 
 Existing functionality:
 
@@ -15,25 +20,25 @@ var **newMap** = d3.carto.**map()**;
 selection.**call**(newMap);
 Create a map and call it by the div where you want it, it will automatically size to fit the div. It will also resize when the window resizes, to deal with dynamically sized divs.
 
-Carto Layer
+Adding new layers
 
 map.**addCartoLayer**(d3.carto.layer)
-Add a new feature layer from d3.carto.layer (see below). This is probably the best course of action when you consider adding layers as the following functions may experience more significant change or deprecation.
+Layers are added to the map by defining a new feature layer using d3.carto.layer (see below).
 
 Raster
 
-map.**addTileLayer**(externalID, layerName, tileType, *disabled*)
+map.**addCartoLayer**.tile(d3.carto.layer)
 Add a new raster layer to the map. Currently only supports MapBox ("mapbox" as tileType) rasters. Adds a corresponding layer checkbox to the layer control to show/hide that layer.
 
 Point
 
-map.**addCSVLayer**(filename,layerName,cssClass,renderType,xCoordinateName,yCoordinateName)
+map.**addCartoLayer**.csv(d3.carto.layer)
 Add a new point layer from a CSV file to the map. Adds a corresponding layer checkbox to the layer control to show/hide that layer.
 
-map.**addXYLayer**(filename,layerName,cssClass,renderType,xCoordinateName,yCoordinateName)
+map.**addCartoLayer**.xyArray(d3.carto.layer)
 Add a new point layer from an array of objects that have latitude and longitude to the map. Adds a corresponding layer checkbox to the layer control to show/hide that layer.
 
-**[addXYLayer used to add labels to polygons](http://emeeks.github.io/cartomap/labels.html)**
+**[xyArray used to add labels to polygons](http://emeeks.github.io/cartomap/labels.html)**
 
 Polygon and Polyline
 
@@ -43,19 +48,14 @@ None of these implement mixed rendering yet.
 
 Each adds a corresponding layer checkbox to the layer control to show/hide that layer (not implemented). You can use specificObject to specify the object you want or create a feature layer for each object in the topojson file ("all").
 
-map.**addTopoJSONLayer**(filename,layerName,cssClass,renderType,specificObject)
+map.**addCartoLayer**.topojson(d3.carto.layer)
 Add a new feature layer from a topojson file. 
 
-map.**addGeoJSONLayer**(filename,layerName,cssClass,renderType,specificObject)
+map.**addCartoLayer**.geojson(d3.carto.layer)
 Add a new feature layer from a geojson file.
 
-map.**addFeatureJSONLayer**(featureArray,layerName,cssClass,renderType,specificObject)
+map.**addCartoLayer**.featureArray(d3.carto.layer)
 Add a new feature layer from an array of features.
-
-Rendering options are:
-* "**svg**" - Points will be added as <g> elements with circles. Both the <g> element and the <circle> will receive the declared CSS class and can be styled as such. Circles can be removed with D3 and replaced with other markers manually.
-* "**canvas**" - Points will be drawn with HTML5 Canvas as circles. These circles will be styled according to the circle.cssClass style as declared in your CSS. Canvas markers will not be clickable.
-* "**mixed**" - Points will be drawn with HTML5 Canvas during panning and zooming and SVG elements when fixed. This provides the speed of canvas during dynamic moments with the interactivity of SVG during static moments.
 
 **[Multiple Layers Example](http://emeeks.github.io/cartomap/many-layers.html)**
 
@@ -99,7 +99,7 @@ d3-carto-layer
 
 **d3.carto.layer** allows you to define the attributes of a new map layer that you can add to the map using map.addCartoLayer.
 
-Carto layers fire a "load" event once data has been successfully loaded onto the map, which you can use to execute functions like marker changes that require elements to have actually been added to the canvas: *layer.on("load", nextFunction)*.
+Carto layers fire a "load" event once data has been successfully loaded onto the map, which you can use to execute functions like marker changes that require elements to have actually been added to the canvas: *layer.on("load", nextFunction)*. Layers also fire a "recluster" event whenever they recluster points (if they are set to cluster points).
 
 **[D3 Carto Layer Example](http://bl.ocks.org/emeeks/37c28b6ff0e01f69b4cd)**
 
@@ -127,6 +127,11 @@ The CSS class of the newly added layer.
 layer.**renderMode**(*newRenderMode*)
 The render mode ("svg", "canvas", "mixed") of the layer. Ignored by d3.carto.layer.tile().
 
+Rendering options are:
+* "**svg**" - Points will be added as <g> elements with circles. Both the <g> element and the <circle> will receive the declared CSS class and can be styled as such. Circles can be removed with D3 and replaced with other markers manually.
+* "**canvas**" - Points will be drawn with HTML5 Canvas as circles. These circles will be styled according to the circle.cssClass style as declared in your CSS. Canvas markers will not be clickable.
+* "**mixed**" - Points will be drawn with HTML5 Canvas during panning and zooming and SVG elements when fixed. This provides the speed of canvas during dynamic moments with the interactivity of SVG during static moments. (Not currently implemented)
+
 layer.**markerSize**(*newMarkerSize*)
 The marker size of the layer. Ignored by d3.carto.layer.tile(), d3.carto.layer.geojson(), d3.carto.layer.topojson() and d3.carto.layer.featureArray().
 
@@ -150,6 +155,9 @@ The g element associated with this layer. Ignored by "canvas" rendered layers an
 
 layer.**object**(*newObject*)
 The current settings for this layer as a JSON object.
+
+layer.**cluster**(*clusterOn*)
+Determines whether or not a point layer will be clustered using a pre-built quadtree.
 
 
     topojsonLayer = d3.carto.layer();
