@@ -182,10 +182,6 @@ d3-carto-minimap
 
 Existing Issues:
 
-Graphical artifacts when the scale gets so high that stroke divided by scale returns scientific notation for the value.
-
-Projected rendering mode doesn't reproject tiles yet, and also doesn't provide controls to adjust rotation or other projection characteristics interactively for the user.
-
 Building
 ======
 [Bower](http://bower.io) is used for front-end packages.
