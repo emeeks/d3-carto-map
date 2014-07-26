@@ -18,6 +18,8 @@ var Map = module.exports = function() {
     var mapWidth = 10;
     var rasterReprojecting = false;
     var workingDistance = 100;
+    var mouseOrigin;
+    var rotateOrigin;
     
     var setProjection = d3.geo.mollweide()
     .scale(450)
@@ -192,6 +194,18 @@ var Map = module.exports = function() {
             }
     }
     
+    function degreeDistance() {
+	var a = d3MapProjection([1,1]);
+	var b = d3MapProjection([2,2]);
+	var s = d3MapZoom.scale();
+	var aa = [a[0] * s, a[1] * s];
+	var ba = [b[0] * s, b[1] * s];
+	var dist = Math.sqrt(Math.abs(aa[0] - ba[0]) + Math.abs(aa[1] - ba[1]));
+	
+	return dist;
+    }
+    
+    
     // MAP ZOOMING
     
     //Projection Zoom
@@ -216,6 +230,8 @@ var Map = module.exports = function() {
     }
 
     function d3MapZoomInitializeProjection() {
+	mouseOrigin = d3MapZoom.translate();
+	rotateOrigin = d3MapProjection.rotate();
 	for (var x in d3MapSVGPointsLayer) {
 	    if ((d3MapSVGPointsLayer[x].object().renderFrequency == "drawEnd" || !d3MapSVGPointsLayer[x].visibility())) {
 	        d3MapSVGPointsLayer[x].g().style("display", "none");
@@ -314,6 +330,44 @@ var Map = module.exports = function() {
       }
     }
      
+         // "globe" zoom
+
+    function d3MapZoomedRotate() {
+    var xRotate = d3.scale.linear()
+    .domain([1, -1])
+    .range([-180, 180]);
+
+    var yRotate = d3.scale.linear()
+    .domain([1, -1])
+    .range([90, -90]);
+    
+	  var d = d3MapZoom.translate();
+	  var s = d3MapZoom.scale();
+	  var p = [(mouseOrigin[0] - d[0]) / s, (mouseOrigin[1] - d[1]) / s];
+	  var r = rotateOrigin;
+	  
+	d3MapProjection.rotate([xRotate(p[0]) + r[0], yRotate(p[1]) + r[1], d3MapProjection.rotate()[2]]);
+
+	d3MapProjection.clipExtent([[0,0],[mapWidth,mapHeight]]);
+	d3MapProjection.scale(d3MapZoom.scale());
+	      ///POINTS
+      for (var x in d3MapSVGPointsLayer) {
+        if (d3MapSVGPointsLayer[x].object().renderFrequency == "drawAlways" && d3MapSVGPointsLayer[x].visibility() && d3MapSVGPointsLayer[x].renderMode() == "svg") {
+            renderSVGPointsProjected(x);
+        }
+    }
+    
+        // FEATURES
+        for (var x in d3MapSVGFeatureLayer) {
+            if (d3MapSVGFeatureLayer[x].object().renderFrequency == "drawAlways"  && d3MapSVGFeatureLayer[x].visibility() && d3MapSVGFeatureLayer[x].renderMode() == "svg") {
+            renderSVGFeaturesProjected(x);
+            }
+        }
+	
+	renderCanvas("zoom");
+    }
+
+     
     //Transform Zoom
     function d3MapZoomedTransform() {
 	var updateClustering = false;
@@ -340,7 +394,7 @@ var Map = module.exports = function() {
             renderSVGFeatures(x);
             }
         }
-	
+    
     //CANVAS RENDERING
     renderCanvas("zoom");
 
@@ -661,8 +715,9 @@ function manualZoom(zoomDirection) {
 		    }
 		    d3MapAllLayers.push(cartoLayer)
 		    cartoLayer.object(layerObj);
-            d3MapZoomComplete();
 	    updateLayers();
+            d3MapZoomed();
+            d3MapZoomComplete();
 	    
 	}
 
@@ -1164,6 +1219,33 @@ function manualZoom(zoomDirection) {
 	    tileSVG.style("display", "none");
 	    //rescale stroke-width and size
 	}
+	else if (newMode == "globe") {
+	    d3MapProjection = d3.geo.orthographic()
+		.center([0, 15])
+		.scale(200)
+		.translate([mapWidth/2, mapHeight/2])
+		.rotate([0,0,0])
+		.clipAngle(90);
+    
+	    d3MapPath
+		.projection(d3MapProjection);
+		
+	    d3MapZoom
+		.scale(d3MapProjection.scale())
+		.scaleExtent([1, 15052461])
+		.translate(d3MapProjection.translate());
+		
+	    d3MapZoomed = d3MapZoomedRotate;
+	    d3MapZoomInitialize = d3MapZoomInitializeProjection;
+	    d3MapZoomComplete = d3MapZoomCompleteProjection;
+	    renderCanvas = renderCanvasProjected;
+	    renderTiles = renderTilesProjected;
+	    //Adjust g and so on
+	    mapSVG.selectAll("g.features,g.points").attr("transform", "translate(0,0) scale(1)")
+	    
+	    tileSVG.style("display", "none");
+	    //rescale stroke-width and size
+	}
 	else if (newMode == "transform") {
 	    d3MapZoomed = d3MapZoomedTransform;
 	    d3MapZoomInitialize = d3MapZoomInitializeTransform;
@@ -1228,17 +1310,6 @@ function manualZoom(zoomDirection) {
 	tandemMapArray.push({map: otherMap, mini: miniMap, forceCanvas: forceCanvas, type: otherType});
 	return this;
     }
-    
-    function degreeDistance() {
-	var a = d3MapProjection([1,1]);
-	var b = d3MapProjection([2,2]);
-	var s = d3MapZoom.scale();
-	var aa = [a[0] * s, a[1] * s];
-	var ba = [b[0] * s, b[1] * s];
-	var dist = Math.sqrt(Math.abs(aa[0] - ba[0]) + Math.abs(aa[1] - ba[1]));
-	
-	return dist;
-    }
 
     map.deleteCartoLayer = function(layer) {
         var layerArray = [d3MapTileLayer,d3MapSVGPointsLayer,d3MapRasterPointsLayer,d3MapSVGFeatureLayer,d3MapRasterFeatureLayer];
@@ -1268,6 +1339,6 @@ function manualZoom(zoomDirection) {
     map.showHideLayer = function(cartoLayer) {
 	showHideLayer(cartoLayer, 0,mapDiv.select("li#" + cartoLayer.object().id).node());
     }
-    
+
     return map;
 }
