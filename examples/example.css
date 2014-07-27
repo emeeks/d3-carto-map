@@ -66,6 +66,12 @@
     opacity: 1;
 }
 
+.thickborders {
+    stroke: brown;
+    stroke-width: 2px;
+    fill: none;
+}
+
 circle {
     fill: black;
     stroke: red;

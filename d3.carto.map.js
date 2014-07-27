@@ -246,11 +246,7 @@ var Map = module.exports = function() {
     var workingDistance = 100;
     var mouseOrigin;
     var rotateOrigin;
-    
-    var setProjection = d3.geo.mollweide()
-    .scale(450)
-    .translate([600,600]);
-    
+
     var d3MapZoomed;
     var d3MapZoomInitialize;
     var d3MapZoomComplete;
@@ -278,7 +274,7 @@ var Map = module.exports = function() {
 
     var d3MapSVGFeatureG = [];
     var d3MapSVGFeatureLayer = [];
-            
+    
     var d3MapTile = d3.geo.tile()
     .size([10, 10]);
 
@@ -289,6 +285,11 @@ var Map = module.exports = function() {
     var d3MapZoom = d3.behavior.zoom();
     
     var tandemMapArray = [];
+    
+    var tileTypes = {
+	stamen: {flatPath: "tile.stamen.com", flatType: "jpg", reprojectPathPrefix: "http://{subdomain}.tile.stamen.com/", reprojectPathSuffix: "/{z}/{x}/{y}.jpg"},
+	mapbox: {flatPath: "tiles.mapbox.com/v3", flatType: "png", reprojectPathPrefix: "http://{subdomain}.tiles.mapbox.com/v3/", reprojectPathSuffix: "/{z}/{x}/{y}.png"}
+    }
 
     function map(selectedDiv) {
 
@@ -389,8 +390,11 @@ var Map = module.exports = function() {
 		})
 	    }
         }
-	renderCanvas("zoomcomplete");
-	    d3MapCanvasImage.transition().duration(1000).style("opacity", 0);
+	if (d.type() == "tile") {
+	    d3MapZoomInitialize();
+	}
+	d3MapZoomComplete();
+	d3MapCanvasImage.transition().duration(1000).style("opacity", 0);
     }
 
     function rebuildAttributes() {
@@ -777,7 +781,7 @@ var Map = module.exports = function() {
       ();
 
       for (var x in d3MapTileLayer) {
-        if (d3MapTileLayer[x].object().visible) {
+        if (d3MapTileLayer[x].visibility()) {
   var image = d3MapTileLayer[x].g()
       .attr("transform", "scale(" + tiles.scale + ")translate(" + tiles.translate + ")")
     .selectAll("image")
@@ -787,7 +791,7 @@ var Map = module.exports = function() {
       .remove();
 
   image.enter().append("image")
-      .attr("xlink:href", function(d) { return "http://" + ["a", "b", "c", "d"][Math.random() * 4 | 0] + ".tiles.mapbox.com/v3/"+d3MapTileLayer[x].object().path+"/" + d[2] + "/" + d[0] + "/" + d[1] + ".png"; })
+    .attr("xlink:href", function(d) { return "http://" + ["a", "b", "c", "d"][Math.random() * 4 | 0] + "." + tileTypes[d3MapTileLayer[x].object().type].flatPath + "/"+d3MapTileLayer[x].object().path+"/" + d[2] + "/" + d[0] + "/" + d[1] + "." + tileTypes[d3MapTileLayer[x].object().type].flatType; })
       .attr("width", 1)
       .attr("height", 1)
       .attr("x", function(d) { return d[0]; })
@@ -816,7 +820,7 @@ var Map = module.exports = function() {
             .attr("width", function(d) {return d._d3Map.width});
     }
     
-        function renderSVGFeaturesProjected(i) {
+    function renderSVGFeaturesProjected(i) {
 	var _data = d3MapSVGFeatureLayer[i].g();
 
         _data
@@ -830,10 +834,9 @@ var Map = module.exports = function() {
 	  if (d3MapTileLayer.length == 0) {
 	    return;
 	  }
-//	  if (!rasterReprojecting) {
 	  rasterReprojecting = true;
       for (var x in d3MapTileLayer) {
-        if (d3MapTileLayer[x].object().visible) {
+        if (d3MapTileLayer[x].visibility()) {
 
     mapDiv.select("#reprojectDiv").selectAll("div").remove();
 
@@ -843,12 +846,10 @@ var Map = module.exports = function() {
   .append("div")
     .style(prefix + "transform-origin", "0 0 0")
     .call(d3.geo.raster(d3MapProjection)
-      .url("//{subdomain}.tiles.mapbox.com/v3/"+ d3MapTileLayer[x].object().path +"/{z}/{x}/{y}.png")
+    .url("//{subdomain}." + tileTypes[d3MapTileLayer[x].object().type].flatPath + "/"+ d3MapTileLayer[x].object().path +"/{z}/{x}/{y}." + tileTypes[d3MapTileLayer[x].object().type].flatType)
       .on("reprojectcomplete", function() {console.log("reprojectComplete");}));
 	}
       }
-    
-//	  }
 
     }
 function manualZoom(zoomDirection) {
@@ -899,6 +900,7 @@ function manualZoom(zoomDirection) {
 	    .label(featureLayerName)
 	    .cssClass(featureLayerClass)
 	    .features(featureData)
+	    .renderType(renderType)
 	}
 	    var marker = cssFromClass(featureLayerClass);
 
@@ -917,15 +919,13 @@ function manualZoom(zoomDirection) {
 	      cartoLayer.features(featureData);
 
 		    if (renderType == "canvas") {
-			var layerObj = {id: "to" + d3MapRasterFeatureLayer.length, drawOrder: d3MapRasterFeatureLayer.length, path: "", visible: true, name: featureLayerName, active: true, renderFrequency: "drawAlways"}
+			var layerObj = {id: "rf" + d3MapRasterFeatureLayer.length, drawOrder: d3MapRasterFeatureLayer.length, path: "", visible: true, name: featureLayerName, active: true, renderFrequency: "drawAlways"}
 			d3MapRasterFeatureLayer.push(cartoLayer);
 		    }
 
 		    else {
-
-                    var layerG = mapSVG.insert("g", ".points").attr("class", "features").attr("id", "to" + d3MapSVGFeatureLayer.length);
-                    d3MapSVGFeatureG.push(layerG);
-                    var layerObj = {id: "to" + d3MapSVGFeatureLayer.length, drawOrder: d3MapSVGFeatureLayer.length, path: "", visible: true, name: featureLayerName, active: true, renderFrequency: "drawAlways"}
+                    var layerG = mapSVG.insert("g", ".points").attr("class", "features").attr("id", "sf" + d3MapSVGFeatureLayer.length);
+                    var layerObj = {id: "sf" + d3MapSVGFeatureLayer.length, drawOrder: d3MapSVGFeatureLayer.length, path: "", visible: true, name: featureLayerName, active: true, renderFrequency: "drawAlways"}
                     d3MapSVGFeatureLayer.push(cartoLayer)
                     layerG.attr("transform", "translate(" + d3MapZoom.translate() + ")scale(" + d3MapZoom.scale() + ")");
 		    cartoLayer.g(layerG);
@@ -967,6 +967,7 @@ function manualZoom(zoomDirection) {
 		node._d3Map["qsize"] = (x2 - x1) / 2
 		node[xcoord] = (x1 + x2) / 2
 		node[ycoord] = (y1 + y2) / 2
+		
 	    }
 	})
 
@@ -1019,6 +1020,8 @@ function manualZoom(zoomDirection) {
               points[x]._d3Map.size = markerSize;
               points[x]._d3Map.x = points[x][xcoord];
               points[x]._d3Map.y = points[x][ycoord];
+              points[x]._d3Map.dx = 0;
+              points[x]._d3Map.dy = 0;
 	      }
 	      else {
 
@@ -1073,7 +1076,7 @@ function manualZoom(zoomDirection) {
 	var tName = newTileLayerName || "Raster " + d3MapTileLayer.length
         var tPosition = d3MapTileLayer.length;
         var tID = "tl" + d3MapTileLayer.length;
-        var tObj = {id: tID, drawOrder: d3MapTileLayer.length, path: newTileLayer, visible: true, name: tName, active: true, renderFrequency: "drawAlways"};
+        var tObj = {id: tID, drawOrder: d3MapTileLayer.length, path: newTileLayer, visible: true, name: tName, active: true, renderFrequency: "drawAlways", type: tileType};
 	var tG = tileSVG.insert("g", tID).attr("class", "tiles").attr("id", tID);
 	
 	if (cartoLayer) {
@@ -1424,8 +1427,9 @@ function manualZoom(zoomDirection) {
     map.mode = function(newMode) {
 	if (!arguments.length) return d3MapMode;
 	if (newMode == "projection") {
-	    d3MapProjection = setProjection;
-	    
+	        d3MapProjection = d3.geo.mollweide()
+	        .scale(450)
+	        .translate([600,600]);
 	    d3MapPath
 		.projection(d3MapProjection);
 		
@@ -1443,6 +1447,7 @@ function manualZoom(zoomDirection) {
 	    mapSVG.selectAll("g.features,g.points").attr("transform", "translate(0,0) scale(1)")
 	    
 	    tileSVG.style("display", "none");
+	    reprojectDiv.style("display", "block")
 	    //rescale stroke-width and size
 	}
 	else if (newMode == "globe") {
@@ -1470,6 +1475,7 @@ function manualZoom(zoomDirection) {
 	    mapSVG.selectAll("g.features,g.points").attr("transform", "translate(0,0) scale(1)")
 	    
 	    tileSVG.style("display", "none");
+	    reprojectDiv.style("display", "block")
 	    //rescale stroke-width and size
 	}
 	else if (newMode == "transform") {
@@ -1497,8 +1503,14 @@ function manualZoom(zoomDirection) {
 	    d3MapProjection
 		.scale(1 / 2 / Math.PI)
 		.translate([0, 0]);
-		
+
+	    mapSVG.selectAll("g.features,g.points").attr("transform", "translate(" + d3MapZoom.translate() +") scale(" + d3MapZoom.scale() +")")
+
+	    mapSVG.selectAll("g.features").selectAll("path").attr("d", d3MapPath);
+	    mapSVG.selectAll("g.points").selectAll("g.pointG").attr("transform", function(d) {return "translate(" + d3MapProjection([d._d3Map.x,d._d3Map.y]) + ")scale(" + d3MapProjection.scale() + ")"});
+
 	    tileSVG.style("display", "block");
+	    reprojectDiv.style("display", "none")
 	}
 	else {
 	    return false;
@@ -1564,6 +1576,14 @@ function manualZoom(zoomDirection) {
     
     map.showHideLayer = function(cartoLayer) {
 	showHideLayer(cartoLayer, 0,mapDiv.select("li#" + cartoLayer.object().id).node());
+    }
+    
+    map.svgFeatureLayer = function() {
+	return d3MapSVGFeatureLayer;
+    }
+
+        map.rasterFeatureLayer = function() {
+	return d3MapRasterFeatureLayer;
     }
 
     return map;
