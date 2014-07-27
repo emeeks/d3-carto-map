@@ -28,7 +28,7 @@ Layers are added to the map by defining a new feature layer using d3.carto.layer
 Raster
 
 map.**addCartoLayer**.tile(d3.carto.layer)
-Add a new raster layer to the map. Currently only supports MapBox ("mapbox" as tileType) rasters. Adds a corresponding layer checkbox to the layer control to show/hide that layer.
+Add a new raster layer to the map. Currently only supports MapBox ("mapbox" as tileType) and Stamen ("stamen" as tileType) rasters. Adds a corresponding layer checkbox to the layer control to show/hide that layer.
 
 Point
 
@@ -158,6 +158,9 @@ The current settings for this layer as a JSON object.
 
 layer.**cluster**(*clusterOn*)
 Determines whether or not a point layer will be clustered using a pre-built quadtree.
+
+layer.**tileType**(*newTileType*)
+Determines the source of the tile layer. Currently accepts "stamen" and "mapbox" as options. Defaults to "mapbox" if not set.
 
 
     topojsonLayer = d3.carto.layer();
