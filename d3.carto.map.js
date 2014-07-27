@@ -804,11 +804,16 @@ var Map = module.exports = function() {
     
         function renderSVGPointsProjected(i) {
 	var _data = d3MapSVGPointsLayer[i].g();
-	    
+	
+	var r = d3MapProjection.rotate();
+	var z = d3MapProjection.clipAngle();
+	var a = [-r[0], -r[1]];
+	
         _data
             .attr("transform", "translate(0,0)scale(1)");
 	    
 	_data.selectAll("g.pointG").attr("transform", function(d) {return "translate(" + d3MapProjection([d.x,d.y])+")"})
+	.style("display", function(d) {return d3.geo.distance([d.x,d.y],a) > 1.7 ? "none" : "block"})
 
         _data.selectAll("circle")
             .attr("r", function(d) {return d._d3Map ? d._d3Map.size : 0});
