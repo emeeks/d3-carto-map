@@ -1,7 +1,7 @@
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),(f.d3||(f.d3={})).carto=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 module.exports={
   "name": "d3-carto-map",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "easy layer-based maps for d3",
   "main": "d3.carto.map.js",
   "directories": {
@@ -295,7 +295,7 @@ var Map = module.exports = function() {
 
     mapDiv = selectedDiv;
     
-    reprojectDiv = selectedDiv.append("div").attr("id", "reprojectDiv").style("height", "100%").style("width", "100%").style("position", "absolute");
+    reprojectDiv = selectedDiv.append("div").attr("id", "reprojectDiv").style("overflow", "hidden").style("height", "100%").style("width", "100%").style("position", "absolute");
     //Multiple SVGs because we draw the tiles underneath and sandwich a canvas layer between the tiles and the interactive SVG layer
     tileSVG = selectedDiv.append("svg").attr("id", "d3TileSVG").style("height", "100%").style("width", "100%").style("position", "absolute").style("z-index", -1);
     canvasCanvas = selectedDiv.append("canvas").attr("id", "d3MapCanvas").style("height", "100%").style("width", "100%").style("pointer-events", "none")
@@ -849,11 +849,14 @@ var Map = module.exports = function() {
 	.style("width", mapWidth + "px")
 	.style("height", mapHeight + "px")
   .append("div")
+  .style("position", "absolute")
     .style(prefix + "transform-origin", "0 0 0")
     .call(d3.geo.raster(d3MapProjection)
     .url("//{subdomain}." + tileTypes[d3MapTileLayer[x].object().type].flatPath + "/"+ d3MapTileLayer[x].object().path +"/{z}/{x}/{y}." + tileTypes[d3MapTileLayer[x].object().type].flatType)
       .on("reprojectcomplete", function() {console.log("reprojectComplete");}));
-	}
+    
+    reprojectDiv.selectAll("canvas.tile").style("position","absolute")
+    }
       }
 
     }

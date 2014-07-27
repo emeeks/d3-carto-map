@@ -69,7 +69,7 @@ var Map = module.exports = function() {
 
     mapDiv = selectedDiv;
     
-    reprojectDiv = selectedDiv.append("div").attr("id", "reprojectDiv").style("height", "100%").style("width", "100%").style("position", "absolute");
+    reprojectDiv = selectedDiv.append("div").attr("id", "reprojectDiv").style("overflow", "hidden").style("height", "100%").style("width", "100%").style("position", "absolute");
     //Multiple SVGs because we draw the tiles underneath and sandwich a canvas layer between the tiles and the interactive SVG layer
     tileSVG = selectedDiv.append("svg").attr("id", "d3TileSVG").style("height", "100%").style("width", "100%").style("position", "absolute").style("z-index", -1);
     canvasCanvas = selectedDiv.append("canvas").attr("id", "d3MapCanvas").style("height", "100%").style("width", "100%").style("pointer-events", "none")
@@ -623,11 +623,14 @@ var Map = module.exports = function() {
 	.style("width", mapWidth + "px")
 	.style("height", mapHeight + "px")
   .append("div")
+  .style("position", "absolute")
     .style(prefix + "transform-origin", "0 0 0")
     .call(d3.geo.raster(d3MapProjection)
     .url("//{subdomain}." + tileTypes[d3MapTileLayer[x].object().type].flatPath + "/"+ d3MapTileLayer[x].object().path +"/{z}/{x}/{y}." + tileTypes[d3MapTileLayer[x].object().type].flatType)
       .on("reprojectcomplete", function() {console.log("reprojectComplete");}));
-	}
+    
+    reprojectDiv.selectAll("canvas.tile").style("position","absolute")
+    }
       }
 
     }

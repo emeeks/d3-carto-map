@@ -1,6 +1,6 @@
 {
   "name": "d3-carto-map",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "easy layer-based maps for d3",
   "main": "d3.carto.map.js",
   "directories": {

@@ -1,7 +1,7 @@
 d3-carto-map
 ======
 
-0.2
+0.3
 
 The purpose of d3.carto is not to obscure D3 but rather the opposite: to make it trivial to make a map with the usual web map functionality so that a developer can focus on integrating into that map the information visualization and data processing that D3 is so well-suited for.
 
