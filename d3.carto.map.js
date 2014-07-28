@@ -563,6 +563,14 @@ var Map = module.exports = function() {
          // "globe" zoom
 
     function d3MapZoomedRotate() {
+    	var updateClustering = false;
+    
+	if (Math.abs(degreeDistance() - workingDistance) > .1) {
+	    workingDistance = degreeDistance();
+	    updateClustering = true;
+	}
+	
+	
     var xRotate = d3.scale.linear()
     .domain([1, -1])
     .range([-180, 180]);
@@ -585,6 +593,10 @@ var Map = module.exports = function() {
         if (d3MapSVGPointsLayer[x].object().renderFrequency == "drawAlways" && d3MapSVGPointsLayer[x].visibility() && d3MapSVGPointsLayer[x].renderMode() == "svg") {
             renderSVGPointsProjected(x);
         }
+	if (d3MapSVGPointsLayer[x].object().cluster && updateClustering) {
+	    quadtreeModePoints(d3MapSVGPointsLayer[x], degreeDistance());
+	}
+
     }
     
         // FEATURES
@@ -1181,7 +1193,13 @@ function manualZoom(zoomDirection) {
 
 	
     function quadtreeModePoints(layer, resolution) {
-	
+	    var clusterD = 3;
+	if (map.mode() == "globe") {
+	    clusterD = 100;
+	}
+	if (map.mode() == "projection") {
+	    clusterD = 0;
+	}
 	if (layer.object().qtreeLayer) {
 	    map.deleteCartoLayer(layer.object().qtreeLayer);
 	}
@@ -1195,7 +1213,7 @@ function manualZoom(zoomDirection) {
 		if (node.nodes[x].leaf) {
 		    quadSites.push(node.nodes[x])
 		}
-		else if (node.nodes[x]._d3Map.qsize * resolution < 3) {
+		else if (node.nodes[x]._d3Map.qsize * resolution < clusterD) {
 		    quadSites.push(node.nodes[x])
 		}
 		else {

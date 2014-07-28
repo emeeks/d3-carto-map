@@ -67,7 +67,6 @@ path,circle,rect,polygon,ellipse,line {
 
 }
 
-
 rect.minimap-extent {
     fill: rgba(200,255,255,0.35);
     stroke: black;
