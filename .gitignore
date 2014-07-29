@@ -17,3 +17,5 @@ examples/reproject-raster2.html
 examples/quadtree.html
 
 examples/booth.html
+
+examples/sampledata/subcables.topojson

@@ -924,7 +924,9 @@ function manualZoom(zoomDirection) {
 	}
 	    var marker = cssFromClass(featureLayerClass);
 
+	    console.log(featureData)
 	for (var x in featureData) {
+	    console.log(featureData[x])
                       featureData[x]._d3Map = {};
                       featureData[x]._d3Map.color = marker.markerFill;
 		      //Override Fill for lines?
@@ -1152,7 +1154,7 @@ function manualZoom(zoomDirection) {
 
     function d3MapAddTopoJSONLayer(newTopoLayer, newTopoLayerName, newTopoLayerClass, renderType, specificFeature, renderFrequency,cartoLayer) {
 
-	
+	console.log(specificFeature)
         d3.json(newTopoLayer, function(error, topoData) {
 
 	    var layerDataType = "topojson";
@@ -1167,8 +1169,15 @@ function manualZoom(zoomDirection) {
 	    .cssClass(newTopoLayerClass)
 	}
 		    
-		    var topoLayerData = topojson.feature(topoData, topoData.objects[x]).features;
-		    processFeatures(topoLayerData, newTopoLayerName, newTopoLayerClass, renderType, renderFrequency,cartoLayer);
+		    var topoLayerData = topojson.feature(topoData, topoData.objects[x]);
+		    var td;
+		    if (topoLayerData.type == "Feature") {
+			td = [topoLayerData];
+		    }
+		    else {
+			td = topoLayerData.features;
+		    }
+		    processFeatures(td, newTopoLayerName, newTopoLayerClass, renderType, renderFrequency,cartoLayer);
 		    
                 }
             }
