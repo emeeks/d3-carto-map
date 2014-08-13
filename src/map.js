@@ -20,6 +20,10 @@ var Map = module.exports = function() {
     var workingDistance = 100;
     var mouseOrigin;
     var rotateOrigin;
+    var touchInitialD;
+    var touchInitialRotate;
+    var touchInitialLength;
+    var touchInitialScale;
 
     var d3MapZoomed;
     var d3MapZoomInitialize;
@@ -71,12 +75,14 @@ var Map = module.exports = function() {
     
     reprojectDiv = selectedDiv.append("div").attr("id", "reprojectDiv").style("overflow", "hidden").style("height", "100%").style("width", "100%").style("position", "absolute");
     //Multiple SVGs because we draw the tiles underneath and sandwich a canvas layer between the tiles and the interactive SVG layer
-    tileSVG = selectedDiv.append("svg").attr("id", "d3TileSVG").style("height", "100%").style("width", "100%").style("position", "absolute").style("z-index", -1);
+    tileSVG = selectedDiv.append("svg").style("height", "100%").style("width", "100%").style("position", "absolute").style("z-index", -1).append("g").attr("class","rotateG").attr("id", "d3TileSVG");
     canvasCanvas = selectedDiv.append("canvas").attr("id", "d3MapCanvas").style("height", "100%").style("width", "100%").style("pointer-events", "none")
     .attr("height", 5).attr("width", 5).style("position", "absolute").style("z-index", 0);
     mapSVG = selectedDiv.append("svg").attr("id", "d3MapSVG").style("height", "100%").style("width", "100%")
     .style("position", "absolute").style("z-index", 1)
-    .call(d3MapZoom);
+    .call(d3MapZoom)
+    .on("touchstart", touchBegin).on("touchmove", touchUpdate)
+    .append("g").attr("class", "rotateG");
 
     d3MapCanvasImage = mapSVG.append("g").attr("id","d3MapCanvasG").append("image");
     
@@ -1018,6 +1024,69 @@ function manualZoom(zoomDirection) {
 
     }
     
+    function touchBegin() {
+      d3.event.preventDefault();
+      d3.event.stopPropagation();
+
+       d = d3.touches(this);
+        touchInitialD = d;
+
+      touchInitialRotate = d3.transform(d3.select("#graphics").attr("transform")).rotate;
+	touchInitialLength = Math.sqrt(Math.abs(d[0][0] - d[1][0]) + Math.abs(d[0][1] - d[1][1]));
+	touchInitialScale = d3MapZoom.scale();
+       	if (d.length == 2) {
+	    d3MapZoomInitialize();
+	}
+
+
+          }
+     function touchUpdate() {
+       d3.event.preventDefault();
+       d3.event.stopPropagation();
+       d = d3.touches(this);
+       d3.select("svg").selectAll("circle").data(d).enter().append("circle").attr("r", 75).style("fill", function(d, i) {
+         return touchColor(i)
+       });
+
+       d3.select("svg").selectAll("circle").data(d).exit().remove();
+
+       d3.select("svg").selectAll("circle").attr("cx", function(d) {
+         return d[0]
+       }).attr("cy", function(d) {
+         return d[1]
+       });
+
+      if (d.length == 2) {
+	var currentLength = Math.sqrt(Math.abs(d[0][0] - d[1][0]) + Math.abs(d[0][1] - d[1][1]));
+        var zoom = currentLength / touchInitialLength;
+        var newScale = zoom * touchInitialScale;
+	d3MapZoom.scale(newScale)
+        d3MapZoomed();
+
+      }
+
+      else if (d.length == 3) {
+        var slope1 = (touchInitialD[0][1] - touchInitialD[1][1]) / (touchInitialD[0][0] - touchInitialD[1][0]);
+        var slope2 = (d[0][1] - d[1][1]) / (d[0][0] - d[1][0]);
+        
+        var angle = Math.atan((slope1 - slope2)/(1 + slope1*slope2)) * 180/Math.PI;
+
+        var newRotate = touchInitialRotate - angle;
+        
+        d3.selectAll(".rotateG").attr("transform", "rotate(" +newRotate +" " + (mapWidth / 2) + " " + (mapHeight / 2) +")")
+        d3.selectAll("text").attr("transform", "rotate(" +(-newRotate)+")")
+
+      }
+
+     }
+    
+    function touchEnd() {
+       d = d3.touches(this);
+	if (d.length == 2) {
+	    d3MapZoomComplete();
+	}
+
+    }
     //Exposed Functions
     
     map.aFunction = function (incomingData) {
