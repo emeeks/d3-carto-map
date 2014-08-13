@@ -1028,7 +1028,7 @@ function manualZoom(zoomDirection) {
       d3.event.preventDefault();
       d3.event.stopPropagation();
 
-       d = d3.touches(this);
+    var d = d3.touches(this);
         touchInitialD = d;
 
       touchInitialRotate = d3.transform(d3.select("#graphics").attr("transform")).rotate;
@@ -1043,7 +1043,7 @@ function manualZoom(zoomDirection) {
      function touchUpdate() {
        d3.event.preventDefault();
        d3.event.stopPropagation();
-       d = d3.touches(this);
+       var d = d3.touches(this);
        d3.select("svg").selectAll("circle").data(d).enter().append("circle").attr("r", 75).style("fill", function(d, i) {
          return touchColor(i)
        });
@@ -1081,7 +1081,7 @@ function manualZoom(zoomDirection) {
      }
     
     function touchEnd() {
-       d = d3.touches(this);
+       var d = d3.touches(this);
 	if (d.length == 2) {
 	    d3MapZoomComplete();
 	}
