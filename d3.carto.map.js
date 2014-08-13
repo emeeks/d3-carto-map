@@ -1258,10 +1258,10 @@ function manualZoom(zoomDirection) {
         touchInitialD = d;
 
       touchInitialRotate = d3.transform(d3.select(".rotateG").attr("transform")).rotate;
-	touchInitialLength = Math.sqrt(Math.abs(d[0][0] - d[1][0]) + Math.abs(d[0][1] - d[1][1]));
 	touchInitialScale = d3MapZoom.scale();
        	if (d.length == 2) {
 	    d3MapZoomInitialize();
+	    touchInitialLength = Math.sqrt(Math.abs(d[0][0] - d[1][0]) + Math.abs(d[0][1] - d[1][1]));
 	}
 
 
