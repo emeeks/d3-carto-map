@@ -1046,6 +1046,7 @@ function manualZoom(zoomDirection) {
        var d = d3.touches(this);
 
       if (d.length == 2) {
+	console.log("two fingers")
 	var currentLength = Math.sqrt(Math.abs(d[0][0] - d[1][0]) + Math.abs(d[0][1] - d[1][1]));
         var zoom = currentLength / touchInitialLength;
         var newScale = zoom * touchInitialScale;
@@ -1055,6 +1056,7 @@ function manualZoom(zoomDirection) {
       }
 
       else if (d.length == 3) {
+	console.log("three fingers")
         var slope1 = (touchInitialD[0][1] - touchInitialD[1][1]) / (touchInitialD[0][0] - touchInitialD[1][0]);
         var slope2 = (d[0][1] - d[1][1]) / (d[0][0] - d[1][0]);
         
@@ -1062,7 +1064,7 @@ function manualZoom(zoomDirection) {
 
         var newRotate = touchInitialRotate - angle;
         
-        d3.selectAll(".rotateG").attr("transform", "rotate(" +newRotate +" " + (mapWidth / 2) + " " + (mapHeight / 2) +")")
+        d3.selectAll(".rotateG").attr("transform", "rotate(" +newRotate +")")
         d3.selectAll("text").attr("transform", "rotate(" +(-newRotate)+")")
 
       }
