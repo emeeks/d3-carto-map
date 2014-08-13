@@ -1044,17 +1044,6 @@ function manualZoom(zoomDirection) {
        d3.event.preventDefault();
        d3.event.stopPropagation();
        var d = d3.touches(this);
-       d3.select("svg").selectAll("circle").data(d).enter().append("circle").attr("r", 75).style("fill", function(d, i) {
-         return touchColor(i)
-       });
-
-       d3.select("svg").selectAll("circle").data(d).exit().remove();
-
-       d3.select("svg").selectAll("circle").attr("cx", function(d) {
-         return d[0]
-       }).attr("cy", function(d) {
-         return d[1]
-       });
 
       if (d.length == 2) {
 	var currentLength = Math.sqrt(Math.abs(d[0][0] - d[1][0]) + Math.abs(d[0][1] - d[1][1]));
