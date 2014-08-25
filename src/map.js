@@ -91,8 +91,13 @@ var Map = module.exports = function() {
 
     zoomBox = selectedDiv.insert("div", "svg").attr("id", "d3MapZoomBox");
     
-    zoomBox.selectAll("button").data(["in", "out"]).enter().append("button")
-    .on("click", manualZoom).html(function(d) {return d=="in" ? "+" : "-"})
+    zoomBox.selectAll("button.zoomcontrol").data(["in", "out"]).enter().append("button").attr("class", "zoomcontrol")
+    .on("click", manualZoom).html(function(d) {return d=="in" ? "+" : "-"});
+    
+    var panSymbols = {"up": "&#8593;","down": "&#8595;","left": "&#8592;","right": "&#8594;"}
+    zoomBox.selectAll("button.pancontrol").data(["up","down","left", "right"]).enter().append("button").attr("class", "pancontrol")
+    .attr("id", function(d) {return d})
+    .on("click", function(d) {return manualPan(d,.5)}).html(function(d) {return panSymbols[d]});
     
     map.mode("transform");
     
@@ -673,7 +678,30 @@ function manualZoom(zoomDirection) {
     }
 
         mapSVG.call(d3MapZoom.translate([newX,newY]).scale(newZoom).event);
-      }
+    }
+    
+    function manualPan(panDirection, panAmount) {
+        var newX = ((d3MapZoom.translate()[0] - (mapWidth / 2))) + mapWidth / 2;
+        var newY = ((d3MapZoom.translate()[1] - (mapHeight / 2))) + mapHeight / 2;
+	switch (panDirection) {
+	    case "left":
+		newX = newX + (mapWidth * panAmount);
+		break;
+	    case "right":
+		newX = newX - (mapWidth * panAmount);
+		break;
+	    case "up":
+		newY = newY + (mapHeight * panAmount);
+		break;
+	    case "down":
+		newY = newY - (mapHeight * panAmount);
+		break;
+	    default:
+	    return false;
+	}
+        mapSVG.call(d3MapZoom.translate([newX,newY]).event);
+	return true;
+    }
       
       function scaled(incomingNumber) {
           return parseFloat(incomingNumber) / d3MapZoom.scale();
@@ -1046,7 +1074,6 @@ function manualZoom(zoomDirection) {
        var d = d3.touches(this);
 
       if (d.length == 2) {
-	console.log("two fingers")
 	var currentLength = Math.sqrt(Math.abs(d[0][0] - d[1][0]) + Math.abs(d[0][1] - d[1][1]));
         var zoom = currentLength / touchInitialLength;
         var newScale = zoom * touchInitialScale;
@@ -1056,7 +1083,6 @@ function manualZoom(zoomDirection) {
       }
 
       else if (d.length == 3) {
-	console.log("three fingers")
         var slope1 = (touchInitialD[0][1] - touchInitialD[1][1]) / (touchInitialD[0][0] - touchInitialD[1][0]);
         var slope2 = (d[0][1] - d[1][1]) / (d[0][0] - d[1][0]);
         

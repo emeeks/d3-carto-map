@@ -4,11 +4,10 @@ path,circle,rect,polygon,ellipse,line {
 #d3MapZoomBox {
     position: absolute;
     z-index: 10;
-    height: 50px;
+    height: 100px;
     width: 25px;
     top: 10px;
-    right: 10px;
-    overflow: hidden;
+    right: 50px;
 }
 
 #d3MapZoomBox > button {
@@ -25,6 +24,17 @@ path,circle,rect,polygon,ellipse,line {
 
 #d3MapZoomBox > button:hover {
   background: black;
+}
+
+#d3MapZoomBox > button#left {
+  position: absolute;
+  left: -25px;
+  top: 60px;
+}
+#d3MapZoomBox > button#right {
+  position: absolute;
+  right: -25px;
+  top: 60px;
 }
 
 #d3MapLayerBox {
