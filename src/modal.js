@@ -13,8 +13,7 @@ var Modal = module.exports = function() {
         createModalContent,
         d3ModalType
         ;
-    
-    
+
     function d3CartoModal(incomingD) {
         d3ModalCurrentElement = this;
         d3ModalParentDiv.selectAll("div.d3MapModal").remove();
@@ -80,6 +79,12 @@ var Modal = module.exports = function() {
         return true;
     }
 
+    d3CartoModal.formatter = function(newFormatter) {
+	if (!arguments.length) return createModalContent;
+	createModalContent = newFormatter;
+	return this;
+    }
+    
     createModalContent = function(d) {
         var mLabel;
         var mContent = d;

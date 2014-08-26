@@ -1013,12 +1013,17 @@ function manualZoom(zoomDirection) {
                   .attr("class", featureLayerClass)
                   .attr("d", d3MapPath)
 		  
-		    if (cartoLayer.clickableFeatures()) {
-			var cartoModal = Modal().parentDiv(mapDiv).parentG(layerG);
-			cartoLayer.modal(cartoModal);
-			 appendedFeatures
-			.style("cursor", "pointer")
-			.on("click", cartoLayer.modal())
+	    if (cartoLayer.clickableFeatures()) {
+	        if (!cartoLayer.modal()) {
+		    var cartoModal = Modal().parentDiv(mapDiv).parentG(layerG);
+		    cartoLayer.modal(cartoModal);	
+	        }
+	        else {
+		    cartoLayer.modal().parentDiv(mapDiv).parentG(layerG)
+		}
+		   appendedFeatures
+		    .style("cursor", "pointer")
+		    .on("click", cartoLayer.modal())
 		  }
 		  else {
 		    appendedFeatures
@@ -1026,6 +1031,7 @@ function manualZoom(zoomDirection) {
 		  }
 
 		    }
+		    
 		    d3MapAllLayers.push(cartoLayer)
 		    cartoLayer.object(layerObj);
 	    updateLayers();
@@ -1146,8 +1152,13 @@ function manualZoom(zoomDirection) {
   .attr("class", newCSVLayerClass);
   
   if (cartoLayer.clickableFeatures()) {
-    var cartoModal = Modal().parentDiv(mapDiv).parentG(pointsG);
-  cartoLayer.modal(cartoModal);
+    if (!cartoLayer.modal()) {
+        var cartoModal = Modal().parentDiv(mapDiv).parentG(pointsG);
+	cartoLayer.modal(cartoModal);	
+    }
+    else {
+	cartoLayer.modal().parentDiv(mapDiv).parentG(pointsG)
+    }
    appendedPointsEnter
     .style("cursor", "pointer")
     .on("click", cartoLayer.modal())
@@ -1886,8 +1897,7 @@ var Modal = module.exports = function() {
         createModalContent,
         d3ModalType
         ;
-    
-    
+
     function d3CartoModal(incomingD) {
         d3ModalCurrentElement = this;
         d3ModalParentDiv.selectAll("div.d3MapModal").remove();
@@ -1953,6 +1963,12 @@ var Modal = module.exports = function() {
         return true;
     }
 
+    d3CartoModal.formatter = function(newFormatter) {
+	if (!arguments.length) return createModalContent;
+	createModalContent = newFormatter;
+	return this;
+    }
+    
     createModalContent = function(d) {
         var mLabel;
         var mContent = d;

@@ -47,7 +47,11 @@
     bottom: 150px;
     left: 150px;
   }
-  
+    .countryInfobox {
+    color: pink;
+    font-style: italic;
+    padding: 20px;
+  }
   </style>
 <script>
   function makeSomeMaps() {
@@ -78,6 +82,11 @@
     .clickableFeatures(true)
     .on("load", function() {console.log("load topojson")});
 
+    csvModal = d3.carto.modal();
+    csvModal.formatter(
+      function(d) {return "<h1>" + d.properties.label + " in modern day " + d.properties.modern + "</h1>"}
+    )
+    
     csvLayer = d3.carto.layer.csv();
     csvLayer
     .type("csv")
@@ -88,6 +97,7 @@
     .markerSize(3)
     .x("x")
     .y("y")
+    .modal(csvModal)
     .clickableFeatures(true)
     .on("load", changeMarkers);
 
@@ -97,7 +107,7 @@
     map.addCartoLayer(csvLayer);
 
     function recenter() {
-      map.centerOn([-0.1275,51.507],"latlong",300);
+      map.centerOn([3,43],"latlong");
     }
 
     function changeMarkers() {
@@ -117,6 +127,11 @@
       })
      shortNameCountries = featuresArray.filter(function(d) {return d.properties.name.length < 7})
 
+    featureModal = d3.carto.modal();
+    featureModal.formatter(
+      function(d) {return "<p class='countryInfobox'>The country of " + d.properties.name + " has a short name</p>"}
+    )
+    
     featureLayer = d3.carto.layer.featureArray();
     featureLayer
     .features(shortNameCountries)
@@ -124,6 +139,7 @@
     .cssClass("halffilledcountries")
     .renderMode("svg")
     .clickableFeatures(true)
+    .modal(featureModal)
     .on("load", function(){console.log("load featurearray")}); 
     
     map.addCartoLayer(featureLayer);
