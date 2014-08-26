@@ -19,6 +19,8 @@ var Layer = module.exports = function() {
     var layerSpecific = "all";
     var layerMarkerSize = 5;
     var layerCluster = false;
+    var clickableFeatures = false;
+    var d3Modal;
     
     var layerDispatch = d3.dispatch('load','recluster');
     
@@ -48,6 +50,17 @@ var Layer = module.exports = function() {
     layer.renderMode = function(newMode) {
     	if (!arguments.length) return layerRenderMode;
 	layerRenderMode = newMode;
+	return this;
+    }
+    
+    layer.clickableFeatures = function(newState) {
+    	if (!arguments.length) return clickableFeatures;
+	clickableFeatures = newState;
+	return this;
+    }
+    layer.modal = function(newModal) {
+	if (!arguments.length) return d3Modal;
+	d3Modal = newModal;
 	return this;
     }
 

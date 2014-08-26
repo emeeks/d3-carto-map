@@ -75,6 +75,7 @@
     .label("TopoRoutes")
     .cssClass("roads")
     .renderMode("svg")
+    .clickableFeatures(true)
     .on("load", function() {console.log("load topojson")});
 
     csvLayer = d3.carto.layer.csv();
@@ -87,6 +88,7 @@
     .markerSize(3)
     .x("x")
     .y("y")
+    .clickableFeatures(true)
     .on("load", changeMarkers);
 
     map.addCartoLayer(tileLayer);
@@ -100,7 +102,7 @@
 
     function changeMarkers() {
       csvLayer.g().selectAll("g.pinkcircle").select("circle").remove();
-      csvLayer.g().selectAll("g.pinkcircle").datum({e: 0}).append("rect").attr("class", "bluesquare").attr("height", 5).attr("width",5).attr("x",-2.5).attr("y",-2.5)
+      csvLayer.g().selectAll("g.pinkcircle").datum(function(d) {return {"properties": d}}).append("rect").attr("class", "bluesquare").attr("height", 5).attr("width",5).attr("x",-2.5).attr("y",-2.5)
 //    To get the graphical elements to scale you need to do this
       map.refresh();
     }
@@ -121,6 +123,7 @@
     .label("Feature Array")
     .cssClass("halffilledcountries")
     .renderMode("svg")
+    .clickableFeatures(true)
     .on("load", function(){console.log("load featurearray")}); 
     
     map.addCartoLayer(featureLayer);

@@ -1,7 +1,8 @@
 "use strict";
 
 var d3 = require("d3"),
-    Layer = require("./layer");
+    Layer = require("./layer"),
+    Modal = require("./modal");
 
 var Map = module.exports = function() {
     var mapSVG;
@@ -225,6 +226,7 @@ var Map = module.exports = function() {
     
     //Projection Zoom
     function d3MapZoomedProjection() {
+	mapDiv.selectAll("div.d3MapModal").remove();
 	d3MapProjection.clipExtent([[0,0],[mapWidth,mapHeight]]);
 	d3MapProjection.scale(d3MapZoom.scale()).translate(d3MapZoom.translate());
 	      ///POINTS
@@ -348,6 +350,7 @@ var Map = module.exports = function() {
          // "globe" zoom
 
     function d3MapZoomedRotate() {
+	mapDiv.selectAll("div.d3MapModal").remove();
     	var updateClustering = false;
     
 	if (Math.abs(degreeDistance() - workingDistance) > .1) {
@@ -397,6 +400,7 @@ var Map = module.exports = function() {
      
     //Transform Zoom
     function d3MapZoomedTransform() {
+	mapDiv.selectAll("div.d3MapModal").remove();
 	var updateClustering = false;
 	renderTiles();
     
@@ -758,14 +762,29 @@ function manualZoom(zoomDirection) {
                     layerG.attr("transform", "translate(" + d3MapZoom.translate() + ")scale(" + d3MapZoom.scale() + ")");
 		    cartoLayer.g(layerG);
   
-                  layerG.selectAll("g")
+                  var appendedFeatures = layerG.selectAll("g")
                   .data(featureData)
                   .enter()
                   .append("g")
-                  .attr("class", featureLayerClass)
+                  .attr("class", featureLayerClass);
+		  
+		  appendedFeatures
 		  .append("path")
                   .attr("class", featureLayerClass)
                   .attr("d", d3MapPath)
+		  
+		    if (cartoLayer.clickableFeatures()) {
+			var cartoModal = Modal().parentDiv(mapDiv).parentG(layerG);
+			cartoLayer.modal(cartoModal);
+			 appendedFeatures
+			.style("cursor", "pointer")
+			.on("click", cartoLayer.modal())
+		  }
+		  else {
+		    appendedFeatures
+		    .style("pointer-events", "none");
+		  }
+
 		    }
 		    d3MapAllLayers.push(cartoLayer)
 		    cartoLayer.object(layerObj);
@@ -878,8 +897,6 @@ function manualZoom(zoomDirection) {
   .attr("id", function(d,i) {return newCSVLayerClass + "_g_" + i})
   .attr("class", newCSVLayerClass + " pointG")
   .attr("transform", function(d) {return "translate(" + d3MapProjection([d._d3Map.x,d._d3Map.y]) + ")scale(" + d3MapProjection.scale() + ")"})
-  .style("cursor", "pointer")
-
   .each(function(d) {
     d._d3Map.originalTranslate = "translate(" + d3MapProjection([d._d3Map.x,d._d3Map.y]) + ")scale(" + d3MapProjection.scale() + ")";
   });
@@ -887,6 +904,19 @@ function manualZoom(zoomDirection) {
   appendedPointsEnter
   .append("circle")
   .attr("class", newCSVLayerClass);
+  
+  if (cartoLayer.clickableFeatures()) {
+    var cartoModal = Modal().parentDiv(mapDiv).parentG(pointsG);
+  cartoLayer.modal(cartoModal);
+   appendedPointsEnter
+    .style("cursor", "pointer")
+    .on("click", cartoLayer.modal())
+  }
+  else {
+    appendedPointsEnter
+    .style("pointer-events", "none");
+  }
+
         }
 
 	if (pointsObj.cluster) {

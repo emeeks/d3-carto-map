@@ -1,7 +1,7 @@
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),(f.d3||(f.d3={})).carto=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 module.exports={
   "name": "d3-carto-map",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "easy layer-based maps for d3",
   "main": "d3.carto.map.js",
   "directories": {
@@ -63,10 +63,11 @@ module.exports = {
   map: _dereq_("./map"),
   layer: _dereq_("./layer"),
   minimap: _dereq_("./minimap"),
+  modal: _dereq_("./modal"),
   version: _dereq_("../package.json").version
 };
 
-},{"../package.json":1,"./layer":3,"./map":4,"./minimap":5}],3:[function(_dereq_,module,exports){
+},{"../package.json":1,"./layer":3,"./map":4,"./minimap":5,"./modal":6}],3:[function(_dereq_,module,exports){
 (function (global){
 "use strict";
 
@@ -89,6 +90,8 @@ var Layer = module.exports = function() {
     var layerSpecific = "all";
     var layerMarkerSize = 5;
     var layerCluster = false;
+    var clickableFeatures = false;
+    var d3Modal;
     
     var layerDispatch = d3.dispatch('load','recluster');
     
@@ -118,6 +121,17 @@ var Layer = module.exports = function() {
     layer.renderMode = function(newMode) {
     	if (!arguments.length) return layerRenderMode;
 	layerRenderMode = newMode;
+	return this;
+    }
+    
+    layer.clickableFeatures = function(newState) {
+    	if (!arguments.length) return clickableFeatures;
+	clickableFeatures = newState;
+	return this;
+    }
+    layer.modal = function(newModal) {
+	if (!arguments.length) return d3Modal;
+	d3Modal = newModal;
 	return this;
     }
 
@@ -227,7 +241,8 @@ Layer.tile = function() {
 "use strict";
 
 var d3 = (typeof window !== "undefined" ? window.d3 : typeof global !== "undefined" ? global.d3 : null),
-    Layer = _dereq_("./layer");
+    Layer = _dereq_("./layer"),
+    Modal = _dereq_("./modal");
 
 var Map = module.exports = function() {
     var mapSVG;
@@ -451,6 +466,7 @@ var Map = module.exports = function() {
     
     //Projection Zoom
     function d3MapZoomedProjection() {
+	mapDiv.selectAll("div.d3MapModal").remove();
 	d3MapProjection.clipExtent([[0,0],[mapWidth,mapHeight]]);
 	d3MapProjection.scale(d3MapZoom.scale()).translate(d3MapZoom.translate());
 	      ///POINTS
@@ -574,6 +590,7 @@ var Map = module.exports = function() {
          // "globe" zoom
 
     function d3MapZoomedRotate() {
+	mapDiv.selectAll("div.d3MapModal").remove();
     	var updateClustering = false;
     
 	if (Math.abs(degreeDistance() - workingDistance) > .1) {
@@ -623,6 +640,7 @@ var Map = module.exports = function() {
      
     //Transform Zoom
     function d3MapZoomedTransform() {
+	mapDiv.selectAll("div.d3MapModal").remove();
 	var updateClustering = false;
 	renderTiles();
     
@@ -984,14 +1002,29 @@ function manualZoom(zoomDirection) {
                     layerG.attr("transform", "translate(" + d3MapZoom.translate() + ")scale(" + d3MapZoom.scale() + ")");
 		    cartoLayer.g(layerG);
   
-                  layerG.selectAll("g")
+                  var appendedFeatures = layerG.selectAll("g")
                   .data(featureData)
                   .enter()
                   .append("g")
-                  .attr("class", featureLayerClass)
+                  .attr("class", featureLayerClass);
+		  
+		  appendedFeatures
 		  .append("path")
                   .attr("class", featureLayerClass)
                   .attr("d", d3MapPath)
+		  
+		    if (cartoLayer.clickableFeatures()) {
+			var cartoModal = Modal().parentDiv(mapDiv).parentG(layerG);
+			cartoLayer.modal(cartoModal);
+			 appendedFeatures
+			.style("cursor", "pointer")
+			.on("click", cartoLayer.modal())
+		  }
+		  else {
+		    appendedFeatures
+		    .style("pointer-events", "none");
+		  }
+
 		    }
 		    d3MapAllLayers.push(cartoLayer)
 		    cartoLayer.object(layerObj);
@@ -1104,8 +1137,6 @@ function manualZoom(zoomDirection) {
   .attr("id", function(d,i) {return newCSVLayerClass + "_g_" + i})
   .attr("class", newCSVLayerClass + " pointG")
   .attr("transform", function(d) {return "translate(" + d3MapProjection([d._d3Map.x,d._d3Map.y]) + ")scale(" + d3MapProjection.scale() + ")"})
-  .style("cursor", "pointer")
-
   .each(function(d) {
     d._d3Map.originalTranslate = "translate(" + d3MapProjection([d._d3Map.x,d._d3Map.y]) + ")scale(" + d3MapProjection.scale() + ")";
   });
@@ -1113,6 +1144,19 @@ function manualZoom(zoomDirection) {
   appendedPointsEnter
   .append("circle")
   .attr("class", newCSVLayerClass);
+  
+  if (cartoLayer.clickableFeatures()) {
+    var cartoModal = Modal().parentDiv(mapDiv).parentG(pointsG);
+  cartoLayer.modal(cartoModal);
+   appendedPointsEnter
+    .style("cursor", "pointer")
+    .on("click", cartoLayer.modal())
+  }
+  else {
+    appendedPointsEnter
+    .style("pointer-events", "none");
+  }
+
         }
 
 	if (pointsObj.cluster) {
@@ -1706,7 +1750,7 @@ function manualZoom(zoomDirection) {
     return map;
 }
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./layer":3}],5:[function(_dereq_,module,exports){
+},{"./layer":3,"./modal":6}],5:[function(_dereq_,module,exports){
 (function (global){
 "use strict";
 
@@ -1823,6 +1867,122 @@ var minimap = module.exports = function() {
     }
     
     return d3CartoMiniMap;
+}
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./layer":3,"./map":4}],6:[function(_dereq_,module,exports){
+(function (global){
+"use strict";
+
+var d3 = (typeof window !== "undefined" ? window.d3 : typeof global !== "undefined" ? global.d3 : null),
+    Map = _dereq_("./map"),
+    Layer = _dereq_("./layer");
+
+var Modal = module.exports = function() {
+        var d3Modal = d3.select(),
+	d3ModalContent,
+        d3ModalParentDiv,
+        d3ModalParentG,
+        d3ModalCurrentElement,
+        createModalContent,
+        d3ModalType
+        ;
+    
+    
+    function d3CartoModal(incomingD) {
+        d3ModalCurrentElement = this;
+        d3ModalParentDiv.selectAll("div.d3MapModal").remove();
+
+        d3Modal = d3ModalParentDiv.append("div")
+        .attr("class", "d3MapModal");
+
+        d3Modal
+        .append("div")
+        .attr("class", "d3MapModalContent")
+        .html(createModalContent(incomingD));
+
+        d3Modal
+        .append("div")
+        .attr("class", "d3MapModalArrow");
+
+        d3CartoModal.repositionModal();
+    }
+    
+    d3CartoModal.parentDiv = function(newParent) {
+	if (!arguments.length) return d3ModalParentDiv;
+	d3ModalParentDiv = newParent;
+	return this;
+    }
+
+    d3CartoModal.parentG = function(newParent) {
+	if (!arguments.length) return d3ModalParentG;
+	d3ModalParentG = newParent;
+	return this;
+    }
+    
+    d3CartoModal.type = function(newType) {
+	if (!arguments.length) return d3ModalType;
+	d3ModalType = newType;
+	return this;
+    }
+    
+    d3CartoModal.repositionModal = function() {
+    if (d3Modal.size() == 0) {
+        return false}
+        
+            var modalHeight = parseFloat(d3Modal.node().clientHeight || d3Modal.node().parentNode.clientHeight);
+            var modalWidth = parseFloat(d3Modal.node().clientWidth || d3Modal.node().parentNode.clientWidth);
+        if (d3ModalType == "Point") {
+            var tP = d3.transform(d3.select(d3ModalCurrentElement).attr("transform"));
+            var tG = d3.transform(d3ModalParentG.attr("transform"));
+            var newLeft = (tP.translate[0] * tG.scale[0]) + tG.translate[0] - (modalWidth / 2);
+            var newTop = (tP.translate[1] * tG.scale[1]) + tG.translate[1] - modalHeight - 20;
+        }
+        else {
+            console.log(d3.mouse(d3ModalParentDiv.node()))
+            var _m = d3.mouse(d3ModalParentDiv.node())
+            var newLeft = _m[0] - (modalWidth / 2);
+            var newTop = _m[1] - modalHeight - 20
+            console.log(newLeft,newTop);
+        }
+        
+        d3.select("div.d3MapModal")
+        .style("left", newLeft + "px")
+        .style("top", newTop + "px");
+        
+        d3.select("div.d3MapModalArrow").style("left", ((modalWidth / 2) - 20) + "px")
+        return true;
+    }
+
+    createModalContent = function(d) {
+        var mLabel;
+        var mContent = d;
+        var mOutput = "";
+        if (d.properties) {
+            mContent = d.properties;
+        }
+        for (var x in mContent) {
+            if (x.toLowerCase() == "label") {
+                mLabel = x;
+                break;
+            }
+            if (x.toLowerCase() == "name") {
+                mLabel = x;
+                break;
+            }
+        }
+        if (mLabel) {
+            mOutput += "<h1>" + mContent[mLabel] + "</h2>"
+        }
+        for (var x in mContent) {
+            if (x.toLowerCase != mLabel && x != "_d3Map") {
+                mOutput += "<p>" + x.toUpperCase() + ": " + mContent[x] +"</p>";
+            }
+        }
+        return mOutput;
+
+    }
+    
+    return d3CartoModal;
 }
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./layer":3,"./map":4}]},{},[2])
