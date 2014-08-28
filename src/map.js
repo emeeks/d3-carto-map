@@ -1012,6 +1012,7 @@ function manualZoom(zoomDirection) {
 	    .path(newTopoLayer)
 	    .label(newTopoLayerName)
 	    .cssClass(newTopoLayerClass)
+	    .dataset(topoData)
 	}
 		    
 		    var topoLayerData = topojson.feature(topoData, topoData.objects[x]);

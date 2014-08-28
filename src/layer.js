@@ -21,6 +21,7 @@ var Layer = module.exports = function() {
     var layerCluster = false;
     var clickableFeatures = false;
     var d3Modal;
+    var layerDataset;
     
     var layerDispatch = d3.dispatch('load','recluster');
     
@@ -119,6 +120,12 @@ var Layer = module.exports = function() {
     layer.specificFeature = function(newSpecific) {
     	if (!arguments.length) return layerSpecific;
 	layerSpecific = newSpecific;
+	return this;
+    }
+    
+    layer.dataset = function(newDataset) {
+    	if (!arguments.length) return layerDataset;
+	layerDataset = newDataset;
 	return this;
     }
     
