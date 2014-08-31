@@ -1012,9 +1012,9 @@ function manualZoom(zoomDirection) {
 	    .path(newTopoLayer)
 	    .label(newTopoLayerName)
 	    .cssClass(newTopoLayerClass)
-	    .dataset(topoData)
 	}
-		    
+	cartoLayer.dataset(topoData);
+
 		    var topoLayerData = topojson.feature(topoData, topoData.objects[x]);
 		    var td;
 		    if (topoLayerData.type == "Feature") {

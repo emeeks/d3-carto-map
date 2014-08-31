@@ -132,6 +132,7 @@
       function(d) {return "<p class='countryInfobox'>The country of " + d.properties.name + " has a short name</p>"}
     )
     
+    console.log(shortNameCountries)
     featureLayer = d3.carto.layer.featureArray();
     featureLayer
     .features(shortNameCountries)
