@@ -748,25 +748,9 @@ var Map = module.exports = function() {
 	
         _pG.attr("transform", "translate(" + d3MapZoom.translate() + ")scale(" + d3MapZoom.scale() + ")");
 
-        _pG.selectAll("circle")
-            .attr("cx", function(d) {return d._d3Map ? scaled(d._d3Map.dx) * 7.8 : 0})
-            .attr("cy", function(d) {return d._d3Map ? scaled(d._d3Map.dy) * 7.8 : 0})
-            .attr("r", function(d) {return d._d3Map ? scaled(d._d3Map.size) * 7.8 : 0});
+	_pG.selectAll("g.marker")
+	.attr("transform", "scale(" + (1 / d3MapZoom.scale()) + ")");
 
-        _pG.selectAll("circle.quad")
-            .attr("cx", function(d) {return d._d3Map ? scaled(d._d3Map.dx) * 7.8 : 0})
-            .attr("cy", function(d) {return d._d3Map ? scaled(d._d3Map.dy) * 7.8 : 0})
-            .attr("r", function(d) {return d._d3Map ? scaled(d._d3Map.size) * (d.nodes.length + 7.8) : 0});
-            
-        _pG.selectAll("rect,ellipse")
-	    .attr("x", function(d) {return scaled(d._d3Map.dx) * 7.8})
-            .attr("y", function(d) {return scaled(d._d3Map.dy) * 7.8})
-            .attr("height", function(d) {return scaled(d._d3Map.height) * 15.6})
-            .attr("width", function(d) {return scaled(d._d3Map.width) * 15.6});
-
-	mapSVG.selectAll("text")
-            .style("font-size", function(d) {return scaled(d._d3Map.fontSize) * 7.8})
-            .style("font-weight", function(d) {return scaled(d._d3Map.fontWeight) * 7.8});
     }
     
     function renderSVGFeatures(i) {
@@ -863,14 +847,6 @@ var Map = module.exports = function() {
 	_data.selectAll("g.pointG").attr("transform", function(d) {return "translate(" + d3MapProjection([d.x,d.y])+")"})
 	.style("display", function(d) {return d3.geo.distance([d.x,d.y],a) > 1.7 ? "none" : "block"})
 
-        _data.selectAll("circle")
-            .attr("r", function(d) {return d._d3Map ? d._d3Map.size : 0});
-            
-        _data.selectAll("rect,ellipse")
-	    .attr("x", function(d) {return d._d3Map.x})
-            .attr("y", function(d) {return d._d3Map.y})
-            .attr("height", function(d) {return d._d3Map.height})
-            .attr("width", function(d) {return d._d3Map.width});
     }
     
     function renderSVGFeaturesProjected(i) {
@@ -1149,14 +1125,18 @@ function manualZoom(zoomDirection) {
   .append("g")
   .attr("id", function(d,i) {return newCSVLayerClass + "_g_" + i})
   .attr("class", newCSVLayerClass + " pointG")
-  .attr("transform", function(d) {return "translate(" + d3MapProjection([d._d3Map.x,d._d3Map.y]) + ")scale(" + d3MapProjection.scale() + ")"})
+  .attr("transform", function(d) {return "translate(" + d3MapProjection([d._d3Map.x,d._d3Map.y]) + ")"})
   .each(function(d) {
-    d._d3Map.originalTranslate = "translate(" + d3MapProjection([d._d3Map.x,d._d3Map.y]) + ")scale(" + d3MapProjection.scale() + ")";
-  });
+    d._d3Map.originalTranslate = "translate(" + d3MapProjection([d._d3Map.x,d._d3Map.y]) + ")";
+  })
+  .append("g")
+  .attr("class", "marker")
+  .attr("transform", "scale(" + d3MapProjection.scale() + ")");
   
   appendedPointsEnter
   .append("circle")
-  .attr("class", newCSVLayerClass);
+  .attr("class", newCSVLayerClass)
+  .attr("r", function(d) {return d._d3Map.size});
   
   if (cartoLayer.clickableFeatures()) {
     if (!cartoLayer.modal()) {
@@ -1687,7 +1667,7 @@ function manualZoom(zoomDirection) {
 	    mapSVG.selectAll("g.features,g.points").attr("transform", "translate(" + d3MapZoom.translate() +") scale(" + d3MapZoom.scale() +")")
 
 	    mapSVG.selectAll("g.features").selectAll("path").attr("d", d3MapPath);
-	    mapSVG.selectAll("g.points").selectAll("g.pointG").attr("transform", function(d) {return "translate(" + d3MapProjection([d._d3Map.x,d._d3Map.y]) + ")scale(" + d3MapProjection.scale() + ")"});
+	    mapSVG.selectAll("g.points").selectAll("g.pointG").attr("transform", function(d) {return "translate(" + d3MapProjection([d._d3Map.x,d._d3Map.y]) + ")"});
 
 	    tileSVG.style("display", "block");
 	    reprojectDiv.style("display", "none")

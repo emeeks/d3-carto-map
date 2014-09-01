@@ -19,3 +19,7 @@ examples/quadtree.html
 examples/booth.html
 
 examples/sampledata/subcables.topojson
+
+examples/carto-layers2.html
+
+examples/counties.topojson
