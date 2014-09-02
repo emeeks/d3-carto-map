@@ -847,6 +847,9 @@ var Map = module.exports = function() {
 	_data.selectAll("g.pointG").attr("transform", function(d) {return "translate(" + d3MapProjection([d.x,d.y])+")"})
 	.style("display", function(d) {return d3.geo.distance([d.x,d.y],a) > 1.7 ? "none" : "block"})
 
+	_data.selectAll("g.marker")
+	.attr("transform", "scale(1)");
+
     }
     
     function renderSVGFeaturesProjected(i) {
