@@ -534,9 +534,11 @@ var Map = module.exports = function() {
     
     function renderCanvasPoints(i,context) {
 	var _data = d3MapRasterPointsLayer[i].features();
+	var _layerX = d3MapRasterPointsLayer[i].x();
+	var _layerY = d3MapRasterPointsLayer[i].y();
         for (var y in _data) {
 
-        var projectedPoint = d3MapProjection([_data[y].x,_data[y].y])
+        var projectedPoint = d3MapProjection([_layerX(_data[y]),_layerY(_data[y])])
         var projX = projectedPoint[0] * d3MapZoom.scale() + d3MapZoom.translate()[0];
         var projY = projectedPoint[1] * d3MapZoom.scale() + d3MapZoom.translate()[1];
 
@@ -589,6 +591,8 @@ var Map = module.exports = function() {
     
         function renderSVGPointsProjected(i) {
 	var _data = d3MapSVGPointsLayer[i].g();
+	var _layerX = d3MapSVGPointsLayer[i].x();
+	var _layerY = d3MapSVGPointsLayer[i].y();
 	
 	var r = d3MapProjection.rotate();
 	var z = d3MapProjection.clipAngle();
@@ -597,8 +601,8 @@ var Map = module.exports = function() {
         _data
             .attr("transform", "translate(0,0)scale(1)");
 	    
-	_data.selectAll("g.pointG").attr("transform", function(d) {return "translate(" + d3MapProjection([d.x,d.y])+")"})
-	.style("display", function(d) {return d3.geo.distance([d.x,d.y],a) > 1.7 ? "none" : "block"})
+	_data.selectAll("g.pointG").attr("transform", function(d) {return "translate(" + d3MapProjection([_layerX(d),_layerY(d)])+")"})
+	.style("display", function(d) {return d3.geo.distance([_layerX(d),_layerY(d)],a) > 1.7 ? "none" : "block"})
 
 	_data.selectAll("g.marker")
 	.attr("transform", "scale(1)");
@@ -881,9 +885,9 @@ function manualZoom(zoomDirection) {
   .append("g")
   .attr("id", function(d,i) {return newCSVLayerClass + "_g_" + i})
   .attr("class", newCSVLayerClass + " pointG")
-  .attr("transform", function(d) {return "translate(" + d3MapProjection([d._d3Map.x,d._d3Map.y]) + ")"})
+  .attr("transform", function(d) {return "translate(" + d3MapProjection([cartoLayer.x()(d),cartoLayer.y()(d)]) + ")"})
   .each(function(d) {
-    d._d3Map.originalTranslate = "translate(" + d3MapProjection([d._d3Map.x,d._d3Map.y]) + ")";
+    d._d3Map.originalTranslate = "translate(" + d3MapProjection([cartoLayer.x()(d),cartoLayer.y()(d)]) + ")";
   })
   .append("g")
   .attr("class", "marker")
@@ -1310,6 +1314,10 @@ function manualZoom(zoomDirection) {
 	d3MapZoom.scale(newScale).translate(newTranslate);
 	d3MapPath.projection(d3MapProjection);
         return this;
+    }
+    
+    map.path = function() {
+	return d3MapPath;
     }
     
     map.refresh = function() {

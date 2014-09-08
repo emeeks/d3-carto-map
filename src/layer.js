@@ -10,8 +10,8 @@ var Layer = module.exports = function() {
     var layerRenderMode = "canvas";
     var layerClass = "default";
     var layerLabel = "unlabeled";
-    var layerXCoord = "x";
-    var layerYCoord = "y";
+    var layerXCoord = function(d) {return d["x"]};
+    var layerYCoord = function(d) {return d["y"]};
     var layerG;
     var layerObject;
     var layerFeatures;
@@ -67,13 +67,33 @@ var Layer = module.exports = function() {
 
     layer.x = function(newX) {
     	if (!arguments.length) return layerXCoord;
-	layerXCoord = newX;
+	if (typeof newX == "function") {
+	    layerXCoord = newX;
+	}
+//A number
+	else if (typeof newX == "number") {
+	    layerXCoord = function(d) {return newX}	    
+	}
+//Otherwise assume a top-level attribute name
+	else {
+	    layerXCoord = function(d) {return d[newX]}
+	}
 	return this;
     }
     
     layer.y = function(newY) {
     	if (!arguments.length) return layerYCoord;
-	layerYCoord = newY;
+	if (typeof newY == "function") {
+	    layerYCoord = newY;
+	}
+//A number
+	else if (typeof newY == "number") {
+	    layerYCoord = function(d) {return newY}	    
+	}
+//Otherwise assume a top-level attribute name
+	else {
+	    layerYCoord = function(d) {return d[newY]}
+	}
 	return this;
     }
     
