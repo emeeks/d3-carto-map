@@ -998,12 +998,15 @@ function manualZoom(zoomDirection) {
 
             for (var x in topoData.objects) {
                 if (x == specificFeature || specificFeature == "all") {
+
+	var marker = cssFromClass(newTopoLayerClass);
 	if (!cartoLayer) {
 	    cartoLayer = Layer()
 	    .type("topojson")
 	    .path(newTopoLayer)
 	    .label(newTopoLayerName)
 	    .cssClass(newTopoLayerClass)
+	    .markerColor(marker.markerFill);
 	}
 	cartoLayer.dataset(topoData);
 
@@ -1025,12 +1028,15 @@ function manualZoom(zoomDirection) {
 	function d3MapAddGeoJSONLayer(newGeoLayer, newGeoLayerName, newGeoLayerClass, renderType, specificFeature, renderFrequency,cartoLayer){
 	var layerDataType = "geojson";
 
+	var marker = cssFromClass(newGeoLayerClass);
+
 	if (!cartoLayer) {
 	    cartoLayer = Layer()
 	    .type("geojson")
 	    .path(newGeoLayer)
 	    .label(newGeoLayerName)
 	    .cssClass(newGeoLayerClass)
+	    .markerColor(marker.markerFill);	    
 	}
 
         d3.json(newGeoLayer, function(error, geoData) {
