@@ -17,7 +17,7 @@ var Layer = module.exports = function() {
     var layerFeatures;
     var layerTileType = "mapbox";
     var layerSpecific = "all";
-    var layerMarkerSize = 5;
+    var layerMarkerSize = function() {return 5};
     var layerMarkerColor;
     var layerCluster = false;
     var clickableFeatures = false;
