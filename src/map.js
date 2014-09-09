@@ -713,6 +713,8 @@ function manualZoom(zoomDirection) {
 	}
 
     function processFeatures(featureData, featureLayerName, featureLayerClass, renderType, renderFrequency,cartoLayer) {
+
+	var marker = cssFromClass(featureLayerClass);
 	if (!cartoLayer) {
 	    cartoLayer = Layer()
 	    .type("featurearray")
@@ -721,8 +723,8 @@ function manualZoom(zoomDirection) {
 	    .cssClass(featureLayerClass)
 	    .features(featureData)
 	    .renderType(renderType)
+	    .markerColor(marker.markerFill);
 	}
-	    var marker = cssFromClass(featureLayerClass);
 
 	for (var x in featureData) {
                       featureData[x]._d3Map = {};
@@ -736,7 +738,6 @@ function manualZoom(zoomDirection) {
                       featureData[x]._d3Map.strokeWidth = marker.markerStrokeWidth;
 	      }
 	      
-	      cartoLayer.markerColor(featureData[0]._d3Map.color);
 	      cartoLayer.features(featureData);
 
 		    if (renderType == "canvas") {
