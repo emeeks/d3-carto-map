@@ -1030,6 +1030,7 @@ function manualZoom(zoomDirection) {
                       featureData[x]._d3Map.strokeWidth = marker.markerStrokeWidth;
 	      }
 	      
+	      cartoLayer.markerColor(featureData[0]._d3Map.color);
 	      cartoLayer.features(featureData);
 
 		    if (renderType == "canvas") {
