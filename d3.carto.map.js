@@ -89,7 +89,7 @@ var Layer = module.exports = function() {
     var layerTileType = "mapbox";
     var layerSpecific = "all";
     var layerMarkerSize = 5;
-    var layerMarkerColor;
+    var layerMarkerColor = function () {return "red"};
     var layerCluster = false;
     var clickableFeatures = false;
     var d3Modal;
@@ -190,13 +190,9 @@ var Layer = module.exports = function() {
 	if (typeof newColor == "function") {
 	    layerMarkerColor = newColor;
 	}
-//A number
-	else if (typeof newColor == "number") {
-	    layerMarkerColor = function(d) {return newColor}    
-	}
-//Otherwise assume a top-level attribute name
+//Else set color
 	else {
-	    layerMarkerColor = function(d) {return d[newColor]}
+	    layerMarkerColor = function(d) {return newColor}
 	}
 	return this;
     }
@@ -1118,6 +1114,7 @@ function manualZoom(zoomDirection) {
 	    .x(xcoord)
 	    .y(ycoord)
 	    .renderMode(renderType)
+	    .markerColor("Red")
 	    .cluster(false)
 	}
 
@@ -1263,6 +1260,9 @@ function manualZoom(zoomDirection) {
     
     function d3MapAddCSVLayer(newCSVLayer, newCSVLayerName, newCSVLayerClass, markerSize, renderType, xcoord, ycoord, renderFrequency,cartoLayer) {
 
+    console.log("csv")
+	var marker = cssFromClass(newCSVLayerClass);
+	console.log(marker.markerFill)
 	if (!cartoLayer) {
 	    cartoLayer = Layer()
 	    .type("csv")
@@ -1273,8 +1273,10 @@ function manualZoom(zoomDirection) {
 	    .x(xcoord)
 	    .y(ycoord)
 	    .renderMode(renderType)
-	    .cluster(false)
+	    .markerColor(marker.markerFill)
+	    .cluster(false);
 	}
+	console.log(cartoLayer.markerColor())
 	
 	if (!renderFrequency) {
 	    renderFrequency = "drawAlways";
@@ -1293,7 +1295,9 @@ function manualZoom(zoomDirection) {
             for (var x in topoData.objects) {
                 if (x == specificFeature || specificFeature == "all") {
 
+	console.log("topojson")
 	var marker = cssFromClass(newTopoLayerClass);
+		console.log(marker.markerFill)
 	if (!cartoLayer) {
 	    cartoLayer = Layer()
 	    .type("topojson")
@@ -1322,7 +1326,9 @@ function manualZoom(zoomDirection) {
 	function d3MapAddGeoJSONLayer(newGeoLayer, newGeoLayerName, newGeoLayerClass, renderType, specificFeature, renderFrequency,cartoLayer){
 	var layerDataType = "geojson";
 
+	console.log("geojson")
 	var marker = cssFromClass(newGeoLayerClass);
+	console.log(marker.markerFill)
 
 	if (!cartoLayer) {
 	    cartoLayer = Layer()

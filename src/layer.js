@@ -18,7 +18,7 @@ var Layer = module.exports = function() {
     var layerTileType = "mapbox";
     var layerSpecific = "all";
     var layerMarkerSize = 5;
-    var layerMarkerColor;
+    var layerMarkerColor = function () {return "red"};
     var layerCluster = false;
     var clickableFeatures = false;
     var d3Modal;
@@ -119,13 +119,9 @@ var Layer = module.exports = function() {
 	if (typeof newColor == "function") {
 	    layerMarkerColor = newColor;
 	}
-//A number
-	else if (typeof newColor == "number") {
-	    layerMarkerColor = function(d) {return newColor}    
-	}
-//Otherwise assume a top-level attribute name
+//Else set color
 	else {
-	    layerMarkerColor = function(d) {return d[newColor]}
+	    layerMarkerColor = function(d) {return newColor}
 	}
 	return this;
     }
