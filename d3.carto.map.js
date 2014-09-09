@@ -89,7 +89,7 @@ var Layer = module.exports = function() {
     var layerTileType = "mapbox";
     var layerSpecific = "all";
     var layerMarkerSize = 5;
-    var layerMarkerColor = function () {return "red"};
+    var layerMarkerColor;
     var layerCluster = false;
     var clickableFeatures = false;
     var d3Modal;
@@ -1029,6 +1029,9 @@ function manualZoom(zoomDirection) {
 	      }
 	      
 	      cartoLayer.features(featureData);
+	  if (!cartoLayer.markerColor()) {
+	    cartoLayer.markerColor(marker.markerFill);
+	  }
 
 		    if (renderType == "canvas") {
 			var layerObj = {id: "rf" + d3MapRasterFeatureLayer.length, drawOrder: d3MapRasterFeatureLayer.length, path: "", visible: true, name: featureLayerName, active: true, renderFrequency: "drawAlways"}
@@ -1087,6 +1090,7 @@ function manualZoom(zoomDirection) {
         var ccID = "cpc" + d3MapRasterPointsLayer.length;
 	
 	var qtree = d3.geom.quadtree();
+	var marker = cssFromClass(newCSVLayerClass);
 	
 	qtree.x(function(d) {return d[xcoord]}).y(function(d) {return d[ycoord]});
 	
@@ -1114,7 +1118,7 @@ function manualZoom(zoomDirection) {
 	    .x(xcoord)
 	    .y(ycoord)
 	    .renderMode(renderType)
-	    .markerColor("Red")
+	    .markerColor(marker.markerFill)
 	    .cluster(false)
 	}
 
@@ -1168,6 +1172,9 @@ function manualZoom(zoomDirection) {
             }
           }
 
+	  if (!cartoLayer.markerColor()) {
+	    cartoLayer.markerColor(marker.markerFill);
+	  }
 	  cartoLayer.features(points);
         if (renderType == "svg" || renderType == "mixed") {
         var pointsG = mapSVG.append("g").attr("class", "points").attr("id", cID);
@@ -1260,9 +1267,8 @@ function manualZoom(zoomDirection) {
     
     function d3MapAddCSVLayer(newCSVLayer, newCSVLayerName, newCSVLayerClass, markerSize, renderType, xcoord, ycoord, renderFrequency,cartoLayer) {
 
-    console.log("csv")
 	var marker = cssFromClass(newCSVLayerClass);
-	console.log(marker.markerFill)
+
 	if (!cartoLayer) {
 	    cartoLayer = Layer()
 	    .type("csv")
@@ -1276,7 +1282,6 @@ function manualZoom(zoomDirection) {
 	    .markerColor(marker.markerFill)
 	    .cluster(false);
 	}
-	console.log(cartoLayer.markerColor())
 	
 	if (!renderFrequency) {
 	    renderFrequency = "drawAlways";
@@ -1295,9 +1300,8 @@ function manualZoom(zoomDirection) {
             for (var x in topoData.objects) {
                 if (x == specificFeature || specificFeature == "all") {
 
-	console.log("topojson")
 	var marker = cssFromClass(newTopoLayerClass);
-		console.log(marker.markerFill)
+
 	if (!cartoLayer) {
 	    cartoLayer = Layer()
 	    .type("topojson")
@@ -1326,9 +1330,7 @@ function manualZoom(zoomDirection) {
 	function d3MapAddGeoJSONLayer(newGeoLayer, newGeoLayerName, newGeoLayerClass, renderType, specificFeature, renderFrequency,cartoLayer){
 	var layerDataType = "geojson";
 
-	console.log("geojson")
 	var marker = cssFromClass(newGeoLayerClass);
-	console.log(marker.markerFill)
 
 	if (!cartoLayer) {
 	    cartoLayer = Layer()
@@ -1457,7 +1459,7 @@ function manualZoom(zoomDirection) {
 		d3MapAddTileLayer(cartoLayer.path(),cartoLayer.label(),cartoLayer.tileType(),!cartoLayer.visibility(),cartoLayer)
 		break;
 	    case "csv":
-		d3MapAddCSVLayer(cartoLayer.path(), cartoLayer.label(), cartoLayer.cssClass(), cartoLayer.markerSize(), cartoLayer.renderMode(), cartoLayer.x(), cartoLayer.y(), "drawAlways",cartoLayer) 
+		d3MapAddCSVLayer(cartoLayer.path(), cartoLayer.label(), cartoLayer.cssClass(), cartoLayer.markerSize(), cartoLayer.renderMode(), cartoLayer.x(), cartoLayer.y(), "drawAlways",cartoLayer)
 		break;
 	    case "topojson":
 		d3MapAddTopoJSONLayer(cartoLayer.path(), cartoLayer.label(), cartoLayer.cssClass(), cartoLayer.renderMode(), cartoLayer.specificFeature(), "drawAlways",cartoLayer)

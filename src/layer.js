@@ -18,7 +18,7 @@ var Layer = module.exports = function() {
     var layerTileType = "mapbox";
     var layerSpecific = "all";
     var layerMarkerSize = 5;
-    var layerMarkerColor = function () {return "red"};
+    var layerMarkerColor;
     var layerCluster = false;
     var clickableFeatures = false;
     var d3Modal;
