@@ -18,6 +18,7 @@ var Layer = module.exports = function() {
     var layerTileType = "mapbox";
     var layerSpecific = "all";
     var layerMarkerSize = 5;
+    var layerMarkerColor;
     var layerCluster = false;
     var clickableFeatures = false;
     var d3Modal;
@@ -99,10 +100,36 @@ var Layer = module.exports = function() {
     
     layer.markerSize = function(newSize) {
     	if (!arguments.length) return layerMarkerSize;
-	layerMarkerSize = newSize;
+	if (typeof newSize == "function") {
+	    layerMarkerSize = newSize;
+	}
+//A number
+	else if (typeof newSize == "number") {
+	    layerMarkerSize = function(d) {return newSize}    
+	}
+//Otherwise assume a top-level attribute name
+	else {
+	    layerMarkerSize = function(d) {return d[newSize]}
+	}
 	return this;
     }
 
+    layer.markerColor = function(newColor) {
+    	if (!arguments.length) return layerMarkerColor;
+	if (typeof newColor == "function") {
+	    layerMarkerColor = newColor;
+	}
+//A number
+	else if (typeof newColor == "number") {
+	    layerMarkerColor = function(d) {return newColor}    
+	}
+//Otherwise assume a top-level attribute name
+	else {
+	    layerMarkerColor = function(d) {return d[newColor]}
+	}
+	return this;
+    }
+    
     layer.cssClass = function(newClass) {
     	if (!arguments.length) return layerClass;
 	layerClass = newClass;

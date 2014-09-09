@@ -198,7 +198,6 @@ var Map = module.exports = function() {
 		    var fontWeight = parseFloat(d3.select(this).style("font-weight")) || 100;
 		    d._d3Map = {};
 		    d._d3Map.strokeWidth = sw;
-		    d._d3Map.size = r;
 		    d._d3Map.height = height;
 		    d._d3Map.width = width;
 		    d._d3Map.dx = x;
@@ -312,7 +311,7 @@ var Map = module.exports = function() {
     
 	for (var x in _data) {
 	    context.strokeStyle = _data[x]._d3Map.stroke;
-	    context.fillStyle = _data[x]._d3Map.color;
+	    context.fillStyle = d3MapRasterFeatureLayer[i].markerColor()(_data[x]);
 	    context.lineWidth = _data[x]._d3Map.strokeWidth;
 	    context.beginPath(), canvasPath.context(context)(_data[x]);
 	    if (_data[x]._d3Map.stroke != "none") {
@@ -325,24 +324,28 @@ var Map = module.exports = function() {
     }
     
         function renderCanvasPointsProjected(i,context) {
-	    var _data = d3MapRasterPointsLayer[i].features()
+	var _data = d3MapRasterPointsLayer[i].features()
+	var _layerX = d3MapRasterPointsLayer[i].x();
+	var _layerY = d3MapRasterPointsLayer[i].y();
+	var r = d3MapProjection.rotate();
+	var a = [-r[0], -r[1]];
+
         for (var y in _data) {
 
-        var projectedPoint = d3MapProjection([_data[y].x,_data[y].y])
+        var projectedPoint = d3MapProjection([_layerX(_data[y]),_layerY(_data[y])]) 
         var projX = projectedPoint[0];
         var projY = projectedPoint[1];
 
-        //Transform fill and opacity to rgba        
-        var rgbMarker = d3.rgb(_data[y]._d3Map.color)
-        var rgbaMarker = "rgba(" + rgbMarker.r + "," + rgbMarker.g + "," + rgbMarker.b + "," + _data[y]._d3Map.opacity + ")";
-        
+	if (d3.geo.distance([_layerX(_data[y]),_layerY(_data[y])],a) < 1.7) {
+	
         context.beginPath();
-        context.arc(projX,projY,_data[y]._d3Map.size,0,2*Math.PI);
-        context.fillStyle = rgbaMarker;
+        context.arc(projX,projY,d3MapRasterPointsLayer[i].markerSize()(_data[y]),0,2*Math.PI);
+        context.fillStyle = d3MapRasterPointsLayer[i].markerColor()(_data[y]);
         context.strokeStyle = _data[y]._d3Map.stroke;
         context.lineWidth = parseFloat(_data[y]._d3Map.strokeWidth);
         context.stroke();
         context.fill();
+	}
 
       }
     }
@@ -491,7 +494,9 @@ var Map = module.exports = function() {
 
         for (var x in d3MapRasterPointsLayer) {
           if ((d3MapRasterPointsLayer[x].object().renderFrequency == "drawAlways" || (d3MapRasterPointsLayer[x].object().renderFrequency == "drawDuring" && zoomMode == "zoom")) && d3MapRasterPointsLayer[x].visibility() ) {
-            renderCanvasPoints(x, context);
+	    if ((d3MapRasterPointsLayer[x].features().length > 1000 && zoomMode == "zoomcomplete") || (d3MapRasterPointsLayer[x].features().length < 1000)) {
+		renderCanvasPoints(x, context);
+	    }
           }
         }
     }
@@ -520,7 +525,7 @@ var Map = module.exports = function() {
     
 	for (var x in _data) {
 	    context.strokeStyle = _data[x]._d3Map.stroke;
-	    context.fillStyle = _data[x]._d3Map.color;
+	    context.fillStyle = d3MapRasterFeatureLayer[i].markerColor()(_data[x]);
 	    context.lineWidth = _data[x]._d3Map.strokeWidth;
 	    context.beginPath(), canvasPath.context(context)(_data[x]);
 	    if (_data[x]._d3Map.stroke != "none") {
@@ -547,8 +552,8 @@ var Map = module.exports = function() {
         var rgbaMarker = "rgba(" + rgbMarker.r + "," + rgbMarker.g + "," + rgbMarker.b + "," + _data[y]._d3Map.opacity + ")";
         
         context.beginPath();
-        context.arc(projX,projY,_data[y]._d3Map.size,0,2*Math.PI);
-        context.fillStyle = rgbaMarker;
+        context.arc(projX,projY,d3MapRasterPointsLayer[i].markerSize()(_data[y]),0,2*Math.PI);
+        context.fillStyle = d3MapRasterPointsLayer[i].markerColor()(_data[y]);
         context.strokeStyle = _data[y]._d3Map.stroke;
         context.lineWidth = parseFloat(_data[y]._d3Map.strokeWidth);
         context.stroke();
@@ -853,7 +858,6 @@ function manualZoom(zoomDirection) {
               points[x]._d3Map.strokeWidth = marker.markerStrokeWidth;
               points[x]._d3Map.fontSize = marker.fontSize;
               points[x]._d3Map.fontWeight = marker.fontWeight;
-              points[x]._d3Map.size = markerSize;
               points[x]._d3Map.x = points[x][xcoord];
               points[x]._d3Map.y = points[x][ycoord];
               points[x]._d3Map.dx = 0;
@@ -867,7 +871,6 @@ function manualZoom(zoomDirection) {
               points[x]._d3Map.strokeWidth = marker.markerStrokeWidth;
               points[x]._d3Map.fontSize = marker.fontSize;
               points[x]._d3Map.fontWeight = marker.fontWeight;
-              points[x]._d3Map.size = markerSize;
 	      }
             }
           }
@@ -896,7 +899,7 @@ function manualZoom(zoomDirection) {
   appendedPointsEnter
   .append("circle")
   .attr("class", newCSVLayerClass)
-  .attr("r", function(d) {return d._d3Map.size});
+  .attr("r", function(d) {return cartoLayer.markerSize()(d)});
   
   if (cartoLayer.clickableFeatures()) {
     if (!cartoLayer.modal()) {
