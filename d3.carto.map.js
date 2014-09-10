@@ -431,7 +431,8 @@ var Map = module.exports = function() {
         
         newLines.selectAll("li").append("input").attr("type", "checkbox").property("checked", function(d) {return d.visibility()});
         newLines.selectAll("li").append("span").html(function(d) {return d.object().name})
-        
+	
+	newLines.selectAll("li").filter(function(d) {return d.cluster()}).remove();
     }
     
     function showHideLayer(d,i,sentNode) {
@@ -1194,7 +1195,7 @@ function manualZoom(zoomDirection) {
   })
   .append("g")
   .attr("class", "marker")
-  .attr("transform", "scale(" + d3MapProjection.scale() + ")");
+  .attr("transform", "scale(" + (1 / d3MapZoom.scale()) + ")");
   
   appendedPointsEnter
   .append("circle")
@@ -1380,8 +1381,8 @@ function manualZoom(zoomDirection) {
     var qtreeLayer = d3.carto.layer.xyArray();
     qtreeLayer
     .features(quadSites)
-    .label("Clustered")
-    .cssClass("quad")
+    .label(layer.label() + " (Clustered)")
+    .cssClass(layer.cssClass())
     .renderMode("svg")
     .markerSize(function(d) {return d.leaf ? 3 : 8})
     .x("x")
