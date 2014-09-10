@@ -671,12 +671,12 @@ var Map = module.exports = function() {
 	d3MapProjection.scale(d3MapZoom.scale());
 	      ///POINTS
       for (var x in d3MapSVGPointsLayer) {
-        if (d3MapSVGPointsLayer[x].object().renderFrequency == "drawAlways" && d3MapSVGPointsLayer[x].visibility() && d3MapSVGPointsLayer[x].renderMode() == "svg") {
-            renderSVGPointsProjected(x);
-        }
 	if (d3MapSVGPointsLayer[x].object().cluster && updateClustering) {
 	    quadtreeModePoints(d3MapSVGPointsLayer[x], degreeDistance());
 	}
+        else if (d3MapSVGPointsLayer[x].object().renderFrequency == "drawAlways" && d3MapSVGPointsLayer[x].visibility() && d3MapSVGPointsLayer[x].renderMode() == "svg") {
+            renderSVGPointsProjected(x);
+        }
 
     }
     
@@ -704,12 +704,12 @@ var Map = module.exports = function() {
 	    
       ///POINTS
       for (var x in d3MapSVGPointsLayer) {
-        if (d3MapSVGPointsLayer[x].object().renderFrequency == "drawAlways" && d3MapSVGPointsLayer[x].visibility() && !d3MapSVGPointsLayer[x].object().cluster && d3MapSVGPointsLayer[x].renderMode() == "svg") {
-            renderSVGPoints(x);
-        }
     	if (d3MapSVGPointsLayer[x].object().cluster && updateClustering) {
 	    quadtreeModePoints(d3MapSVGPointsLayer[x], degreeDistance());
 	}
+        else if (d3MapSVGPointsLayer[x].object().renderFrequency == "drawAlways" && d3MapSVGPointsLayer[x].visibility() && !d3MapSVGPointsLayer[x].object().cluster && d3MapSVGPointsLayer[x].renderMode() == "svg") {
+            renderSVGPoints(x);
+        }
 
     }
     // FEATURES
@@ -1091,22 +1091,6 @@ function manualZoom(zoomDirection) {
 	
 	var qtree = d3.geom.quadtree();
 	var marker = cssFromClass(newCSVLayerClass);
-	
-	qtree.x(function(d) {return d[xcoord]}).y(function(d) {return d[ycoord]});
-	
-	var xyQuad = qtree(points);
-	
-	xyQuad.visit(function(node, x1,y1,x2,y2) {
-	    if (!node.leaf) {
-		node._d3Map = {};
-		node._d3Map[xcoord] = (x1 + x2) / 2
-		node._d3Map[ycoord] = (y1 + y2) / 2
-		node._d3Map["qsize"] = (x2 - x1) / 2
-		node[xcoord] = (x1 + x2) / 2
-		node[ycoord] = (y1 + y2) / 2
-		
-	    }
-	})
 
 	if (!cartoLayer) {
 	    cartoLayer = Layer()
@@ -1121,6 +1105,22 @@ function manualZoom(zoomDirection) {
 	    .markerColor(marker.markerFill)
 	    .cluster(false)
 	}
+
+	qtree.x(function(d) {return cartoLayer.x()(d)}).y(function(d) {return cartoLayer.y()(d)});
+	
+	var xyQuad = qtree(points);
+	
+	xyQuad.visit(function(node, x1,y1,x2,y2) {
+	    if (!node.leaf) {
+		node._d3Quad = {};
+		node._d3Quad["x"] = (x1 + x2) / 2
+		node._d3Quad["y"] = (y1 + y2) / 2
+		node._d3Quad["qsize"] = (x2 - x1) / 2
+		node["x"] = (x1 + x2) / 2
+		node["y"] = (y1 + y2) / 2
+		
+	    }
+	})
 
         if (renderType == "canvas") {
         var pointsObj = {id: ccID, drawOrder: d3MapRasterPointsLayer.length, path: "", visible: true, name: cName, active: true, renderFrequency: "drawAlways", mixed: false, qtree: xyQuad, cluster: cartoLayer.cluster()}
@@ -1188,9 +1188,9 @@ function manualZoom(zoomDirection) {
   .append("g")
   .attr("id", function(d,i) {return newCSVLayerClass + "_g_" + i})
   .attr("class", newCSVLayerClass + " pointG")
-  .attr("transform", function(d) {return "translate(" + d3MapProjection([cartoLayer.x()(d),cartoLayer.y()(d)]) + ")"})
+  .attr("transform", function(d) {return "translate(" + (d._d3Quad ? d3MapProjection([d._d3Quad.x,d._d3Quad.y]) : d3MapProjection([cartoLayer.x()(d),cartoLayer.y()(d)])) + ")"})
   .each(function(d) {
-    d._d3Map.originalTranslate = "translate(" + d3MapProjection([cartoLayer.x()(d),cartoLayer.y()(d)]) + ")";
+    d._d3Map.originalTranslate = "translate(" + (d._d3Quad ? d3MapProjection([d._d3Quad.x,d._d3Quad.y]) : d3MapProjection([cartoLayer.x()(d),cartoLayer.y()(d)])) + ")";
   })
   .append("g")
   .attr("class", "marker")
@@ -1368,7 +1368,7 @@ function manualZoom(zoomDirection) {
 		if (node.nodes[x].leaf) {
 		    quadSites.push(node.nodes[x])
 		}
-		else if (node.nodes[x]._d3Map.qsize * resolution < clusterD) {
+		else if (node.nodes[x]._d3Quad.qsize * resolution < clusterD) {
 		    quadSites.push(node.nodes[x])
 		}
 		else {
@@ -1383,7 +1383,7 @@ function manualZoom(zoomDirection) {
     .label("Clustered")
     .cssClass("quad")
     .renderMode("svg")
-    .markerSize(3)
+    .markerSize(function(d) {return d.leaf ? 3 : 8})
     .x("x")
     .y("y")
     .on("load", layer.recluster);
