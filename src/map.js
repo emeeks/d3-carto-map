@@ -826,10 +826,7 @@ function manualZoom(zoomDirection) {
 		node._d3Quad = {};
 		node._d3Quad["x"] = (x1 + x2) / 2
 		node._d3Quad["y"] = (y1 + y2) / 2
-		node._d3Quad["qsize"] = (x2 - x1) / 2
-		node["x"] = (x1 + x2) / 2
-		node["y"] = (y1 + y2) / 2
-		
+		node._d3Quad["qsize"] = (x2 - x1) / 2		
 	    }
 	})
 
@@ -1088,15 +1085,41 @@ function manualZoom(zoomDirection) {
 	    }
 	}
 
+	for (var x in quadSites) {
+	    quadSites[x]._d3MapQuad = {};
+	    quadSites[x]._d3MapQuad.size = quadSize(quadSites[x]);
+	    quadSites[x]._d3MapQuad.x = quadSites[x]._d3Quad ? quadSites[x]._d3Quad.x : layer.x()(quadSites[x].point);
+	    quadSites[x]._d3MapQuad.y = quadSites[x]._d3Quad ? quadSites[x]._d3Quad.y : layer.y()(quadSites[x].point);
+	}
+	
+    function quadSize(d) {
+	var _size = 0;
+	d.children = [];
+	    for (var x in d.nodes) {
+		if (d.nodes[x].leaf) {
+		    d.children.push(d.nodes[x]);
+		    _size++;
+		}
+		else if (d.nodes[x].nodes) {
+		    d.children.push(d.nodes[x]);
+		    _size += quadSize(d.nodes[x]);
+		}
+	    }
+	return _size;
+    }
+
+    var simpleSizeScale = d3.scale.linear().domain([2,10]).range([4,10]).clamp(true)
+
     var qtreeLayer = d3.carto.layer.xyArray();
     qtreeLayer
     .features(quadSites)
     .label(layer.label() + " (Clustered)")
     .cssClass(layer.cssClass())
     .renderMode("svg")
-    .markerSize(function(d) {return d.leaf ? 3 : 8})
-    .x("x")
-    .y("y")
+    .markerSize(function(d) {return d.leaf ? 3 : simpleSizeScale(d._d3MapQuad.size)})
+    .x(function(d) {return d._d3MapQuad.x})
+    .y(function(d) {return d._d3MapQuad.y})
+    .clickableFeatures(true)
     .on("load", layer.recluster);
 
     layer.object().qtreeLayer = qtreeLayer;
