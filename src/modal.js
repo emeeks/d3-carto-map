@@ -64,11 +64,9 @@ var Modal = module.exports = function() {
             var newTop = (tP.translate[1] * tG.scale[1]) + tG.translate[1] - modalHeight - 20;
         }
         else {
-            console.log(d3.mouse(d3ModalParentDiv.node()))
             var _m = d3.mouse(d3ModalParentDiv.node())
             var newLeft = _m[0] - (modalWidth / 2);
             var newTop = _m[1] - modalHeight - 20
-            console.log(newLeft,newTop);
         }
         
         d3.select("div.d3MapModal")

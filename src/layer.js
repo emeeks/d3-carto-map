@@ -24,7 +24,7 @@ var Layer = module.exports = function() {
     var d3Modal;
     var layerDataset;
     
-    var layerDispatch = d3.dispatch('load','recluster');
+    var layerDispatch = d3.dispatch('load','recluster','newmodal');
     
     var layer = function() {
 	
@@ -63,6 +63,7 @@ var Layer = module.exports = function() {
     layer.modal = function(newModal) {
 	if (!arguments.length) return d3Modal;
 	d3Modal = newModal;
+	layerDispatch.newmodal();
 	return this;
     }
 
