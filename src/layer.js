@@ -19,6 +19,7 @@ var Layer = module.exports = function() {
     var layerSpecific = "all";
     var layerMarkerSize = function() {return 5};
     var layerMarkerColor;
+    var layerStrokeColor;
     var layerCluster = false;
     var clickableFeatures = false;
     var d3Modal;
@@ -123,6 +124,18 @@ var Layer = module.exports = function() {
 //Else set color
 	else {
 	    layerMarkerColor = function(d) {return newColor}
+	}
+	return this;
+    }
+
+    layer.strokeColor = function(newColor) {
+    	if (!arguments.length) return layerStrokeColor;
+	if (typeof newColor == "function") {
+	    layerStrokeColor = newColor;
+	}
+//Else set color
+	else {
+	    layerStrokeColor = function(d) {return newColor}
 	}
 	return this;
     }

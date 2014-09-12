@@ -311,7 +311,7 @@ var Map = module.exports = function() {
 	var canvasPath = d3MapPath;
     
 	for (var x in _data) {
-	    context.strokeStyle = _data[x]._d3Map.stroke;
+	    context.strokeStyle = d3MapRasterFeatureLayer[i].strokeColor()(_data[x]);
 	    context.fillStyle = d3MapRasterFeatureLayer[i].markerColor()(_data[x]);
 	    context.lineWidth = _data[x]._d3Map.strokeWidth;
 	    context.beginPath(), canvasPath.context(context)(_data[x]);
@@ -342,7 +342,7 @@ var Map = module.exports = function() {
         context.beginPath();
         context.arc(projX,projY,d3MapRasterPointsLayer[i].markerSize()(_data[y]),0,2*Math.PI);
         context.fillStyle = d3MapRasterPointsLayer[i].markerColor()(_data[y]);
-        context.strokeStyle = _data[y]._d3Map.stroke;
+        context.strokeStyle = d3MapRasterPointsLayer[i].strokeColor()(_data[x]);
         context.lineWidth = parseFloat(_data[y]._d3Map.strokeWidth);
         context.stroke();
         context.fill();
@@ -412,7 +412,7 @@ var Map = module.exports = function() {
 
 	var updateClustering = false;
     
-	if (Math.abs(degreeDistance() - workingDistance) > .5) {
+	if (Math.abs(degreeDistance() - workingDistance) > .05) {
 	    workingDistance = degreeDistance();
 	    updateClustering = true;
 	}
@@ -452,7 +452,7 @@ var Map = module.exports = function() {
 	
 	var updateClustering = false;
     
-	if (Math.abs(degreeDistance() - workingDistance) > .5) {
+	if (Math.abs(degreeDistance() - workingDistance) > .05) {
 	    workingDistance = degreeDistance();
 	    updateClustering = true;
 	}
@@ -488,7 +488,7 @@ var Map = module.exports = function() {
     
     	var updateClustering = false;
     
-	if (Math.abs(degreeDistance() - workingDistance) > .5) {
+	if (Math.abs(degreeDistance() - workingDistance) > .05) {
 	    workingDistance = degreeDistance();
 	    updateClustering = true;
 	}
@@ -560,7 +560,7 @@ var Map = module.exports = function() {
 	var canvasPath = d3.geo.path().projection(canvasProjection);
     
 	for (var x in _data) {
-	    context.strokeStyle = _data[x]._d3Map.stroke;
+	    context.strokeStyle = d3MapRasterFeatureLayer[i].strokeColor()(_data[x]);
 	    context.fillStyle = d3MapRasterFeatureLayer[i].markerColor()(_data[x]);
 	    context.lineWidth = _data[x]._d3Map.strokeWidth;
 	    context.beginPath(), canvasPath.context(context)(_data[x]);
@@ -590,7 +590,7 @@ var Map = module.exports = function() {
         context.beginPath();
         context.arc(projX,projY,d3MapRasterPointsLayer[i].markerSize()(_data[y]),0,2*Math.PI);
         context.fillStyle = d3MapRasterPointsLayer[i].markerColor()(_data[y]);
-        context.strokeStyle = _data[y]._d3Map.stroke;
+        context.strokeStyle = d3MapRasterPointsLayer[i].strokeColor()(_data[x]);
         context.lineWidth = parseFloat(_data[y]._d3Map.strokeWidth);
         context.stroke();
         context.fill();
@@ -762,6 +762,7 @@ function manualZoom(zoomDirection) {
 	    .features(featureData)
 	    .renderType(renderType)
 	    .markerColor(marker.markerFill)
+	    .strokeColor(marker.markerStroke)
 	    .on("newmodal", function() {d3MapSetModal(cartoLayer)});
 	}
 	
@@ -774,7 +775,7 @@ function manualZoom(zoomDirection) {
 		node._d3Quad = {};
 		node._d3Quad["x"] = (x1 + x2) / 2;
 		node._d3Quad["y"] = (y1 + y2) / 2;
-		node._d3Quad["qsize"] = (x2 - x1) / 2;
+		node._d3Quad["qsize"] = (x2 - x1);
 	    }
 	})
 
@@ -792,7 +793,8 @@ function manualZoom(zoomDirection) {
 	      
 	      cartoLayer.features(featureData);
 	  if (!cartoLayer.markerColor()) {
-	    cartoLayer.markerColor(marker.markerFill);
+	    cartoLayer.markerColor(marker.markerFill)
+	    .strokeColor(marker.markerStroke)
 	  }
 
 		    if (renderType == "canvas") {
@@ -859,6 +861,7 @@ function manualZoom(zoomDirection) {
 	    .y(ycoord)
 	    .renderMode(renderType)
 	    .markerColor(marker.markerFill)
+	    .strokeColor(marker.markerStroke)
 	    .cluster(false)
 	    .on("newmodal", function() {d3MapSetModal(cartoLayer)});
 	}
@@ -870,9 +873,9 @@ function manualZoom(zoomDirection) {
 	xyQuad.visit(function(node, x1,y1,x2,y2) {
 	    if (!node.leaf) {
 		node._d3Quad = {};
-		node._d3Quad["x"] = (x1 + x2) / 2
-		node._d3Quad["y"] = (y1 + y2) / 2
-		node._d3Quad["qsize"] = (x2 - x1) / 2		
+		node._d3Quad["x"] = (x1 + x2) / 2;
+		node._d3Quad["y"] = (y1 + y2) / 2;
+		node._d3Quad["qsize"] = (x2 - x1);	
 	    }
 	})
 
@@ -927,7 +930,7 @@ function manualZoom(zoomDirection) {
           }
 
 	  if (!cartoLayer.markerColor()) {
-	    cartoLayer.markerColor(marker.markerFill);
+	    cartoLayer.markerColor(marker.markerFill).strokeColor(marker.markerStroke);
 	  }
 	  cartoLayer.features(points);
         if (renderType == "svg" || renderType == "mixed") {
@@ -1026,6 +1029,7 @@ function manualZoom(zoomDirection) {
 	    .y(ycoord)
 	    .renderMode(renderType)
 	    .markerColor(marker.markerFill)
+	    .strokeColor(marker.markerStroke)
 	    .cluster(false)
 	    .on("newmodal", function() {d3MapSetModal(cartoLayer)});
 	}
@@ -1056,6 +1060,7 @@ function manualZoom(zoomDirection) {
 	    .label(newTopoLayerName)
 	    .cssClass(newTopoLayerClass)
 	    .markerColor(marker.markerFill)
+	    .strokeColor(marker.markerStroke)
 	    .on("newmodal", function() {d3MapSetModal(cartoLayer)});
 	}
 	cartoLayer.dataset(topoData);
@@ -1087,6 +1092,7 @@ function manualZoom(zoomDirection) {
 	    .label(newGeoLayerName)
 	    .cssClass(newGeoLayerClass)
 	    .markerColor(marker.markerFill)
+	    .strokeColor(marker.markerStroke)
 	    .on("newmodal", function() {d3MapSetModal(cartoLayer)});
 	}
 
@@ -1098,18 +1104,19 @@ function manualZoom(zoomDirection) {
 	
     function quadtreeModePoints(layer, resolution) {
 	
-	var clusterD = 3;
+	var quadDisplayScale = d3.scale.linear().domain([2,2.5,4,5,6,7,8,9,10,12,20]).range([300,150,50,10,8,6,5,4,3,2,.01]).clamp(true);
+	var clusterD = .1;
 	if (map.mode() == "globe") {
-	    clusterD = 100;
+	    clusterD = .1;
 	}
 	if (map.mode() == "projection") {
-	    clusterD = 0;
+	    clusterD = .1;
 	}
 	if (layer.object().qtreeLayer) {
 	    map.deleteCartoLayer(layer.object().qtreeLayer);
 	}
 	if (layer.type() == "featurearray" || layer.type() == "geojson" || layer.type() == "topojson") {	
-	    clusterD = 100;	
+	    clusterD = .1;	
 	}
 	var quadtree = layer.object().qtree
 	var quadSites = [];
@@ -1120,7 +1127,7 @@ function manualZoom(zoomDirection) {
 		if (node.nodes[x].leaf) {
 		    quadSites.push(node.nodes[x])
 		}
-		else if (node.nodes[x]._d3Quad.qsize * resolution < clusterD) {
+		else if (node.nodes[x]._d3Quad.qsize < (quadDisplayScale(resolution) * clusterD)) {
 		    quadSites.push(node.nodes[x])
 		}
 		else {
