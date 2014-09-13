@@ -466,6 +466,9 @@ var Map = module.exports = function() {
 	else if (!d3MapSVGPointsLayer[x].cluster()) {
             d3MapSVGPointsLayer[x].g().style("display", "block");	    
 	}
+	if (d3MapSVGPointsLayer[x].cluster() && updateClustering) {
+	    quadtreeModePoints(d3MapSVGPointsLayer[x], degreeDistance());
+	}
         }
         
         for (var x in d3MapSVGFeatureLayer) {
