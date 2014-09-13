@@ -646,7 +646,7 @@ var Map = module.exports = function() {
         context.beginPath();
         context.arc(projX,projY,d3MapRasterPointsLayer[i].markerSize()(_data[y]),0,2*Math.PI);
         context.fillStyle = d3MapRasterPointsLayer[i].markerColor()(_data[y]);
-        context.strokeStyle = d3MapRasterPointsLayer[i].strokeColor()(_data[x]);
+        context.strokeStyle = d3MapRasterPointsLayer[i].strokeColor()(_data[y]);
         context.lineWidth = parseFloat(_data[y]._d3Map.strokeWidth);
         context.stroke();
         context.fill();
@@ -894,7 +894,7 @@ var Map = module.exports = function() {
         context.beginPath();
         context.arc(projX,projY,d3MapRasterPointsLayer[i].markerSize()(_data[y]),0,2*Math.PI);
         context.fillStyle = d3MapRasterPointsLayer[i].markerColor()(_data[y]);
-        context.strokeStyle = d3MapRasterPointsLayer[i].strokeColor()(_data[x]);
+        context.strokeStyle = d3MapRasterPointsLayer[i].strokeColor()(_data[y]);
         context.lineWidth = parseFloat(_data[y]._d3Map.strokeWidth);
         context.stroke();
         context.fill();
