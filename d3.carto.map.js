@@ -1097,8 +1097,10 @@ function manualZoom(zoomDirection) {
 	      
 	      cartoLayer.features(featureData);
 	  if (!cartoLayer.markerColor()) {
-	    cartoLayer.markerColor(marker.markerFill)
-	    .strokeColor(marker.markerStroke)
+	    cartoLayer.markerColor(marker.markerFill);
+	  }
+	  if (!cartoLayer.strokeColor()) {
+	    cartoLayer.strokeColor(marker.markerStroke)
 	  }
 
 		    if (renderType == "canvas") {
@@ -1234,8 +1236,12 @@ function manualZoom(zoomDirection) {
           }
 
 	  if (!cartoLayer.markerColor()) {
-	    cartoLayer.markerColor(marker.markerFill).strokeColor(marker.markerStroke);
+	    cartoLayer.markerColor(marker.markerFill);
 	  }
+	  if (!cartoLayer.strokeColor()) {
+	    cartoLayer.strokeColor(marker.markerStroke)
+	  }
+
 	  cartoLayer.features(points);
         if (renderType == "svg" || renderType == "mixed") {
         var pointsG = mapSVG.append("g").attr("class", "points").attr("id", cID);
