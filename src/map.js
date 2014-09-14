@@ -1461,6 +1461,36 @@ function manualZoom(zoomDirection) {
 	}
         return this;
     }
+    
+    map.zoomToLayer = function(cartoLayer, margin, transitionSpeed) {
+	
+	var layerExtent = boundingExtent(cartoLayer.features());
+	map.zoomTo(layerExtent, "latlong", margin, transitionSpeed);
+	function boundingExtent(features) {
+            var boundExtent = [[Infinity,Infinity],[-Infinity,-Infinity]];
+	    if (cartoLayer.type() == "topojson" || cartoLayer.type() == "geojson" || cartoLayer.type() == "featureArray") {
+            for (var x in features) {
+              var thisBounds = d3.geo.bounds(features[x]);
+	      boundExtent[0][0] = Math.max(-179.99,Math.min(thisBounds[0][0],boundExtent[0][0]));
+              boundExtent[0][1] = Math.max(-89.99,Math.min(thisBounds[0][1],boundExtent[0][1]));
+              boundExtent[1][0] = Math.min(179.99,Math.max(thisBounds[1][0],boundExtent[1][0]));
+              boundExtent[1][1] = Math.min(89.99,Math.max(thisBounds[1][1],boundExtent[1][1]));
+
+            }
+	    }
+	    else {
+            for (var x in features) {
+              var thisXY = [cartoLayer.x()(features[x]), cartoLayer.y()(features[x])]
+	      boundExtent[0][0] = Math.max(-179.99,Math.min(boundExtent[0][0],thisXY[0]));
+              boundExtent[0][1] = Math.max(-89.99,Math.min(boundExtent[0][1],thisXY[1]));
+              boundExtent[1][0] = Math.min(179.99,Math.max(boundExtent[1][0],thisXY[0]));
+              boundExtent[1][1] = Math.min(89.99,Math.max(boundExtent[1][1],thisXY[1]));
+
+            }		
+	    }
+            return boundExtent;
+	}
+    }
 
     map.screenBounds = function () {
 
