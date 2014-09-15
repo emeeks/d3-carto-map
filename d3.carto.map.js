@@ -1145,10 +1145,9 @@ function manualZoom(zoomDirection) {
 	    workingDistance = 1000;
 	}
 		    d3MapAllLayers.push(cartoLayer)
-		    cartoLayer.object(layerObj);
+	    cartoLayer.object(layerObj);
 	    updateLayers();
-            d3MapZoomed();
-            d3MapZoomComplete();
+	    map.refresh();
 	    
 	}
 
@@ -1289,8 +1288,9 @@ function manualZoom(zoomDirection) {
 
 	    d3MapAllLayers.push(cartoLayer)
 	    cartoLayer.object(pointsObj);
-            d3MapZoomed();        
 	    updateLayers();
+	    map.refresh();
+
     }
 
     function d3MapAddTileLayer(newTileLayer, newTileLayerName, tileType, disabled, cartoLayer) {
@@ -2048,6 +2048,44 @@ function manualZoom(zoomDirection) {
 	updateLayers();
 	return this;
     
+    }
+    
+    map.createHexbinLayer = function(cartoLayer, degreeResolution) {
+
+	  var hexbin = d3.hexbin()
+            .size([1000, 1000])
+            .radius(degreeResolution)
+            .x(function(d) {return cartoLayer.x()(d)})
+            .y(function(d) {return cartoLayer.y()(d)});
+    	    
+	    var hexdata = hexbin(cartoLayer.features());
+	    var hexGeodata = [];
+	    var thisHexagon = hexbin.hexagonArray()
+	    for (var x in hexdata) {
+		var localHexagon = [];
+		var origx = hexdata[x].x;
+		var origy = hexdata[x].y;
+		for (var z in thisHexagon) {
+		    localHexagon.push([thisHexagon[z][0] + origx,thisHexagon[z][1] + origy])
+		}
+		    localHexagon.push([localHexagon[1][0], localHexagon[1][1]])
+		    localHexagon.splice(0,1)
+
+		var hexFeature = {type: "Feature", properties: {node: hexdata[x]}, geometry: {"type": "Polygon", coordinates: [localHexagon.reverse()]}};
+
+		hexGeodata.push(hexFeature);
+	    }
+	    
+	    cartoLayer = Layer()
+	    .type("featurearray")
+	    .features(hexGeodata)
+	    .label("Hexbin")
+	    .cssClass("hexbin")
+	    .renderMode("svg")
+	    .on("newmodal", function() {d3MapSetModal(cartoLayer)});
+
+	    return cartoLayer;
+
     }
     
     map.showHideLayer = function(cartoLayer) {
