@@ -25,6 +25,7 @@ var Map = module.exports = function() {
     var touchInitialRotate;
     var touchInitialLength;
     var touchInitialScale;
+    var quadClusterScale = .1;
 
     var d3MapZoomed;
     var d3MapZoomInitialize;
@@ -784,6 +785,7 @@ function manualZoom(zoomDirection) {
 
 	for (var x in featureData) {
                       featureData[x]._d3Map = {};
+                      featureData[x]._d3Map.arrayPosition = x;
                       featureData[x]._d3Map.color = marker.markerFill;
 		      //Override Fill for lines?
 		      if (featureData[x].geometry.type == "LineString") {
@@ -1114,18 +1116,18 @@ function manualZoom(zoomDirection) {
     function quadtreeModePoints(layer, resolution) {
 	
 	var quadDisplayScale = d3.scale.linear().domain([2,2.5,4,5,6,7,8,9,10,12,20]).range([300,150,50,10,8,6,5,4,3,2,.01]).clamp(true);
-	var clusterD = .1;
+	var clusterD = quadClusterScale;
 	if (map.mode() == "globe") {
-	    clusterD = .1;
+	    clusterD = quadClusterScale;
 	}
 	if (map.mode() == "projection") {
-	    clusterD = .1;
+	    clusterD = quadClusterScale;
 	}
 	if (layer.object().qtreeLayer) {
 	    map.deleteCartoLayer(layer.object().qtreeLayer);
 	}
 	if (layer.type() == "featurearray" || layer.type() == "geojson" || layer.type() == "topojson") {	
-	    clusterD = .1;	
+	    clusterD = quadClusterScale;
 	}
 	var quadtree = layer.object().qtree
 	var quadSites = [];
@@ -1168,24 +1170,27 @@ function manualZoom(zoomDirection) {
 	return _size;
     }
 //	TODO: Topojson.merge
-//	if (layer.type() == "topojson") {
-//	}
 	if (layer.type() == "topojson" || layer.type() == "featurearray" || layer.type() == "geojson") {
 	    var quadSiteFeatures = [];
+	    if (layer.type() == "topojson") {
+
+	    for (x in quadSites) {
+		quadSiteFeatures.push(createMergedPolygon(quadSites[x]));
+	    }		
+	    }
+	    else {
 	    for (x in quadSites) {
 		quadSiteFeatures.push(createMultiPolygon(quadSites[x]));
+	    }
 	    }
 
     var qtreeLayer = d3.carto.layer.featureArray();
     qtreeLayer
     .features(quadSiteFeatures)
     .label(layer.label() + " (Clustered)")
-//    .cssClass("clustered")
     .cssClass(layer.cssClass())
     .renderMode("svg")
     .markerSize(function(d) {return d.leaf ? 3 : simpleSizeScale(d._d3MapQuad.size)})
-//    .x(function(d) {return d._d3MapQuad.x})
-//    .y(function(d) {return d._d3MapQuad.y})
     .clickableFeatures(true)
     .on("load", layer.recluster)
     .on("newmodal", function() {d3MapSetModal(qtreeLayer)});
@@ -1222,6 +1227,35 @@ function manualZoom(zoomDirection) {
 	    return multiMade;
 	}
 	
+	function createMergedPolygon(d) {
+	    var topoData = layer.dataset();
+	    var topoObject = layer.specificFeature();
+	    
+	    if (d.leaf == true) {
+		var thisPoint = {type: d.point.type, properties: {node: d}, geometry: d.point.geometry}
+		return thisPoint;
+	    }
+
+	    var multiMade = {type: "Feature", properties: {node: d}, geometry: topojson.merge(topoData, mergeGeoms(d,[]))};
+	    return multiMade;
+	}
+
+	function mergeGeoms(d,geomArray) {
+	    var topoDataM = layer.dataset();
+	    var topoObjectM = layer.specificFeature();
+	    var newArray = [];
+	    if (d.leaf == true) {
+		newArray =  d3.merge([geomArray,[topoDataM.objects[topoObjectM].geometries[d.point._d3Map.arrayPosition]]]);
+	    }
+	    else {
+		for (x in d.children) {
+		    newArray = mergeGeoms(d.children[x],newArray);
+		}
+		newArray = d3.merge([geomArray,newArray])
+	    }
+	    return newArray;
+	}
+	
 	function combineGeoms(d, geomArray) {
 	    var newArray = [];
 	    if (d.leaf == true) {
@@ -1240,6 +1274,8 @@ function manualZoom(zoomDirection) {
 	    }
 	    return newArray;
 	}
+	
+	
     }
     
     function touchBegin() {
@@ -1553,6 +1589,13 @@ function manualZoom(zoomDirection) {
 
     }
     
+    map.clusteringTolerance = function(newScale) {
+        if (!arguments.length) return quadClusterScale;
+	quadClusterScale = newScale
+	return this;
+
+    }
+    
     map.mode = function(newMode) {
 	if (!arguments.length) return d3MapMode;
 	if (newMode == "projection") {
@@ -1711,7 +1754,7 @@ function manualZoom(zoomDirection) {
 	return d3MapSVGFeatureLayer;
     }
 
-        map.rasterFeatureLayer = function() {
+    map.rasterFeatureLayer = function() {
 	return d3MapRasterFeatureLayer;
     }
 
