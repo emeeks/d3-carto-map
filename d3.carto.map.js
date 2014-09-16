@@ -777,12 +777,15 @@ var Map = module.exports = function() {
         }
         
         for (var x in d3MapSVGFeatureLayer) {
-            if (d3MapSVGFeatureLayer[x].cluster() && updateClustering) {
+            if (d3MapSVGFeatureLayer[x].object().renderFrequency == "drawEnd" || !d3MapSVGFeatureLayer[x].visibility()  || d3MapSVGFeatureLayer[x].cluster()) {
+                d3MapSVGFeatureLayer[x].g().style("display", "none");
+            }
+	    else {
+		d3MapSVGFeatureLayer[x].g().style("display", "block");
+	    }
+	    if (d3MapSVGFeatureLayer[x].cluster() && updateClustering) {
 	    quadtreeModePoints(d3MapSVGFeatureLayer[x], degreeDistance());
 	}
-        else if (d3MapSVGFeatureLayer[x].object().renderFrequency == "drawEnd" || !d3MapSVGFeatureLayer[x].visibility() ) {
-            d3MapSVGFeatureLayer[x].g().style("display", "none");
-            }
         }
     
     renderCanvas("zoom");
@@ -818,12 +821,14 @@ var Map = module.exports = function() {
             if (d3MapSVGFeatureLayer[x].cluster() && updateClustering) {
 	    quadtreeModePoints(d3MapSVGFeatureLayer[x], degreeDistance());
 	}
-	    else if ((d3MapSVGFeatureLayer[x].object().renderFrequency == "drawEnd" || d3MapSVGFeatureLayer[x].object().renderFrequency == "drawAlways")  && d3MapSVGFeatureLayer[x].visibility() ) {
+	    if ((d3MapSVGFeatureLayer[x].object().renderFrequency == "drawEnd" || d3MapSVGFeatureLayer[x].object().renderFrequency == "drawAlways")  && d3MapSVGFeatureLayer[x].visibility() && !d3MapSVGFeatureLayer[x].cluster()) {
             d3MapSVGFeatureLayer[x].g().style("display", "block");
-            renderSVGFeatures(x);
             }
-        }
+	    else {
+		d3MapSVGFeatureLayer[x].g().style("display", "none");
+	    }
 
+    }
     }
     
     function renderCanvasTransform(zoomMode) {
