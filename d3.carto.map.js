@@ -2088,6 +2088,41 @@ function manualZoom(zoomDirection) {
 
     }
     
+    map.createVoronoiLayer = function(cartoLayer, margin) {
+	
+	var xExtent = d3.extent(cartoLayer.features(), function(d) {return parseFloat(cartoLayer.x()(d))});
+	var yExtent = d3.extent(cartoLayer.features(), function(d) {return parseFloat(cartoLayer.y()(d))});
+
+	  var voronoi = d3.geom.voronoi()
+	    .clipExtent([[xExtent[0] - margin,yExtent[0] - margin],[xExtent[1] + margin,yExtent[1] + margin]])
+            .x(function(d) {return cartoLayer.x()(d)})
+            .y(function(d) {return cartoLayer.y()(d)});
+    	    
+	    var vorData = voronoi(cartoLayer.features());
+	    var vorGeodata = []
+
+	    for (var x in vorData) {
+		var thisVor = vorData[x];
+
+		    thisVor.push(vorData[x][0])
+
+		var vorFeature = {type: "Feature", properties: {node: cartoLayer.features()[x]}, geometry: {"type": "Polygon", coordinates: [thisVor]}};
+
+		vorGeodata.push(vorFeature);
+	    }
+	    
+	    cartoLayer = Layer()
+	    .type("featurearray")
+	    .features(vorGeodata)
+	    .label("Voronoi")
+	    .cssClass("voronoi")
+	    .renderMode("svg")
+	    .on("newmodal", function() {d3MapSetModal(cartoLayer)});
+
+	    return cartoLayer;
+
+    }
+
     map.showHideLayer = function(cartoLayer) {
 	showHideLayer(cartoLayer, 0,mapDiv.select("li#" + cartoLayer.object().id).node());
     }
