@@ -1866,8 +1866,8 @@ function manualZoom(zoomDirection) {
     }
     
     map.refresh = function() {
-	mapHeight = parseFloat(mapSVG.node().clientHeight || mapSVG.node().parentNode.clientHeight);
-	mapWidth = parseFloat(mapSVG.node().clientWidth || mapSVG.node().parentNode.clientWidth);
+	mapHeight = parseFloat(mapSVG.node().parentNode.clientHeight || mapSVG.node().parentNode.parentNode.clientHeight);
+	mapWidth = parseFloat(mapSVG.node().parentNode.clientWidth || mapSVG.node().parentNode.parentNode.clientWidth);
 	d3MapTile.size([mapWidth, mapHeight]);
         canvasCanvas.attr("height", mapHeight).attr("width", mapWidth).style("height",mapHeight + "px").style("width", mapWidth + "px")
         d3MapCanvasImage.attr("height", mapHeight).attr("width", mapWidth).style("height",mapHeight + "px").style("width", mapWidth + "px")
