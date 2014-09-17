@@ -358,9 +358,13 @@ var Map = module.exports = function() {
 
     var d3MapSVGFeatureG = [];
     var d3MapSVGFeatureLayer = [];
-    
-    var d3MapTile = d3.geo.tile()
-    .size([10, 10]);
+
+    var d3MapTile = function(){};
+    d3MapTile.size = function(){};
+    if (d3.geo.tile) {
+        var d3MapTile = d3.geo.tile()
+        .size([10, 10]);
+    }
 
     var d3MapProjection;
 
