@@ -91,6 +91,7 @@ var Layer = module.exports = function() {
     var layerMarkerSize = function() {return 5};
     var layerMarkerColor;
     var layerStrokeColor;
+    var layerStrokeWidth;
     var layerCluster = false;
     var clickableFeatures = false;
     var d3Modal;
@@ -207,6 +208,18 @@ var Layer = module.exports = function() {
 //Else set color
 	else {
 	    layerStrokeColor = function(d) {return newColor}
+	}
+	return this;
+    }
+    
+    layer.strokeWidth = function(newWidth) {
+    	if (!arguments.length) return layerStrokeWidth;
+	if (typeof newColor == "function") {
+	    layerStrokeWidth = newWidth;
+	}
+//Else set color
+	else {
+	    layerStrokeWidth = function(d) {return newWidth}
 	}
 	return this;
     }
@@ -622,7 +635,7 @@ var Map = module.exports = function() {
 	for (var x in _data) {
 	    context.strokeStyle = d3MapRasterFeatureLayer[i].strokeColor()(_data[x]);
 	    context.fillStyle = d3MapRasterFeatureLayer[i].markerColor()(_data[x]);
-	    context.lineWidth = _data[x]._d3Map.strokeWidth;
+	    context.lineWidth = parseFloat(d3MapRasterFeatureLayer[i].strokeWidth()(_data[x]));
 	    context.beginPath(), canvasPath.context(context)(_data[x]);
 	    if (_data[x]._d3Map.stroke != "none") {
 		context.stroke()
@@ -652,7 +665,7 @@ var Map = module.exports = function() {
         context.arc(projX,projY,d3MapRasterPointsLayer[i].markerSize()(_data[y]),0,2*Math.PI);
         context.fillStyle = d3MapRasterPointsLayer[i].markerColor()(_data[y]);
         context.strokeStyle = d3MapRasterPointsLayer[i].strokeColor()(_data[y]);
-        context.lineWidth = parseFloat(_data[y]._d3Map.strokeWidth);
+	context.lineWidth = parseFloat(d3MapRasterPointsLayer[i].strokeWidth()(_data[y]));
         context.stroke();
         context.fill();
 	}
@@ -879,7 +892,7 @@ var Map = module.exports = function() {
 	for (var x in _data) {
 	    context.strokeStyle = d3MapRasterFeatureLayer[i].strokeColor()(_data[x]);
 	    context.fillStyle = d3MapRasterFeatureLayer[i].markerColor()(_data[x]);
-	    context.lineWidth = _data[x]._d3Map.strokeWidth;
+	    context.lineWidth = parseFloat(d3MapRasterFeatureLayer[i].strokeWidth()(_data[x]));
 	    context.beginPath(), canvasPath.context(context)(_data[x]);
 	    if (_data[x]._d3Map.stroke != "none") {
 		context.stroke()
@@ -908,7 +921,7 @@ var Map = module.exports = function() {
         context.arc(projX,projY,d3MapRasterPointsLayer[i].markerSize()(_data[y]),0,2*Math.PI);
         context.fillStyle = d3MapRasterPointsLayer[i].markerColor()(_data[y]);
         context.strokeStyle = d3MapRasterPointsLayer[i].strokeColor()(_data[y]);
-        context.lineWidth = parseFloat(_data[y]._d3Map.strokeWidth);
+        context.lineWidth = parseFloat(d3MapRasterPointsLayer[i].strokeWidth()(_data[y]));
         context.stroke();
         context.fill();
 
@@ -1080,6 +1093,7 @@ function manualZoom(zoomDirection) {
 	    .renderType(renderType)
 	    .markerColor(marker.markerFill)
 	    .strokeColor(marker.markerStroke)
+	    .strokeWidth(marker.markerStrokeWidth)
 	    .on("newmodal", function() {d3MapSetModal(cartoLayer)});
 	}
 	
@@ -1100,10 +1114,6 @@ function manualZoom(zoomDirection) {
                       featureData[x]._d3Map = {};
                       featureData[x]._d3Map.arrayPosition = x;
                       featureData[x]._d3Map.color = marker.markerFill;
-		      //Override Fill for lines?
-		      if (featureData[x].geometry.type == "LineString") {
-                          featureData[x]._d3Map.color = "none";
-		      }
                       featureData[x]._d3Map.stroke = marker.markerStroke;
                       featureData[x]._d3Map.opacity = marker.markerOpacity;
                       featureData[x]._d3Map.strokeWidth = marker.markerStrokeWidth;
@@ -1115,6 +1125,9 @@ function manualZoom(zoomDirection) {
 	  }
 	  if (!cartoLayer.strokeColor()) {
 	    cartoLayer.strokeColor(marker.markerStroke)
+	  }
+	  if (!cartoLayer.strokeWidth()) {
+	    cartoLayer.strokeWidth(marker.markerStrokeWidth)
 	  }
 
 		    if (renderType == "canvas") {
@@ -1181,6 +1194,7 @@ function manualZoom(zoomDirection) {
 	    .renderMode(renderType)
 	    .markerColor(marker.markerFill)
 	    .strokeColor(marker.markerStroke)
+	    .strokeWidth(marker.markerStrokeWidth)
 	    .cluster(false)
 	    .on("newmodal", function() {d3MapSetModal(cartoLayer)});
 	}
@@ -1253,6 +1267,9 @@ function manualZoom(zoomDirection) {
 	  }
 	  if (!cartoLayer.strokeColor()) {
 	    cartoLayer.strokeColor(marker.markerStroke)
+	  }
+	  if (!cartoLayer.strokeWidth()) {
+	    cartoLayer.strokeWidth(marker.markerStrokeWidth)
 	  }
 
 	  cartoLayer.features(points);
@@ -1354,6 +1371,7 @@ function manualZoom(zoomDirection) {
 	    .renderMode(renderType)
 	    .markerColor(marker.markerFill)
 	    .strokeColor(marker.markerStroke)
+	    .strokeWidth(marker.markerStrokeWidth)
 	    .cluster(false)
 	    .on("newmodal", function() {d3MapSetModal(cartoLayer)});
 	}
@@ -1385,6 +1403,7 @@ function manualZoom(zoomDirection) {
 	    .cssClass(newTopoLayerClass)
 	    .markerColor(marker.markerFill)
 	    .strokeColor(marker.markerStroke)
+	    .strokeColor(marker.markerStrokeWidth)
 	    .on("newmodal", function() {d3MapSetModal(cartoLayer)});
 	}
 	cartoLayer.dataset(topoData);
@@ -1417,6 +1436,7 @@ function manualZoom(zoomDirection) {
 	    .cssClass(newGeoLayerClass)
 	    .markerColor(marker.markerFill)
 	    .strokeColor(marker.markerStroke)
+	    .strokeColor(marker.markerStrokeWidth)
 	    .on("newmodal", function() {d3MapSetModal(cartoLayer)});
 	}
 
