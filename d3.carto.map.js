@@ -1932,9 +1932,9 @@ function manualZoom(zoomDirection) {
     map.mode = function(newMode) {
 	if (!arguments.length) return d3MapMode;
 	if (newMode == "projection") {
-	        d3MapProjection = d3.geo.mollweide()
-	        .scale(450)
-	        .translate([600,600]);
+	        d3MapProjection = d3.geo.conicEquidistant()
+	        .scale(350)
+	        .translate([350,600]);
 	    d3MapPath
 		.projection(d3MapProjection);
 		
@@ -2149,6 +2149,30 @@ function manualZoom(zoomDirection) {
 	    .on("newmodal", function() {d3MapSetModal(cartoLayer)});
 
 	    return cartoLayer;
+
+    }
+    
+    map.continuousCartogram = function(cartoLayer, cartoAttribute) {
+
+    var features = cartoLayer.features();
+        var cartogram = d3.cartogram()
+        .projection(d3MapProjection)
+        .value(function(p,q) {return Math.max(.001,cartoAttribute(features[q]))});
+//	.value(Math.random() * 10)
+//        .value(function(d) {return Math.max(.1,d.properties.gdp)});
+	
+	var specObj = cartoLayer.specificFeature();
+
+    var carto = cartogram(cartoLayer.dataset(), cartoLayer.dataset().objects[specObj].geometries);
+    
+      var geoPath = d3.geo.path()
+        .projection(null);
+
+	console.log(carto);
+    cartoLayer.g().selectAll("path")
+    .transition()
+    .duration(1000)
+   .attr("d", function(d,i) {return geoPath(carto.features[i])});
 
     }
 
