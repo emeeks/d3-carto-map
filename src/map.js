@@ -26,6 +26,8 @@ var Map = module.exports = function() {
     var touchInitialLength;
     var touchInitialScale;
     var quadClusterScale = .1;
+    var newPointsLayer;
+    var newFeaturesLayer;
 
     var d3MapZoomed;
     var d3MapZoomInitialize;
@@ -1295,6 +1297,7 @@ function manualZoom(zoomDirection) {
     }
     
     function touchBegin() {
+	return;
       d3.event.preventDefault();
       d3.event.stopPropagation();
 
@@ -1311,6 +1314,7 @@ function manualZoom(zoomDirection) {
 
           }
      function touchUpdate() {
+	return;
        d3.event.preventDefault();
        d3.event.stopPropagation();
        var d = d3.touches(this);
@@ -1340,6 +1344,7 @@ function manualZoom(zoomDirection) {
      }
     
     function touchEnd() {
+	return;
        var d = d3.touches(this);
 	if (d.length == 2) {
 	    d3MapZoomComplete();
@@ -1358,6 +1363,13 @@ function manualZoom(zoomDirection) {
 	    cartoLayer.g().selectAll("g.marker")
 	    .style("cursor", "pointer")
 	    .on("click", cartoLayer.modal())
+    }
+    
+    function xyToCoordinates(xy) {
+	var _x = (xy[0] - d3MapZoom.translate()[0]) / d3MapZoom.scale();
+	var _y = (xy[1] - d3MapZoom.translate()[1]) / d3MapZoom.scale();
+	return d3MapProjection.invert([_x,_y]);
+	
     }
     
     //Exposed Functions
@@ -1857,6 +1869,106 @@ function manualZoom(zoomDirection) {
     .duration(1000)
    .attr("d", function(d,i) {return geoPath(carto.features[i])});
 
+    }
+    
+    map.newFeature = function(cartoLayer, featureType) {
+	var addedPoints = [];
+	var featureCoords = [];
+	var addedFeatures = [];
+	mapSVG.append("g").attr("id", "newFeatureG").append("rect").attr("height", mapHeight).attr("width", mapWidth).attr("opacity", .1).on("click", addPoint);
+	
+	function addPoint() {
+	    var p = d3.mouse(this);
+	    
+	    addedPoints.push({id: "New Point " + addedPoints.length, "x": xyToCoordinates(p)[0], "y": xyToCoordinates(p)[1]});
+	    featureCoords.push(xyToCoordinates(p))
+	    
+	    if (newPointsLayer) {
+		map.deleteCartoLayer(newPointsLayer);
+	    }
+	    if (newFeaturesLayer) {
+		map.deleteCartoLayer(newFeaturesLayer);
+	    }
+	    newPointsLayer = Layer()
+	    .type("xyarray")
+	    .features(addedPoints)
+	    .label("New Points")
+	    .cssClass("newpoints")
+	    .renderMode("svg")
+	    .markerSize(5)
+	    .x("x")
+	    .y("y")
+	    .clickableFeatures(true)
+	    .on("newmodal", function() {d3MapSetModal(newPointsLayer)})
+
+	    var polyCoords = d3.merge([featureCoords,[featureCoords[0]]]);
+
+	    function sumOverEdges() {
+		var edgeSum = 0;
+		    console.log(polyCoords)
+		for (var x in polyCoords) {
+		    if (x < polyCoords.length - 1) {
+			edgeSum += (polyCoords[x][0] + polyCoords[parseInt(x)+1][0]) * (polyCoords[x][1] + polyCoords[parseInt(x)+1][1])
+		    }
+		}
+		if (edgeSum < 0) {
+		    return false;
+		}
+		else {
+		    return true;
+		}
+ 	    }
+
+
+	    map.addCartoLayer(newPointsLayer)
+
+	    if (addedFeatures.length > 0 || addedPoints.length > 1) {
+
+	    if (sumOverEdges()) {
+		polyCoords = polyCoords.reverse();
+	    }
+
+	    var tempFeature = [{type: "Feature", geometry: {type: "Polygon", coordinates: [polyCoords]}}]
+            var tempFeatures = d3.merge([addedFeatures, tempFeature]);
+
+	    newFeaturesLayer = Layer()
+	    .type("featurearray")
+	    .features(tempFeatures)
+	    .label("New Features")
+	    .cssClass("newfeatures")
+	    .renderMode("svg")
+	    .clickableFeatures(true)
+	    .on("newmodal", function() {d3MapSetModal(newFeaturesLayer)})
+	    .on("load", function() {newFeaturesLayer.g().selectAll("path").on("click", addNewFeature)})
+	    map.addCartoLayer(newFeaturesLayer);
+	    }
+	    
+	    function addNewFeature() {
+		var newF = newFeaturesLayer.features()[0];
+		var oldF = cartoLayer.features();
+		oldF.push(newF);
+
+	    var nLayer = Layer()
+	    .type("featurearray")
+	    .features(oldF)
+	    .label(cartoLayer.label())
+	    .cssClass(cartoLayer.cssClass())
+	    .renderMode(cartoLayer.renderMode())
+	    .clickableFeatures(true);
+
+	    map.deleteCartoLayer(cartoLayer);
+	    cartoLayer = nLayer;
+
+	    map.addCartoLayer(cartoLayer);
+	    mapSVG.select("#newFeatureG").remove();
+		map.deleteCartoLayer(newPointsLayer);
+		map.deleteCartoLayer(newFeaturesLayer);
+
+	    }
+
+
+
+	}
     }
 
     map.showHideLayer = function(cartoLayer) {

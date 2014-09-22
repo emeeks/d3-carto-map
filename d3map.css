@@ -122,3 +122,16 @@ rect.minimap-extent {
     stroke-width: 2px;
     stroke-dasharray: 5 5;
 }
+
+circle.newpoints {
+    fill: black;
+    stroke: red;
+    stroke-width: 2px;
+}
+
+path.newfeatures {
+    fill: steelblue;
+    fill-opacity: .5;
+    stroke: pink;
+    stroke-width: 2px;
+}
