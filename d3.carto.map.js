@@ -1143,17 +1143,9 @@ function manualZoom(zoomDirection) {
                     d3MapSVGFeatureLayer.push(cartoLayer)
                     layerG.attr("transform", "translate(" + d3MapZoom.translate() + ")scale(" + d3MapZoom.scale() + ")");
 		    cartoLayer.g(layerG);
+		    
+		    updateLayer(cartoLayer);
   
-                  var appendedFeatures = layerG.selectAll("g")
-                  .data(featureData)
-                  .enter()
-                  .append("g")
-                  .attr("class", "marker " + featureLayerClass);
-		  
-		  appendedFeatures
-		  .append("path")
-                  .attr("class", featureLayerClass)
-                  .attr("d", d3MapPath)
 		  
 	    if (cartoLayer.clickableFeatures()) {
 		d3MapSetModal(cartoLayer);
@@ -1276,29 +1268,13 @@ function manualZoom(zoomDirection) {
 
 	  cartoLayer.features(points);
         if (renderType == "svg" || renderType == "mixed") {
-        var pointsG = mapSVG.append("g").attr("class", "points").attr("id", cID);
+	var pointsG = mapSVG.append("g").attr("class", "points").attr("id", cID);
         d3MapSVGPointsG.push(pointsG);
 	cartoLayer.g(pointsG);
 	pointsG.attr("transform", "translate(" + d3MapZoom.translate() + ")scale(" + d3MapZoom.scale() + ")");
   
-  var appendedPointsEnter = pointsG.selectAll("g.blank")
-  .data(points)
-  .enter()
-  .append("g")
-  .attr("id", function(d,i) {return newCSVLayerClass + "_g_" + i})
-  .attr("class", newCSVLayerClass + " pointG")
-  .attr("transform", function(d) {return "translate(" + (d._d3Quad ? d3MapProjection([d._d3Quad.x,d._d3Quad.y]) : d3MapProjection([cartoLayer.x()(d),cartoLayer.y()(d)])) + ")"})
-  .each(function(d) {
-    d._d3Map.originalTranslate = "translate(" + (d._d3Quad ? d3MapProjection([d._d3Quad.x,d._d3Quad.y]) : d3MapProjection([cartoLayer.x()(d),cartoLayer.y()(d)])) + ")";
-  })
-  .append("g")
-  .attr("class", "marker")
-  .attr("transform", "scale(" + (1 / d3MapZoom.scale()) + ")");
-  
-  appendedPointsEnter
-  .append("circle")
-  .attr("class", newCSVLayerClass)
-  .attr("r", function(d) {return cartoLayer.markerSize()(d)});
+	    updateLayer(cartoLayer);
+ 
   
   if (cartoLayer.clickableFeatures()) {
 	d3MapSetModal(cartoLayer);
@@ -1687,6 +1663,60 @@ function manualZoom(zoomDirection) {
 	var _y = (xy[1] - d3MapZoom.translate()[1]) / d3MapZoom.scale();
 	return d3MapProjection.invert([_x,_y]);
 	
+    }
+    
+    function updateLayer(cartoLayer) {
+
+    var features = cartoLayer.features();
+    var layerG = cartoLayer.g();
+    var layerClass = cartoLayer.cssClass();
+
+    if (cartoLayer.type() == "csv" || cartoLayer.type() == "xyarray") {
+
+  var appendedPointsEnter = layerG.selectAll("g.blank")
+  .data(features)
+  .enter()
+  .append("g")
+  .attr("id", function(d,i) {return layerClass + "_g_" + i})
+  .attr("class", layerClass + " pointG")
+  .attr("transform", function(d) {return "translate(" + (d._d3Quad ? d3MapProjection([d._d3Quad.x,d._d3Quad.y]) : d3MapProjection([cartoLayer.x()(d),cartoLayer.y()(d)])) + ")"})
+  .each(function(d) {
+    d._d3Map.originalTranslate = "translate(" + (d._d3Quad ? d3MapProjection([d._d3Quad.x,d._d3Quad.y]) : d3MapProjection([cartoLayer.x()(d),cartoLayer.y()(d)])) + ")";
+  })
+  .append("g")
+  .attr("class", "marker")
+  .attr("transform", "scale(" + (1 / d3MapZoom.scale()) + ")");
+  
+  appendedPointsEnter
+  .append("circle")
+  .attr("class", layerClass)
+  .attr("r", function(d) {return cartoLayer.markerSize()(d)});
+  
+  layerG.selectAll("g.blank")
+  .data(features)
+  .exit()
+  .remove();
+  
+    }
+    else if (cartoLayer.type() == "geojson" || cartoLayer.type() == "topojson" || cartoLayer.type() == "featurearray") {
+	        var appendedFeatures = layerG.selectAll("g")
+                  .data(features)
+                  .enter()
+                  .append("g")
+                  .attr("class", "marker " + layerClass);
+		  
+		  appendedFeatures
+		  .append("path")
+                  .attr("class", layerClass)
+                  .attr("d", d3MapPath)
+		  
+		  layerG.selectAll("g")
+		  .data(features)
+		  .exit()
+		  .remove();
+
+    }
+    
     }
     
     //Exposed Functions
@@ -2180,7 +2210,6 @@ function manualZoom(zoomDirection) {
       var geoPath = d3.geo.path()
         .projection(null);
 
-	console.log(carto);
     cartoLayer.g().selectAll("path")
     .transition()
     .duration(1000)
@@ -2222,7 +2251,6 @@ function manualZoom(zoomDirection) {
 
 	    function sumOverEdges() {
 		var edgeSum = 0;
-		    console.log(polyCoords)
 		for (var x in polyCoords) {
 		    if (x < polyCoords.length - 1) {
 			edgeSum += (polyCoords[x][0] + polyCoords[parseInt(x)+1][0]) * (polyCoords[x][1] + polyCoords[parseInt(x)+1][1])
@@ -2236,8 +2264,6 @@ function manualZoom(zoomDirection) {
 		}
  	    }
 
-
-	    map.addCartoLayer(newPointsLayer)
 
 	    if (addedFeatures.length > 0 || addedPoints.length > 1) {
 
@@ -2259,24 +2285,20 @@ function manualZoom(zoomDirection) {
 	    .on("load", function() {newFeaturesLayer.g().selectAll("path").on("click", addNewFeature)})
 	    map.addCartoLayer(newFeaturesLayer);
 	    }
+
 	    
+	    map.addCartoLayer(newPointsLayer)
+
 	    function addNewFeature() {
 		var newF = newFeaturesLayer.features()[0];
 		var oldF = cartoLayer.features();
 		oldF.push(newF);
 
-	    var nLayer = Layer()
-	    .type("featurearray")
-	    .features(oldF)
-	    .label(cartoLayer.label())
-	    .cssClass(cartoLayer.cssClass())
-	    .renderMode(cartoLayer.renderMode())
-	    .clickableFeatures(true);
+	    cartoLayer
+	    .features(oldF);
+	    
+	    updateLayer(cartoLayer);
 
-	    map.deleteCartoLayer(cartoLayer);
-	    cartoLayer = nLayer;
-
-	    map.addCartoLayer(cartoLayer);
 	    mapSVG.select("#newFeatureG").remove();
 		map.deleteCartoLayer(newPointsLayer);
 		map.deleteCartoLayer(newFeaturesLayer);
