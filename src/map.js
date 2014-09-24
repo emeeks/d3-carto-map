@@ -851,7 +851,6 @@ function manualZoom(zoomDirection) {
 	}
 
     function processXYFeatures(points, newCSVLayerName, newCSVLayerClass, markerSize, renderType, xcoord, ycoord, renderFrequency,cartoLayer) {
-	console.log("What?")
     	var rFreq = renderFrequency || "mixed";
         var cName = newCSVLayerName || "CSV " + d3Layer.length
         var cID = "cps" + d3MapSVGPointsLayer.length;
@@ -1104,7 +1103,9 @@ function manualZoom(zoomDirection) {
 
         d3.json(newGeoLayer, function(error, geoData) {
 	    if (geoData.features[0].geometry.type == "Point") {
-		cartoLayer.x(function(d) {return d.geometry.coordinates[0]})
+		cartoLayer
+		.type("xyarray")
+		.x(function(d) {return d.geometry.coordinates[0]})
 		.y(function(d) {return d.geometry.coordinates[1]});
 		processXYFeatures(geoData.features, newGeoLayerName, newGeoLayerClass, cartoLayer.markerSize(), renderType, cartoLayer.x(), cartoLayer.y(), renderFrequency,cartoLayer);
 	    }
@@ -1894,7 +1895,6 @@ function manualZoom(zoomDirection) {
             .x(function(d) {return cartoLayer.x()(d)})
             .y(function(d) {return cartoLayer.y()(d)});
 
-    	    
 	    var hullData = [hull(cartoLayer.features().filter(function(d) {return d.ccode == "CAN"}))];
 	    var hullGeodata = [];
 	    
