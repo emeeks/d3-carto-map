@@ -1168,6 +1168,7 @@ function manualZoom(zoomDirection) {
 	}
 
     function processXYFeatures(points, newCSVLayerName, newCSVLayerClass, markerSize, renderType, xcoord, ycoord, renderFrequency,cartoLayer) {
+	console.log("What?")
     	var rFreq = renderFrequency || "mixed";
         var cName = newCSVLayerName || "CSV " + d3Layer.length
         var cID = "cps" + d3MapSVGPointsLayer.length;
@@ -1419,7 +1420,14 @@ function manualZoom(zoomDirection) {
 	}
 
         d3.json(newGeoLayer, function(error, geoData) {
+	    if (geoData.features[0].geometry.type == "Point") {
+		cartoLayer.x(function(d) {return d.geometry.coordinates[0]})
+		.y(function(d) {return d.geometry.coordinates[1]});
+		processXYFeatures(geoData.features, newGeoLayerName, newGeoLayerClass, cartoLayer.markerSize(), renderType, cartoLayer.x(), cartoLayer.y(), renderFrequency,cartoLayer);
+	    }
+	    else {
 	    processFeatures(geoData.features, newGeoLayerName, newGeoLayerClass, renderType, renderFrequency,cartoLayer);
+	    }
         })
 	}
 
@@ -2193,15 +2201,50 @@ function manualZoom(zoomDirection) {
 	    return cartoLayer;
 
     }
-    
+
+        map.createHullLayer = function(cartoLayer, cartoAttribute) {
+	
+	var xExtent = d3.extent(cartoLayer.features(), function(d) {return parseFloat(cartoLayer.x()(d))});
+	var yExtent = d3.extent(cartoLayer.features(), function(d) {return parseFloat(cartoLayer.y()(d))});
+
+	var hull = d3.geom.hull()
+            .x(function(d) {return cartoLayer.x()(d)})
+            .y(function(d) {return cartoLayer.y()(d)});
+
+    	    
+	    var hullData = [hull(cartoLayer.features().filter(function(d) {return d.ccode == "CAN"}))];
+	    var hullGeodata = [];
+	    
+	    console.log(hullData)
+
+	    for (var x in hullData) {
+		var thisHull = hullData[x];
+
+		    thisHull.push(hullData[x][0])
+
+		var hullFeature = {type: "Feature", properties: {node: cartoLayer.features()[x]}, geometry: {"type": "Polygon", coordinates: [thisHull]}};
+
+		hullGeodata.push(hullFeature);
+	    }
+	    
+	    cartoLayer = Layer()
+	    .type("featurearray")
+	    .features(hullGeodata)
+	    .label("Hull")
+	    .cssClass("hull")
+	    .renderMode("svg")
+	    .on("newmodal", function() {d3MapSetModal(cartoLayer)});
+
+	    return cartoLayer;
+
+    }
+
     map.continuousCartogram = function(cartoLayer, cartoAttribute) {
 
     var features = cartoLayer.features();
         var cartogram = d3.cartogram()
         .projection(d3MapProjection)
-        .value(function(p,q) {return Math.max(.001,cartoAttribute(features[q]))});
-//	.value(Math.random() * 10)
-//        .value(function(d) {return Math.max(.1,d.properties.gdp)});
+        .value(function(p,q) {return Math.max(.001,parseFloat(cartoAttribute(features[q])))});
 	
 	var specObj = cartoLayer.specificFeature();
 
