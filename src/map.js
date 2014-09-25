@@ -1361,6 +1361,7 @@ function manualZoom(zoomDirection) {
 
     var features = cartoLayer.features();
     var layerG = cartoLayer.g();
+    if (!layerG) {map.refresh();return;}
     var layerClass = cartoLayer.cssClass();
 
     if (cartoLayer.type() == "csv" || cartoLayer.type() == "xyarray") {
@@ -2039,6 +2040,10 @@ function manualZoom(zoomDirection) {
 
     map.showHideLayer = function(cartoLayer) {
 	showHideLayer(cartoLayer, 0,mapDiv.select("li#" + cartoLayer.object().id).node());
+    }
+    
+    map.refreshLayer = function(cartoLayer) {
+	updateLayer(cartoLayer);
     }
     
     map.svgFeatureLayer = function() {
