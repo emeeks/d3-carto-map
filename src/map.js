@@ -1887,29 +1887,30 @@ function manualZoom(zoomDirection) {
     }
 
         map.createHullLayer = function(cartoLayer, cartoAttribute) {
-	
+
 	var xExtent = d3.extent(cartoLayer.features(), function(d) {return parseFloat(cartoLayer.x()(d))});
 	var yExtent = d3.extent(cartoLayer.features(), function(d) {return parseFloat(cartoLayer.y()(d))});
+	var features = cartoLayer.features();
 
 	var hull = d3.geom.hull()
             .x(function(d) {return cartoLayer.x()(d)})
             .y(function(d) {return cartoLayer.y()(d)});
 
-	    var hullData = [hull(cartoLayer.features().filter(function(d) {return d.ccode == "CAN"}))];
+	var attributeKeys = d3.set(features.map(cartoAttribute)).values();
 	    var hullGeodata = [];
-	    
-	    console.log(hullData)
+	
+	for (var x in attributeKeys) {
+	    var hullData = hull(features.filter(function(d) {return cartoAttribute(d) == attributeKeys[x]}));
+	    if(hullData.length > 0) {
 
-	    for (var x in hullData) {
-		var thisHull = hullData[x];
+	    var hullCoords = hullData.map(function(d) {return [cartoLayer.x()(d),cartoLayer.y()(d)]});
+	    hullCoords.push(hullCoords[0]);
 
-		    thisHull.push(hullData[x][0])
+	    var hullFeature = {type: "Feature", properties: {node: attributeKeys[x]}, geometry: {"type": "Polygon", coordinates: [hullCoords]}};
 
-		var hullFeature = {type: "Feature", properties: {node: cartoLayer.features()[x]}, geometry: {"type": "Polygon", coordinates: [thisHull]}};
-
-		hullGeodata.push(hullFeature);
+	    hullGeodata.push(hullFeature);
 	    }
-	    
+	}
 	    cartoLayer = Layer()
 	    .type("featurearray")
 	    .features(hullGeodata)
