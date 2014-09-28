@@ -1371,16 +1371,12 @@ function manualZoom(zoomDirection) {
 
     if (cartoLayer.type() == "csv" || cartoLayer.type() == "xyarray") {
 
-  var appendedPointsEnter = layerG.selectAll("g.blank")
+  var appendedPointsEnter = layerG.selectAll("g.pointG")
   .data(features)
   .enter()
   .append("g")
   .attr("id", function(d,i) {return layerClass + "_g_" + i})
   .attr("class", layerClass + " pointG")
-  .attr("transform", function(d) {return "translate(" + (d._d3Quad ? d3MapProjection([d._d3Quad.x,d._d3Quad.y]) : d3MapProjection([cartoLayer.x()(d),cartoLayer.y()(d)])) + ")"})
-  .each(function(d) {
-    d._d3Map.originalTranslate = "translate(" + (d._d3Quad ? d3MapProjection([d._d3Quad.x,d._d3Quad.y]) : d3MapProjection([cartoLayer.x()(d),cartoLayer.y()(d)])) + ")";
-  })
   .append("g")
   .attr("class", "marker")
   .attr("transform", "scale(" + (1 / d3MapZoom.scale()) + ")");
@@ -1390,10 +1386,17 @@ function manualZoom(zoomDirection) {
   .attr("class", layerClass)
   .attr("r", function(d) {return cartoLayer.markerSize()(d)});
   
-  layerG.selectAll("g.blank")
+  layerG.selectAll("g.pointG")
   .data(features)
   .exit()
   .remove();
+  
+  layerG.selectAll("g.pointG")
+    .attr("transform", function(d) {return "translate(" + (d._d3Quad ? d3MapProjection([d._d3Quad.x,d._d3Quad.y]) : d3MapProjection([cartoLayer.x()(d),cartoLayer.y()(d)])) + ")"})
+  .each(function(d) {
+    d._d3Map.originalTranslate = "translate(" + (d._d3Quad ? d3MapProjection([d._d3Quad.x,d._d3Quad.y]) : d3MapProjection([cartoLayer.x()(d),cartoLayer.y()(d)])) + ")";
+  })
+
   
     }
     else if (cartoLayer.type() == "geojson" || cartoLayer.type() == "topojson" || cartoLayer.type() == "featurearray") {
