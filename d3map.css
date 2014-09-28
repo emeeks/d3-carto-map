@@ -1,6 +1,9 @@
 path,circle,rect,polygon,ellipse,line {
     vector-effect: non-scaling-stroke;
 }
+svg, canvas {
+    top: 0;
+}
 #d3MapZoomBox {
     position: absolute;
     z-index: 10;
@@ -11,6 +14,13 @@ path,circle,rect,polygon,ellipse,line {
 }
 
 #d3MapZoomBox > button {
+    height:25px;
+    width: 25px;
+    line-height: 25px;
+}
+
+
+.d3MapControlsBox > button {
   font-size:22px;
   font-weight:900;
   border: none;
@@ -22,23 +32,38 @@ path,circle,rect,polygon,ellipse,line {
   cursor: pointer;
 }
 
-#d3MapZoomBox > button:hover {
+.d3MapControlsBox > button:hover {
   background: black;
 }
 
-#d3MapZoomBox > button#left {
+#d3MapPanBox {
+    position: absolute;
+    z-index: 10;
+    height: 100px;
+    width: 25px;
+    top: 60px;
+    right: 50px;
+}
+#d3MapPanBox > button {
+    height:25px;
+    width: 25px;
+    line-height: 25px;
+}
+
+#d3MapPanBox > button#left {
   position: absolute;
   left: -25px;
-  top: 60px;
+  top: 10px;
 }
-#d3MapZoomBox > button#right {
+
+#d3MapPanBox > button#right {
   position: absolute;
   right: -25px;
-  top: 60px;
+  top: 10px;
 }
 
 #d3MapLayerBox {
-    position: absolute;
+    position: relative;
     z-index: 10;
     height: 100px;
     width: 120px;

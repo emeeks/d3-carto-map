@@ -12,6 +12,7 @@ var Map = module.exports = function() {
     var canvasCanvas;
     var layerBox;
     var zoomBox;
+    var panBox;
     var mapProjection;
     var mapZoom;
     var mapCenter = [12,42];
@@ -97,13 +98,14 @@ var Map = module.exports = function() {
     layerBox = selectedDiv.insert("div", "svg").attr("id", "d3MapLayerBox");
     layerBox.append("div").attr("id", "layerBoxContent");
 
-    zoomBox = selectedDiv.insert("div", "svg").attr("id", "d3MapZoomBox");
-    
-    zoomBox.selectAll("button.zoomcontrol").data(["in", "out"]).enter().append("button").attr("class", "zoomcontrol")
+    zoomBox = selectedDiv.insert("div", "svg").attr("id", "d3MapZoomBox").attr("class", "d3MapControlsBox");
+    panBox = selectedDiv.insert("div", "svg").attr("id", "d3MapPanBox").attr("class", "d3MapControlsBox");
+
+    zoomBox.selectAll("button.zoomcontrol").data(["in", "out"]).enter().append("button").attr("class", "zoomcontrol").attr("id", function(d) {return d})
     .on("click", manualZoom).html(function(d) {return d=="in" ? "+" : "-"});
     
     var panSymbols = {"up": "&#8593;","down": "&#8595;","left": "&#8592;","right": "&#8594;"}
-    zoomBox.selectAll("button.pancontrol").data(["up","down","left", "right"]).enter().append("button").attr("class", "pancontrol")
+    panBox.selectAll("button.pancontrol").data(["up","down","left", "right"]).enter().append("button").attr("class", "pancontrol")
     .attr("id", function(d) {return d})
     .on("click", function(d) {return manualPan(d,.5)}).html(function(d) {return panSymbols[d]});
     
@@ -337,14 +339,16 @@ var Map = module.exports = function() {
 	var _layerY = d3MapRasterPointsLayer[i].y();
 	var r = d3MapProjection.rotate();
 	var a = [-r[0], -r[1]];
-
+	var z = d3MapProjection.clipAngle() || 180;
+	var cDist = Math.PI * (z / 180);
+	
         for (var y in _data) {
 
         var projectedPoint = d3MapProjection([_layerX(_data[y]),_layerY(_data[y])]) 
         var projX = projectedPoint[0];
         var projY = projectedPoint[1];
 
-	if (d3.geo.distance([_layerX(_data[y]),_layerY(_data[y])],a) < 1.7) {
+	if (d3.geo.distance([_layerX(_data[y]),_layerY(_data[y])],a) < cDist) {
 	
         context.beginPath();
         context.arc(projX,projY,d3MapRasterPointsLayer[i].markerSize()(_data[y]),0,2*Math.PI);
@@ -651,8 +655,9 @@ var Map = module.exports = function() {
 	var _layerY = d3MapSVGPointsLayer[i].y();
 	
 	var r = d3MapProjection.rotate();
-	var z = d3MapProjection.clipAngle();
+	var z = d3MapProjection.clipAngle() || 180;
 	var a = [-r[0], -r[1]];
+	var cDist = Math.PI * (z / 180);
 	
         _data
             .attr("transform", "translate(0,0)scale(1)");
