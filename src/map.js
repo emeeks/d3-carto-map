@@ -236,7 +236,9 @@ var Map = module.exports = function() {
     //Projection Zoom
     function d3MapZoomedProjection() {
 	mapDiv.selectAll("div.d3MapModal").remove();
+	if (d3MapProjection.clipExtent) {
 	d3MapProjection.clipExtent([[0,0],[mapWidth,mapHeight]]);
+	}
 	d3MapProjection.scale(d3MapZoom.scale()).translate(d3MapZoom.translate());
 	      ///POINTS
       for (var x in d3MapSVGPointsLayer) {
@@ -257,7 +259,9 @@ var Map = module.exports = function() {
 
     function d3MapZoomInitializeProjection() {
 	mouseOrigin = d3MapZoom.translate();
-	rotateOrigin = d3MapProjection.rotate();
+	if (d3MapProjection.rotate) {
+        	rotateOrigin = d3MapProjection.rotate();
+	}
 	for (var x in d3MapSVGPointsLayer) {
 	    if ((d3MapSVGPointsLayer[x].object().renderFrequency == "drawEnd" || !d3MapSVGPointsLayer[x].visibility())) {
 	        d3MapSVGPointsLayer[x].g().style("display", "none");
@@ -337,14 +341,19 @@ var Map = module.exports = function() {
 	var _data = d3MapRasterPointsLayer[i].features()
 	var _layerX = d3MapRasterPointsLayer[i].x();
 	var _layerY = d3MapRasterPointsLayer[i].y();
-	var r = d3MapProjection.rotate();
+	var r = [0,0];
+	var z = 180;
+	if (d3MapProjection.rotate) {
+	    r = d3MapProjection.rotate();
+	    z = d3MapProjection.clipAngle() || 180;
+	}
 	var a = [-r[0], -r[1]];
-	var z = d3MapProjection.clipAngle() || 180;
 	var cDist = Math.PI * (z / 180);
 	
         for (var y in _data) {
 
-        var projectedPoint = d3MapProjection([_layerX(_data[y]),_layerY(_data[y])]) 
+        var projectedPoint = d3MapProjection([_layerX(_data[y]),_layerY(_data[y])]);
+	if (projectedPoint) {
         var projX = projectedPoint[0];
         var projY = projectedPoint[1];
 
@@ -358,7 +367,7 @@ var Map = module.exports = function() {
         context.stroke();
         context.fill();
 	}
-
+	}
       }
     }
      
@@ -1421,12 +1430,7 @@ function manualZoom(zoomDirection) {
     }
     
     //Exposed Functions
-    
-    map.aFunction = function (incomingData) {
-        if (!arguments.length) return false;
-        
-        return this;
-    }
+
     map.addCartoLayer = function (cartoLayer) {
 	switch (cartoLayer.type()) {
 	    case "tile":
@@ -1624,7 +1628,9 @@ function manualZoom(zoomDirection) {
 
     map.projection = function (newProjection) {
         if (!arguments.length) return d3MapProjection;
-	newProjection.clipExtent([[0,0],[mapWidth,mapHeight]]);
+	if (newProjection.clipExtent) {
+	    newProjection.clipExtent([[0,0],[mapWidth,mapHeight]]);
+	}
 	var newScale = newProjection.scale();
 	var newTranslate = newProjection.translate();	
         d3MapProjection = newProjection;
@@ -2050,7 +2056,7 @@ function manualZoom(zoomDirection) {
 	showHideLayer(cartoLayer, 0,mapDiv.select("li#" + cartoLayer.object().id).node());
     }
     
-    map.refreshLayer = function(cartoLayer) {
+    map.refreshCartoLayer = function(cartoLayer) {
 	updateLayer(cartoLayer);
     }
     
