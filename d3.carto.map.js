@@ -2006,7 +2006,7 @@ function manualZoom(zoomDirection) {
 		
 	    d3MapZoom
 		.scale(d3MapProjection.scale())
-		.scaleExtent([1, 15052461])
+//		.scaleExtent([1, 15052461])
 		.translate(d3MapProjection.translate());
 		
 	    d3MapZoomed = d3MapZoomedProjection;
@@ -2034,7 +2034,7 @@ function manualZoom(zoomDirection) {
 		
 	    d3MapZoom
 		.scale(d3MapProjection.scale())
-		.scaleExtent([1, 15052461])
+//		.scaleExtent([1, 15052461])
 		.translate(d3MapProjection.translate());
 		
 	    d3MapZoomed = d3MapZoomedRotate;
@@ -2068,7 +2068,7 @@ function manualZoom(zoomDirection) {
     
 	    d3MapZoom
 		.scale(d3MapProjection.scale() * 2 * Math.PI)
-		.scaleExtent([700, 15052461])
+//		.scaleExtent([700, 15052461])
 		.translate([mapWidth - c[0], mapHeight - c[1]]);
     
 	    d3MapProjection
