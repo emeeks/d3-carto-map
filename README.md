@@ -7,4 +7,4 @@ d3-carto-map
 
 Take a look at [the wiki](https://github.com/emeeks/d3-carto-map/wiki) to get started or if you'd prefer to see what d3.carto can do, [there are some examples here](https://github.com/emeeks/d3-carto-map/wiki/Examples) and more as [blocks](http://bl.ocks.org/emeeks).
 
-![d3.carto examples](https://github.com/emeeks/d3-carto-map/wiki/Examples "d3.carto")
+[![d3.carto examples](d3cartoexample.png "d3.carto examples")](https://github.com/emeeks/d3-carto-map/wiki/Examples)
