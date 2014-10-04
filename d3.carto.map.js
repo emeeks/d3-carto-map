@@ -1398,7 +1398,7 @@ function manualZoom(zoomDirection) {
 	    .strokeColor(marker.markerStrokeWidth)
 	    .on("newmodal", function() {d3MapSetModal(cartoLayer)});
 	}
-	cartoLayer.dataset(topoData);
+	cartoLayer.dataset(topoData).specificFeature(x);
 
 		    var topoLayerData = topojson.feature(topoData, topoData.objects[x]);
 		    var td;
@@ -2260,12 +2260,12 @@ function manualZoom(zoomDirection) {
     var features = cartoLayer.features();
         var cartogram = d3.cartogram()
         .projection(d3MapProjection)
+	.iterations(16)
         .value(function(p,q) {return Math.max(.001,parseFloat(cartoAttribute(features[q])))});
-	
 	var specObj = cartoLayer.specificFeature();
 
     var carto = cartogram(cartoLayer.dataset(), cartoLayer.dataset().objects[specObj].geometries);
-    
+
       var geoPath = d3.geo.path()
         .projection(null);
 
