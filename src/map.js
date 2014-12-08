@@ -1786,11 +1786,13 @@ function manualZoom(zoomDirection) {
     
     map.zoomable = function(_on) {
 	if(_on) {
-	    mapDiv.selectAll("svg").style("pointer-events", "auto");
+	d3.select(mapSVG.node().parentNode).call(d3MapZoom);
 	}
 	else{
-	    mapDiv.selectAll("svg").style("pointer-events", "none");
-	    }
+	var disabledZoom = d3.behavior.zoom().on("zoom", null).on("zoomstart", null).on("zoomend", null);
+	d3.select(mapSVG.node().parentNode).call(disabledZoom);
+
+	}
 	    return this;
     }
     
