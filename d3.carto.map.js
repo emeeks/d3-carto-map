@@ -2103,10 +2103,10 @@ function manualZoom(zoomDirection) {
     
     map.zoomable = function(_on) {
 	if(_on) {
-	    mapSVG.style("pointer-events", "auto");
+	    mapDiv.selectAll("svg").style("pointer-events", "auto");
 	}
 	else{
-	    mapSVG.style("pointer-events", "none");
+	    mapDiv.selectAll("svg").style("pointer-events", "none");
 	    }
 	    return this;
     }
