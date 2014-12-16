@@ -8,7 +8,7 @@ MINIFY 		= d3.carto.map.min.js
 META 		= $(wildcard *.json) $(wildcard *.md) LICENSE
 BOWER 		= examples/bower_components
  
-.PHONY: all clean info watch test lint
+.PHONY: all clean info watch test lint install-deps
  
 all: $(MINIFY) 
  
@@ -37,3 +37,5 @@ $(MINIFY): $(BUNDLE)
 $(BOWER):
 	bower install
  
+install-deps:
+	npm install
